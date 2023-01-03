@@ -146,6 +146,8 @@ app.post('/register', (req: Request, res: Response) => {
     const password: string = req.body.password;
     const name: string = req.body.name;
     const lastname: string = req.body.lastname;
+    const mail: string = req.body.mail
+    const phone: string = req.body.phone
 
     const passwordHashed :string = crypto.createHash("sha512").update(password).digest('hex')
 
@@ -168,8 +170,8 @@ app.post('/register', (req: Request, res: Response) => {
             else {
 
                 //inserting values into user table
-                const query : string = "INSERT INTO `User` (`uId`, `name`, `nachname`, `username`, `password`) VALUES (NULL, ?, ?, ?, ?);"
-                const data : [string, string, string, string] = [name, lastname, username, passwordHashed]
+                const query : string = "INSERT INTO `User` (`user_id`, `group_id`, `first_name`, `last_name`, `loginname`, `email`, `password`, `mobile_nr`, `birthdate`, `gender`, `address`, `profile_picture`, `description`, `rating`, `currency`) VALUES (NULL, '3', ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL, NULL, NULL);"
+                const data : [string, string, string, string, string, string] = [name, lastname, username, mail, passwordHashed, phone, ]
 
                 database.query(query, data, (err: MysqlError, rows: any) => {
                     if (err) {

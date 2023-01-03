@@ -15,7 +15,7 @@
         <button type="submit" class="btn btn-outline-success mt-3" @click="register_component = true">Noch kein Account?</button>
       </form>
     </div>
-    <div v-if="register_component===true">
+    <div class="password-container" v-if="register_component===true">
       <form class="text-center">
         <div class="form-group mt-3">
           <label for="inputRegisterLoginname">Loginname (Damit loggen Sie sich ein)</label>
@@ -27,7 +27,15 @@
         </div>
         <div class="form-group mt-3">
           <label for="inputRegisterLastName">Nachname</label>
-          <input type="text" class="form-control" id="inputRegisterLastName" placeholder="Vorname..." v-model="register_lastname">
+          <input type="text" class="form-control" id="inputRegisterLastName" placeholder="Nachname..." v-model="register_lastname">
+        </div>
+        <div class="form-group mt-3">
+          <label for="inputRegisterMail">Mail</label>
+          <input type="email" class="form-control" id="inputRegisterMail" placeholder="Mail..." v-model="register_mail">
+        </div>
+        <div class="form-group mt-3">
+          <label for="inputRegisterMobileNr">Telefonnummer</label>
+          <input type="text" class="form-control" id="inputRegisterMobileNr" placeholder="Mail..." v-model="register_mobilenr">
         </div>
         <div class="form-group mt-3">
           <label for="inputRegisterPassword">Passwort</label>
@@ -64,11 +72,14 @@ export default {
       loginname:"",
       password:"",
       register_component: false,
+
       register_loginname:"",
       register_password:"",
       register_confirmpassword:"",
       register_name:"",
       register_lastname:"",
+      register_mail: "",
+      register_mobilenr: "",
       //IF LOCAL TESTED USE THIS URL FOR THE API CALLS
       //url: 'http://localhost:3001/'
 
@@ -90,7 +101,7 @@ export default {
 
     register(){
       event.preventDefault()
-      if (this.register_password !== 0 || this.register_password !== ""){
+      if (this.register_password !== "" && this.register_loginname !== "" && this.register_name !== "" && this.register_lastname !== "" && this.register_mail !== "" && this.register_mobilenr !== ""){
         if (this.register_password === this.register_confirmpassword){
           this.axios.request({
             method: 'POST',
@@ -100,6 +111,9 @@ export default {
               password: this.register_password.toString().trim(),
               name: this.register_name.toString().trim(),
               lastname: this.register_lastname.toString().trim(),
+              mail: this.register_mail.toString().trim(),
+              phone: this.register_mobilenr.toString().trim(),
+
             },
           })
               .then(response => {

@@ -127,6 +127,8 @@ app.post('/register', function (req, res) {
     var password = req.body.password;
     var name = req.body.name;
     var lastname = req.body.lastname;
+    var mail = req.body.mail;
+    var phone = req.body.phone;
     var passwordHashed = crypto.createHash("sha512").update(password).digest('hex');
     //check if username already is taken
     var query = 'SELECT * FROM User WHERE loginname = ?';
@@ -147,8 +149,8 @@ app.post('/register', function (req, res) {
             //Username is available
             else {
                 //inserting values into user table
-                var query_1 = "INSERT INTO `User` (`uId`, `name`, `nachname`, `username`, `password`) VALUES (NULL, ?, ?, ?, ?);";
-                var data = [name, lastname, username, passwordHashed];
+                var query_1 = "INSERT INTO `User` (`user_id`, `group_id`, `first_name`, `last_name`, `loginname`, `email`, `password`, `mobile_nr`, `birthdate`, `gender`, `address`, `profile_picture`, `description`, `rating`, `currency`) VALUES (NULL, '3', ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL, NULL, NULL);";
+                var data = [name, lastname, username, mail, passwordHashed, phone,];
                 database.query(query_1, data, function (err, rows) {
                     if (err) {
                         res.status(500).send({
