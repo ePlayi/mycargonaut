@@ -58,8 +58,8 @@ app.use(session({
 /*****************************************************************************
  * STATIC ROUTES                                                             *
  *****************************************************************************/
-var basedir = __dirname + '/..'; // get rid of /src
-app.use('/', express.static(basedir + '/build'));
+var basedir = __dirname + '/..'; // get rid of /server/src
+app.use('/', express.static(basedir + '/frontend/build'));
 /*****************************************************************************
  * Routes for the Login / Register                                           *
  *****************************************************************************/
