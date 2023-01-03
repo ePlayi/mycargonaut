@@ -1,4 +1,4 @@
-import {createRouter, createWebHashHistory} from "vue-router";
+import {createRouter, createWebHistory} from "vue-router";
 
 import home from "@/components/Home"
 import profile from "@/components/Profile";
@@ -17,7 +17,7 @@ const routes =[
     {path: "/register", component: register},
 ]
 const router = createRouter({
-    history: createWebHashHistory(),
+    history: createWebHistory(),
     routes: routes,
     linkActiveClass: "active"
 })
