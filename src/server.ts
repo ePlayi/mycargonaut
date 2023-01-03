@@ -79,7 +79,116 @@ app.use('/', express.static(basedir + '/frontend/build'));
  * Routes for offers                                                         *
  *****************************************************************************/
 
+/*****************************************************************************
+ * Routes for profile                                                        *
+ *****************************************************************************/
 
+app.get('/profile', isLoggedIn(), (req: Request, res: Response) => {
+    // Send recipe list to client
+    const query: string= "SELECT * FROM User WHERE user_id = ?"
+    database.query(query, req.session.user.uId, (err: MysqlError, rows: any[]) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            if (rows.length === 1){
+                const user ={
+                    uId: rows[0].user_id,
+                    name: rows[0].first_name,
+                    nachname: rows[0].last_name,
+                    loginname: rows[0].loginname,
+                    email: rows[0].email,
+                    mobilenr: rows[0].mobile_nr,
+                    birthdate: rows[0].birthdate,
+                    gender: rows[0].gender,
+                    adress: rows[0].adress,
+                    profilePicture: rows[0].profile_picture,
+                    description: rows[0].description,
+                    rating: rows[0].rating,
+                    currency: rows[0].currency
+
+                }
+
+                res.status(200).send({
+                    user: user,
+                    message: 'Successfully requested user'
+                });
+            }else{
+
+                res.status(404).send({
+                    message: 'Cannot resolve User'
+                });
+            }
+        }
+    });
+});
+app.get('/cars', isLoggedIn(), (req: Request, res: Response) => {
+    // Send recipe list to client
+    const query: string= "SELECT * FROM Vehicle WHERE user_id = ?"
+    database.query(query, req.session.user.uId, (err: MysqlError, rows: any[]) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            const carList  = [];
+            for (const row of rows) {
+
+                const car= {
+                    vehicelId: row.vehicelId,
+                    brand: row.brand,
+                    model: row.model,
+                    seats: row.seats,
+                    storage: row.storage,
+                    carImage: row.car_image,
+                };
+                carList.push(car);
+            }
+
+            // Send recipe list to client
+            res.status(200).send({
+                carList: carList,
+                message: 'Successfully requested cars'
+            });
+        }
+    });
+});
+app.get('/comments', isLoggedIn(), (req: Request, res: Response) => {
+    // Send recipe list to client
+    const query: string= "SELECT `Ride`.*, `Ride`.`driver_id`, `booking`.*, `User`.`user_id`, `User`.`first_name`, `User`.`profile_picture` FROM `Ride` LEFT JOIN `booking` ON `booking`.`ride_id` = `Ride`.`ride_id` LEFT JOIN `User` ON `booking`.`customer_id` = `User`.`user_id` WHERE `driver_id` = ?"
+    database.query(query, req.session.user.uId, (err: MysqlError, rows: any[]) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else{
+            const commentList  = [];
+            for (const row of rows) {
+
+                const comment= {
+                    customerId: row.customer_id,
+                    customerImage: row.profile_picture,
+                    customerName: row.first_name,
+                    rating: row.rating,
+                    start: row.start,
+                    destination: row.destination,
+                    comment: row.comment
+
+                };
+                commentList.push(comment);
+            }
+            // Send recipe list to client
+            res.status(200).send({
+                commentList: commentList,
+                message: 'Successfully requested comments'
+            });
+        }
+    });
+});
 
 
 /*****************************************************************************
