@@ -4,6 +4,10 @@ import App from './App.vue'
 import router from './router'
 import './registerServiceWorker'
 
+//Axios
+import axios from 'axios'
+import VueAxios from 'vue-axios'
+
 // Vuetify
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
@@ -30,4 +34,7 @@ const app = createApp(App)
 createApp(App)
 
 
-app.use(router).use(vuetify).mount('#app')
+app.use(router)
+app.use(vuetify)
+app.use(VueAxios, axios)
+app.mount('#app')

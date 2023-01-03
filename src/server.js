@@ -61,6 +61,9 @@ app.use(session({
 var basedir = __dirname + '/..'; // get rid of /server/src
 app.use('/', express.static(basedir + '/frontend/build'));
 /*****************************************************************************
+ * Routes for offers                                                         *
+ *****************************************************************************/
+/*****************************************************************************
  * Routes for the Login / Register                                           *
  *****************************************************************************/
 function isLoggedIn() {
@@ -98,15 +101,15 @@ app.post('/login', function (req, res) {
             if (rows.length === 1) {
                 // Login data is correct, user is logged in
                 var user = {
-                    uId: rows[0].uId,
-                    name: rows[0].name,
-                    nachname: rows[0].nachname,
+                    uId: rows[0].user_id,
+                    name: rows[0].first_name,
+                    nachname: rows[0].last_name,
                     loginname: rows[0].loginname,
                 };
                 req.session.user = user; // Store user object in session for authentication
                 res.status(200).send({
                     message: 'Successfully logged in',
-                    user: user,
+                    user: user // Send user object to client for greeting message
                 });
             }
             else {
@@ -144,7 +147,7 @@ app.post('/register', function (req, res) {
             //Username is available
             else {
                 //inserting values into user table
-                var query_1 = "INSERT INTO `User` (`uId`, `name`, `nachname`, `loginname`, `password`) VALUES (NULL, ?, ?, ?, ?);";
+                var query_1 = "INSERT INTO `User` (`uId`, `name`, `nachname`, `username`, `password`) VALUES (NULL, ?, ?, ?, ?);";
                 var data = [name, lastname, username, passwordHashed];
                 database.query(query_1, data, function (err, rows) {
                     if (err) {

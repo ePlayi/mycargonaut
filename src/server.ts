@@ -75,6 +75,12 @@ declare module 'express-session' {
 const basedir: string = __dirname + '/..';  // get rid of /server/src
 app.use('/', express.static(basedir + '/frontend/build'));
 
+/*****************************************************************************
+ * Routes for offers                                                         *
+ *****************************************************************************/
+
+
+
 
 /*****************************************************************************
  * Routes for the Login / Register                                           *
@@ -114,15 +120,15 @@ app.post('/login', (req: Request, res: Response) => {
             if (rows.length === 1) {
                 // Login data is correct, user is logged in
                 const user: User = {
-                    uId: rows[0].uId,
-                    name: rows[0].name,
-                    nachname: rows[0].nachname,
+                    uId: rows[0].user_id,
+                    name: rows[0].first_name,
+                    nachname: rows[0].last_name,
                     loginname: rows[0].loginname,
                 };
                 req.session.user = user; // Store user object in session for authentication
                 res.status(200).send({
                     message: 'Successfully logged in',
-                    user, // Send user object to client for greeting message
+                    user // Send user object to client for greeting message
                 });
             } else {
                 // Login data is incorrect, user is not logged in
@@ -162,7 +168,7 @@ app.post('/register', (req: Request, res: Response) => {
             else {
 
                 //inserting values into user table
-                const query : string = "INSERT INTO `User` (`uId`, `name`, `nachname`, `loginname`, `password`) VALUES (NULL, ?, ?, ?, ?);"
+                const query : string = "INSERT INTO `User` (`uId`, `name`, `nachname`, `username`, `password`) VALUES (NULL, ?, ?, ?, ?);"
                 const data : [string, string, string, string] = [name, lastname, username, passwordHashed]
 
                 database.query(query, data, (err: MysqlError, rows: any) => {
