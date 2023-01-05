@@ -76,8 +76,142 @@ const basedir: string = __dirname + '/..';  // get rid of /server/src
 app.use('/', express.static(basedir + '/frontend/build'));
 
 /*****************************************************************************
- * Routes for offers                                                         *
+ * Routes for rides                                                          *
  *****************************************************************************/
+
+// Get single ride
+app.get('/rides/:id', (req: Request, res: Response) => {
+    // Create database query and id
+    const query: string = "SELECT * FROM Ride WHERE ride_id = ?"
+    const rideId: string = req.params.id
+
+    database.query(query, rideId, (err: MysqlError, rows: any[]) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            if (rows.length === 1){
+                const ride = rows.map(row => row = {
+                    rideId: row.ride_id,
+                    driverId: row.driver_id,
+                    vehicleId: row.vehicle_id,
+                    start: row.start,
+                    destination: row.destination,
+                    dateTime: row.dateTime,
+                    price: row.price,
+                    description: row.description,
+                    open: row.open
+                });
+
+                res.status(200).send({
+                    ride,
+                    message: 'Successfully requested Ride'
+                });
+            } else {
+                res.status(404).send({
+                    message: 'Cannot resolve Ride'
+                });
+            }
+        }
+    });
+});
+
+// Get all rides
+app.get('/rides', (req: Request, res: Response) => {
+    // Create database query
+    const query: string = "SELECT * FROM Ride"
+
+    database.query(query, (err: MysqlError, rows: any[]) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            const rideList = rows.map(row => row = {
+                rideId: row.ride_id,
+                driverId: row.driver_id,
+                vehicleId: row.vehicle_id,
+                start: row.start,
+                destination: row.destination,
+                dateTime: row.dateTime,
+                price: row.price,
+                description: row.description,
+                open: row.open
+            });
+
+            res.status(200).send({
+                rideList: rideList,
+                message: 'Successfully requested Rides'
+            });
+        }
+    });
+});
+
+// Create new ride
+app.post('/rides', (req: Request, res: Response) => {
+    // Create database query and data
+    const query: string = "INSERT INTO Ride (driver_id, vehicle_id, start, destination, dateTime, price, description, open) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+    const { vehicleId, start, destination, dateTime, price, description, open } = req.body
+    const data : [number, string, string, string, number, string, boolean] = [ vehicleId, start, destination, dateTime, price, description, open ]
+
+    database.query(query, data, (err: MysqlError, rows: any) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            res.status(200).send({
+                message: 'Successfully created Ride'
+            });
+        }
+    });
+});
+
+// Update ride
+app.put('/rides/:id', (req: Request, res: Response) => {
+    // Create database query and data
+    const query: string = "UPDATE Ride SET driver_id = ?, vehicle_id = ?, start = ?, destination = ?, dateTime = ?, price = ?, description = ?, open = ? WHERE ride_id = ?"
+    const { vehicleId, start, destination, dateTime, price, description, open } = req.body
+    const rideId: number = +req.params.id
+    const data : [number, number, string, string, string, number, string, boolean] = [ rideId, vehicleId, start, destination, dateTime, price, description, open ]
+
+    database.query(query, data, (err: MysqlError, rows: any) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            res.status(200).send({
+                message: 'Successfully updated Ride'
+            });
+        }
+    });
+});
+
+// Delete ride
+app.delete('/rides/:id', (req: Request, res: Response) => {
+    // Create database query and id
+    const query: string = "DELETE FROM Ride WHERE ride_id = ?"
+    const rideId: number = +req.params.id
+
+    database.query(query, rideId, (err: MysqlError, rows: any) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            res.status(200).send({
+                message: 'Successfully deleted Ride'
+            });
+        }
+    });
+});
 
 /*****************************************************************************
  * Routes for profile                                                        *
@@ -85,7 +219,7 @@ app.use('/', express.static(basedir + '/frontend/build'));
 
 app.get('/profile', isLoggedIn(), (req: Request, res: Response) => {
     // Send recipe list to client
-    const query: string= "SELECT * FROM User WHERE user_id = ?"
+    const query: string = "SELECT * FROM User WHERE user_id = ?"
     database.query(query, req.session.user.uId, (err: MysqlError, rows: any[]) => {
         if (err) {
             // Database operation has failed
@@ -108,11 +242,10 @@ app.get('/profile', isLoggedIn(), (req: Request, res: Response) => {
                     description: rows[0].description,
                     rating: rows[0].rating,
                     currency: rows[0].currency
-
                 }
 
                 res.status(200).send({
-                    user: user,
+                    user,
                     message: 'Successfully requested user'
                 });
             }else{
@@ -124,6 +257,7 @@ app.get('/profile', isLoggedIn(), (req: Request, res: Response) => {
         }
     });
 });
+
 app.get('/cars', isLoggedIn(), (req: Request, res: Response) => {
     // Send recipe list to client
     const query: string= "SELECT * FROM Vehicle WHERE user_id = ?"
@@ -156,6 +290,7 @@ app.get('/cars', isLoggedIn(), (req: Request, res: Response) => {
         }
     });
 });
+
 app.get('/comments', isLoggedIn(), (req: Request, res: Response) => {
     // Send recipe list to client
     const query: string= "SELECT `Ride`.*, `Ride`.`driver_id`, `booking`.*, `User`.`user_id`, `User`.`first_name`, `User`.`profile_picture` FROM `Ride` LEFT JOIN `booking` ON `booking`.`ride_id` = `Ride`.`ride_id` LEFT JOIN `User` ON `booking`.`customer_id` = `User`.`user_id` WHERE `driver_id` = ?"
@@ -209,6 +344,7 @@ function isLoggedIn() {
         }
     };
 }
+
 app.post('/login', (req: Request, res: Response) => {
     // Read data from request
     const username: string = req.body.username;
