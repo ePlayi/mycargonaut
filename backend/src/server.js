@@ -1,5 +1,5 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 /*****************************************************************************
  * Import package                                                            *
  *****************************************************************************/
@@ -16,7 +16,7 @@ var database = mysql.createPool({
     user: 'u468072002_mycargonaut',
     password: 'mycargonautThmKms2022',
     database: 'u468072002_mycargonaut',
-    multipleStatements: true
+    multipleStatements: true,
 });
 /*****************************************************************************
  * Define and start web-app server, define json-Parser                       *
@@ -58,7 +58,7 @@ app.use(session({
 /*****************************************************************************
  * STATIC ROUTES                                                             *
  *****************************************************************************/
-var basedir = __dirname + '/..'; // get rid of /server/src
+var basedir = __dirname + '/../..'; // get rid of /server/src
 app.use('/', express.static(basedir + '/frontend/build'));
 /*****************************************************************************
  * Routes for rides                                                          *
@@ -173,7 +173,7 @@ app.put('/rides/:id', function (req, res) {
     });
 });
 // Delete ride
-app["delete"]('/rides/:id', function (req, res) {
+app.delete('/rides/:id', function (req, res) {
     // Create database query and id
     var query = "DELETE FROM Ride WHERE ride_id = ?";
     var rideId = +req.params.id;
@@ -254,7 +254,7 @@ app.get('/cars', isLoggedIn(), function (req, res) {
                     model: row.model,
                     seats: row.seats,
                     storage: row.storage,
-                    carImage: row.car_image
+                    carImage: row.car_image,
                 };
                 carList.push(car);
             }
@@ -312,7 +312,7 @@ function isLoggedIn() {
         else {
             // User is not logged in
             res.status(401).send({
-                message: 'Session expired, please log in again'
+                message: 'Session expired, please log in again',
             });
         }
     };
@@ -329,7 +329,7 @@ app.post('/login', function (req, res) {
         if (err) {
             // Login data is incorrect, user is not logged in
             res.status(500).send({
-                message: 'Database request failed: ' + err
+                message: 'Database request failed: ' + err,
             });
         }
         else {
@@ -340,7 +340,7 @@ app.post('/login', function (req, res) {
                     uId: rows[0].user_id,
                     name: rows[0].first_name,
                     nachname: rows[0].last_name,
-                    loginname: rows[0].loginname
+                    loginname: rows[0].loginname,
                 };
                 req.session.user = user; // Store user object in session for authentication
                 res.status(200).send({
@@ -351,7 +351,7 @@ app.post('/login', function (req, res) {
             else {
                 // Login data is incorrect, user is not logged in
                 res.status(401).send({
-                    message: 'Username or password is incorrect.'
+                    message: 'Username or password is incorrect.',
                 });
             }
         }
@@ -372,14 +372,14 @@ app.post('/register', function (req, res) {
     database.query(query, username, function (err, rows) {
         if (err) {
             res.status(500).send({
-                message: 'Database request failed: ' + err
+                message: 'Database request failed: ' + err,
             });
         }
         else {
             // Check if database response contains exactly one entry
             if (rows.length === 1) {
                 res.status(409).send({
-                    message: 'Username already exists'
+                    message: 'Username already exists',
                 });
             }
             //Username is available
@@ -390,12 +390,12 @@ app.post('/register', function (req, res) {
                 database.query(query_1, data, function (err, rows) {
                     if (err) {
                         res.status(500).send({
-                            message: 'Database request failed: ' + err
+                            message: 'Database request failed: ' + err,
                         });
                     }
                     else {
                         res.status(201).send({
-                            message: 'Successfully created User'
+                            message: 'Successfully created User',
                         });
                     }
                 });
@@ -406,6 +406,6 @@ app.post('/register', function (req, res) {
 app.get('/login', isLoggedIn(), function (req, res) {
     res.status(200).send({
         message: 'User still logged in',
-        user: req.session.user
+        user: req.session.user, // Send user object to client for greeting message
     });
 });

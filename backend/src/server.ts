@@ -72,7 +72,7 @@ declare module 'express-session' {
 /*****************************************************************************
  * STATIC ROUTES                                                             *
  *****************************************************************************/
-const basedir: string = __dirname + '/..';  // get rid of /server/src
+const basedir: string = __dirname + '/../..';  // get rid of /server/src
 app.use('/', express.static(basedir + '/frontend/build'));
 
 /*****************************************************************************
