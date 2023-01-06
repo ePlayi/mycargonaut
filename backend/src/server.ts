@@ -4,7 +4,7 @@
 import express = require ('express');
 import {Request, Response} from 'express';
 const cors = require('cors');
-const history = require('connect-history-api-fallback');
+// const history = require('connect-history-api-fallback');
 import crypto = require("crypto")
 import {Connection, FieldInfo, MysqlError, OkPacket, Pool} from "mysql";
 import mysql = require ("mysql");      // handles database connections
@@ -32,7 +32,7 @@ const database: Pool = mysql.createPool({
 const app = express();
 const port = process.env.PORT || 3001;
 app.use(cors());
-app.use(history());
+// app.use(history());
 let server = app.listen(port, () => {
     console.log('Server started');
     //---- connect to database ----------------------------------------------------
@@ -151,7 +151,7 @@ app.get('/rides', (req: Request, res: Response) => {
 });
 
 // Create new ride
-app.post('/rides', (req: Request, res: Response) => {
+app.post('/rides', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and data
     const query: string = "INSERT INTO Ride (driver_id, vehicle_id, start, destination, dateTime, price, description, open) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
     const { vehicleId, start, destination, dateTime, price, description, open } = req.body
@@ -172,7 +172,7 @@ app.post('/rides', (req: Request, res: Response) => {
 });
 
 // Update ride
-app.put('/rides/:id', (req: Request, res: Response) => {
+app.put('/rides/:id', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and data
     const query: string = "UPDATE Ride SET driver_id = ?, vehicle_id = ?, start = ?, destination = ?, dateTime = ?, price = ?, description = ?, open = ? WHERE ride_id = ?"
     const { vehicleId, start, destination, dateTime, price, description, open } = req.body
@@ -194,7 +194,7 @@ app.put('/rides/:id', (req: Request, res: Response) => {
 });
 
 // Delete ride
-app.delete('/rides/:id', (req: Request, res: Response) => {
+app.delete('/rides/:id', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and id
     const query: string = "DELETE FROM Ride WHERE ride_id = ?"
     const rideId: number = +req.params.id
@@ -254,7 +254,7 @@ app.get('/bookings/:id', (req: Request, res: Response) => {
 });
 
 // Get booking requests for ride
-app.get('/rides/:id/bookings', (req: Request, res: Response) => {
+app.get('/rides/:id/bookings', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and id
     const query: string = "SELECT * FROM booking WHERE ride_id = ?"
     const rideId: number = +req.params.id
@@ -284,7 +284,7 @@ app.get('/rides/:id/bookings', (req: Request, res: Response) => {
 });
 
 // Create new booking
-app.post('/bookings', (req: Request, res: Response) => {
+app.post('/bookings', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and data
     const query: string = "INSERT INTO booking (customer_id, ride_id, status, NULL, NULL) VALUES (?, ?, ?, ?, ?)"
     const { customerId, rideId, status } = req.body
@@ -305,7 +305,7 @@ app.post('/bookings', (req: Request, res: Response) => {
 });
 
 // Update booking
-app.put('/bookings/:id', (req: Request, res: Response) => {
+app.put('/bookings/:id', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and data
     const query: string = "UPDATE booking SET customer_id = ?, ride_id = ?, status = ?, rating = ?, comment = ? WHERE booking_id = ?"
     const { customerId, rideId, status, rating, comment } = req.body
@@ -327,7 +327,7 @@ app.put('/bookings/:id', (req: Request, res: Response) => {
 });
 
 // Delete booking
-app.delete('/bookings/:id', (req: Request, res: Response) => {
+app.delete('/bookings/:id', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and id
     const query: string = "DELETE FROM booking WHERE booking_id = ?"
     const bookingId: number = +req.params.id
@@ -387,8 +387,29 @@ app.get('/vehicles/:id', (req: Request, res: Response) => {
     });
 });
 
+// Create new vehicle
+app.post('/vehicles', isLoggedIn(), (req: Request, res: Response) => {
+    // Create database query and data
+    const query: string = "INSERT INTO Vehicle (user_id, brand, model, seats, storage, car_image) VALUES (?, ?, ?, ?, ?, ?)"
+    const { userId, brand, model, seats, storage, image } = req.body
+    const data : [number, string, string, number, number, string] = [ userId, brand, model, seats, storage, image ]
+
+    database.query(query, data, (err, rows) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            res.status(200).send({
+                message: 'Successfully created Vehicle'
+            });
+        }
+    });
+});
+
 // Update vehicle
-app.put('/vehicles/:id', (req: Request, res: Response) => {
+app.put('/vehicles/:id', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and data
     const query: string = "UPDATE Vehicle SET user_id = ?, brand = ?, model = ?, seats = ?, storage = ?, car_image = ? WHERE vehicle_id = ?"
     const { userId, brand, model, seats, storage, image } = req.body
@@ -410,7 +431,7 @@ app.put('/vehicles/:id', (req: Request, res: Response) => {
 });
 
 // Delete vehicle
-app.delete('/vehicles/:id', (req: Request, res: Response) => {
+app.delete('/vehicles/:id', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and id
     const query: string = "DELETE FROM Vehicle WHERE vehicle_id = ?"
     const vehicleId: number = +req.params.id
