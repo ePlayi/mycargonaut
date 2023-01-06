@@ -259,7 +259,7 @@ app.get('/customers/:id/bookings', isLoggedIn(), (req: Request, res: Response) =
     // Create database query and id
     const query: string = "SELECT * FROM booking WHERE customer_id = ?"
     const customerId: number = +req.params.id
-    
+
     database.query(query, customerId, (err: MysqlError, rows: any[]) => {
         if (err) {
             // Database operation has failed
@@ -526,6 +526,49 @@ app.get('/profile', isLoggedIn(), (req: Request, res: Response) => {
         }
     });
 });
+app.get('/profile/:id', isLoggedIn(), (req: Request, res: Response) => {
+    // Send recipe list to client
+    const query: string = "SELECT * FROM User WHERE user_id = ?"
+    const id:string = req.params.id
+    database.query(query, id, (err: MysqlError, rows: any[]) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            if (rows.length === 1){
+                const user ={
+                    uId: rows[0].user_id,
+                    name: rows[0].first_name,
+                    nachname: rows[0].last_name,
+                    loginname: rows[0].loginname,
+                    email: rows[0].email,
+                    mobilenr: rows[0].mobile_nr,
+                    birthdate: rows[0].birthdate,
+                    gender: rows[0].gender,
+                    adress: rows[0].adress,
+                    profilePicture: rows[0].profile_picture,
+                    description: rows[0].description,
+                    rating: rows[0].rating,
+                    currency: rows[0].currency
+                }
+
+                res.status(200).send({
+                    user,
+                    message: 'Successfully requested user'
+                });
+            }else{
+
+                res.status(404).send({
+                    message: 'Cannot resolve User'
+                });
+            }
+        }
+    });
+});
+
+
 
 //Update profile
 app.put('/profile', isLoggedIn(), (req: Request, res: Response) => {

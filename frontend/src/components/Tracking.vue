@@ -91,45 +91,30 @@ export default {
 
   },
   beforeMount() {
-    this.getPackage()
+    this.getBookings()
   },
   data() {
     return {
+      //IF LOCAL TESTED USE THIS URL FOR THE API CALLS
+      url: 'http://localhost:3001/',
+      // url: 'https://mycargonaut.onrender.com/',
+
       //entry zoomlevel
       zoom: 8,
       //edit this to get other positions on the map. Its centered to this position and the marker uses the same value
       position: [50.52687192341124, 8.654176867109685],
-
-      selectedPackage:"",
-
-
-      packagesNameList : [],
-      packagesList:[]
+      lang:"",
+      lat:"",
+      bookings:[],
     }
   },
   methods:{
-    getPackage(){
-      //Hier die Abfrage aus der DB später hin, die die Pakete aus der DB zieht
-
-      const package1= {
-            name: 'Packet 1',
-            status: '0',
-            statusText: 'In Bearbeitung',
-          }
-      const package2= {
-        name: 'Packet 2',
-        status: '1',
-        statusText: 'Versendet',
-      }
-
-      const package3= {
-        name: 'Packet 3',
-        status: '2',
-        statusText: 'Zugestellt',
-      }
-      this.packagesList=[package1, package2, package3]
-      this.packagesNameList=[package1.name, package2.name, package3.name]
-
+    getBookings(){
+      this.axios.get(this.url+'profile',{
+      })
+          .then((response) => {
+            this.user=response.data.user
+          })
     }
   }
 }
@@ -145,7 +130,8 @@ export default {
     border: 4px solid black;
 }
 .map-box{
-  height: 50vh;
+  height: 30vh;
   width: 100vw;
+  max-width: 100rem;
 }
 </style>
