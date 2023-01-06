@@ -1,7 +1,7 @@
 <template>
   <div class="login-component" v-if="loggedIn===false">
     <div class="password-container" v-if="register_component===false">
-      <h1 class="text-center">Login</h1>
+      <!-- <h1 class="text-center">Login</h1>
       <form class="text-center">
         <div class="form-group mt-3">
           <label for="inputLoginname">Loginname</label>
@@ -13,10 +13,53 @@
         </div>
         <button type="submit" class="btn btn-success mt-3" @click="postLogin()">Login</button><br>
         <button type="submit" class="btn btn-outline-success mt-3" @click="register_component = true">Noch kein Account?</button>
-      </form>
+      </form> -->
+      <v-container class="mt-16">
+        <v-card class="login-card" rounded="4" align="center">
+            <v-card-title>Login</v-card-title>
+            <v-form class="login-form" v-model="valid">
+                <v-container>
+                    <v-row>
+                        <v-col
+                        cols="12"
+                        >
+                        <v-text-field
+                            v-model="loginname"
+                            label="E-Mail"
+                            type="email"
+                            required
+                        ></v-text-field>
+                        </v-col>
+
+                        <v-col
+                        cols="12"
+                        >
+                        <v-text-field
+                            v-model="password"
+                            label="Passwort"
+                            type="password"
+                            required
+                        ></v-text-field>
+                        </v-col>
+                    </v-row>
+                </v-container>
+            </v-form>
+            <v-card-text class="no-account-text mb-16">
+                <span style="text-decoration: none; color: blue; cursor: pointer" @click="register_component = true">Noch kein Account?</span>
+            </v-card-text>
+            <v-btn
+            class="mb-8"
+            elevation="0"
+            variant="outlined"
+            rounded="2"
+            @click="postLogin()">
+                Jetzt Einloggen
+            </v-btn>
+        </v-card>
+      </v-container>
     </div>
     <div class="password-container" v-if="register_component===true">
-      <form class="text-center">
+      <!-- <form class="text-center">
         <div class="form-group mt-3">
           <label for="inputRegisterLoginname">Loginname (Damit loggen Sie sich ein)</label>
           <input type="text" class="form-control" id="inputRegisterLoginname" placeholder="Loginname..." v-model="register_loginname">
@@ -47,7 +90,125 @@
         </div>
         <button type="submit" class="btn btn-success mt-3" @click="register()">Registrieren</button>
 
-      </form>
+      </form> -->
+      <v-container class="mt-16">
+            <v-card class="login-card" rounded="4" align="center">
+                <v-card-title>Registrierung</v-card-title>
+                <v-form class="login-form" v-model="valid">
+                    <v-container>
+                        <v-row>
+                            <!-- <v-col
+                            cols="12"
+                            >
+                                <v-file-input
+                                    v-model="register_profilepicture"
+                                    accept=".jpg, .jpeg, .png"
+                                    label="Ein Bild von dir!"
+                                    prepend-icon="fas fa-camera"
+                                ></v-file-input>
+                            </v-col> -->
+                            
+                            <v-col
+                            cols="12"
+                            >
+                            <v-text-field
+                                v-model="register_profilepicture"
+                                label="Profilbild-URL"
+                                required
+                            ></v-text-field>
+                            </v-col>
+
+                            <v-col
+                            cols="12"
+                            >
+                            <v-text-field
+                                v-model="register_loginname"
+                                label="Nutzername"
+                                required
+                            ></v-text-field>
+                            </v-col>
+
+                            <v-col
+                            cols="12" 
+                            sm="6"
+                            >
+                            <v-text-field
+                                v-model="register_name"
+                                label="Vorname"
+                                required
+                            ></v-text-field>
+                            </v-col>
+
+                            <v-col
+                            cols="12" 
+                            sm="6"
+                            >
+                            <v-text-field
+                                v-model="register_lastname"
+                                label="Nachname"
+                                required
+                            ></v-text-field>
+                            </v-col>
+
+                            <v-col
+                            cols="12" 
+                            sm="6"
+                            >
+                            <v-text-field
+                                v-model="register_mail"
+                                label="E-Mail"
+                                required
+                            ></v-text-field>
+                            </v-col>
+
+                            <v-col
+                            cols="12" 
+                            sm="6"
+                            >
+                            <v-text-field
+                                v-model="register_mobilenr"
+                                label="Handynummer"
+                                required
+                            ></v-text-field>
+                            </v-col>
+
+                            <v-col
+                            cols="12" 
+                            sm="6"
+                            >
+                            <v-text-field
+                                v-model="register_password"
+                                label="Passwort"
+                                required
+                            ></v-text-field>
+                            </v-col>
+
+                            <v-col
+                            cols="12" 
+                            sm="6"
+                            >
+                            <v-text-field
+                                v-model="register_confirmpassword"
+                                label="Passwort wiederholen"
+                                required
+                            ></v-text-field>
+                            </v-col>
+                        </v-row>
+                    </v-container>
+                </v-form>
+                <v-card-text class="no-account-text mb-16">
+                    <span style="text-decoration: none; color: blue; cursor: pointer" @click="register_component = false">Du hast einen Account?</span>
+                </v-card-text>
+                <v-btn
+                class="mb-8"
+                elevation="0"
+                variant="outlined"
+                rounded="2"
+                @click="register()">
+                    Jetzt Registrieren
+                </v-btn>
+            </v-card>
+      </v-container>
     </div>
   </div>
   <!--Here is the content of each component-->
@@ -68,11 +229,12 @@ export default {
   },
   data(){
     return{
-      loggedIn: false,
+      loggedIn: true,
       loginname:"",
       password:"",
       register_component: false,
 
+      register_profilepicture:"",
       register_loginname:"",
       register_password:"",
       register_confirmpassword:"",
@@ -203,6 +365,14 @@ section{
   width: 60vw;
   margin: 0 auto;
   height: 100%;
-  margin-top: 40%;
+}
+
+.login-card {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.no-account-text {
+    margin-top: -30px;
 }
 </style>
