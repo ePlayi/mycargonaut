@@ -478,6 +478,25 @@ app.put('/profile', isLoggedIn(), function (req, res) {
         }
     });
 });
+//Update user password
+app.put('/password', isLoggedIn(), function (req, res) {
+    var password = req.body.password;
+    var passwordHashed = crypto.createHash("sha512").update(password).digest('hex');
+    var query = "UPDATE `User` SET `password` = ? WHERE `User`.`user_id` = ?";
+    var data = [passwordHashed, req.session.user.uId];
+    database.query(query, data, function (err, rows) {
+        if (err) {
+            res.status(500).send({
+                message: 'Database request failed',
+            });
+        }
+        else {
+            res.status(200).send({
+                message: 'Successfully updated user password',
+            });
+        }
+    });
+});
 // Get cars of user
 app.get('/cars', isLoggedIn(), function (req, res) {
     // Send recipe list to client
@@ -656,5 +675,13 @@ app.get('/login', isLoggedIn(), function (req, res) {
     res.status(200).send({
         message: 'User still logged in',
         user: req.session.user, // Send user object to client for greeting message
+    });
+});
+//Logout the user
+app.post('/logout', function (req, res) {
+    // Log out user
+    delete req.session.user; // Delete user from session
+    res.status(200).send({
+        message: 'Successfully logged out',
     });
 });

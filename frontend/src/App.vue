@@ -68,7 +68,7 @@ export default {
   },
   data(){
     return{
-      loggedIn: true,
+      loggedIn: false,
       loginname:"",
       password:"",
       register_component: false,

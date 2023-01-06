@@ -516,6 +516,27 @@ app.put('/profile', isLoggedIn(), (req: Request, res: Response) => {
     });
 });
 
+//Update user password
+app.put('/password', isLoggedIn(), (req: Request, res: Response) => {
+    const password: string = req.body.password;
+    const passwordHashed :string = crypto.createHash("sha512").update(password).digest('hex')
+
+    const query : string = "UPDATE `User` SET `password` = ? WHERE `User`.`user_id` = ?"
+    const data : [string, number] = [passwordHashed, req.session.user.uId]
+    database.query(query, data, (err: MysqlError, rows: any[]) => {
+        if (err){
+            res.status(500).send({
+                message: 'Database request failed',
+            });
+        }
+        else{
+            res.status(200).send({
+                message: 'Successfully updated user password',
+            });
+        }
+    });
+});
+
 // Get cars of user
 app.get('/cars', isLoggedIn(), (req: Request, res: Response) => {
     // Send recipe list to client
@@ -702,5 +723,14 @@ app.get('/login', isLoggedIn(), (req: Request, res: Response) => {
     res.status(200).send({
         message: 'User still logged in',
         user: req.session.user, // Send user object to client for greeting message
+    });
+});
+
+//Logout the user
+app.post('/logout', (req: Request, res: Response) => {
+    // Log out user
+    delete req.session.user; // Delete user from session
+    res.status(200).send({
+        message: 'Successfully logged out',
     });
 });
