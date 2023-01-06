@@ -1,11 +1,11 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 /*****************************************************************************
  * Import package                                                            *
  *****************************************************************************/
 var express = require("express");
 var cors = require('cors');
-var history = require('connect-history-api-fallback');
+// const history = require('connect-history-api-fallback');
 var crypto = require("crypto");
 var mysql = require("mysql"); // handles database connections
 var session = require("cookie-session");
@@ -16,7 +16,7 @@ var database = mysql.createPool({
     user: 'u468072002_mycargonaut',
     password: 'mycargonautThmKms2022',
     database: 'u468072002_mycargonaut',
-    multipleStatements: true,
+    multipleStatements: true
 });
 /*****************************************************************************
  * Define and start web-app server, define json-Parser                       *
@@ -24,7 +24,7 @@ var database = mysql.createPool({
 var app = express();
 var port = process.env.PORT || 3001;
 app.use(cors());
-app.use(history());
+// app.use(history());
 var server = app.listen(port, function () {
     console.log('Server started');
     //---- connect to database ----------------------------------------------------
@@ -58,7 +58,7 @@ app.use(session({
 /*****************************************************************************
  * STATIC ROUTES                                                             *
  *****************************************************************************/
-var basedir = __dirname + '/../..'; // get rid of /server/src
+var basedir = __dirname + '/../..'; // get rid of /backend/src
 app.use('/', express.static(basedir + '/frontend/build'));
 /*****************************************************************************
  * Routes for rides                                                          *
@@ -132,7 +132,7 @@ app.get('/rides', function (req, res) {
     });
 });
 // Create new ride
-app.post('/rides', function (req, res) {
+app.post('/rides', isLoggedIn(), function (req, res) {
     // Create database query and data
     var query = "INSERT INTO Ride (driver_id, vehicle_id, start, destination, dateTime, price, description, open) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     var _a = req.body, vehicleId = _a.vehicleId, start = _a.start, destination = _a.destination, dateTime = _a.dateTime, price = _a.price, description = _a.description, open = _a.open;
@@ -152,7 +152,7 @@ app.post('/rides', function (req, res) {
     });
 });
 // Update ride
-app.put('/rides/:id', function (req, res) {
+app.put('/rides/:id', isLoggedIn(), function (req, res) {
     // Create database query and data
     var query = "UPDATE Ride SET driver_id = ?, vehicle_id = ?, start = ?, destination = ?, dateTime = ?, price = ?, description = ?, open = ? WHERE ride_id = ?";
     var _a = req.body, vehicleId = _a.vehicleId, start = _a.start, destination = _a.destination, dateTime = _a.dateTime, price = _a.price, description = _a.description, open = _a.open;
@@ -173,7 +173,7 @@ app.put('/rides/:id', function (req, res) {
     });
 });
 // Delete ride
-app.delete('/rides/:id', function (req, res) {
+app["delete"]('/rides/:id', isLoggedIn(), function (req, res) {
     // Create database query and id
     var query = "DELETE FROM Ride WHERE ride_id = ?";
     var rideId = +req.params.id;
@@ -192,8 +192,234 @@ app.delete('/rides/:id', function (req, res) {
     });
 });
 /*****************************************************************************
+ * Routes for bookings                                                       *
+ *****************************************************************************/
+// Get single booking
+app.get('/bookings/:id', function (req, res) {
+    // Create database query and id
+    var query = "SELECT * FROM booking WHERE booking_id = ?";
+    var bookingId = +req.params.id;
+    database.query(query, bookingId, function (err, rows) {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        }
+        else {
+            if (rows.length === 1) {
+                var booking = rows.map(function (row) { return row = {
+                    bookingId: row.booking_id,
+                    customerId: row.customer_id,
+                    rideId: row.ride_id,
+                    status: row.status,
+                    rating: row.rating,
+                    comment: row.comment
+                }; });
+                res.status(200).send({
+                    booking: booking,
+                    message: 'Successfully requested Bookings'
+                });
+            }
+            else {
+                res.status(404).send({
+                    message: 'Cannot resolve Ride'
+                });
+            }
+        }
+    });
+});
+// Get booking requests for ride
+app.get('/rides/:id/bookings', isLoggedIn(), function (req, res) {
+    // Create database query and id
+    var query = "SELECT * FROM booking WHERE ride_id = ?";
+    var rideId = +req.params.id;
+    database.query(query, rideId, function (err, rows) {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        }
+        else {
+            var bookingList = rows.map(function (row) { return row = {
+                bookingId: row.booking_id,
+                customerId: row.customer_id,
+                rideId: row.ride_id,
+                status: row.status,
+                rating: row.rating,
+                comment: row.comment
+            }; });
+            res.status(200).send({
+                bookingList: bookingList,
+                message: 'Successfully requested Bookings'
+            });
+        }
+    });
+});
+// Create new booking
+app.post('/bookings', isLoggedIn(), function (req, res) {
+    // Create database query and data
+    var query = "INSERT INTO booking (customer_id, ride_id, status, NULL, NULL) VALUES (?, ?, ?, ?, ?)";
+    var _a = req.body, customerId = _a.customerId, rideId = _a.rideId, status = _a.status;
+    var data = [customerId, rideId, status];
+    database.query(query, data, function (err, rows) {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        }
+        else {
+            res.status(200).send({
+                message: 'Successfully created Booking'
+            });
+        }
+    });
+});
+// Update booking
+app.put('/bookings/:id', isLoggedIn(), function (req, res) {
+    // Create database query and data
+    var query = "UPDATE booking SET customer_id = ?, ride_id = ?, status = ?, rating = ?, comment = ? WHERE booking_id = ?";
+    var _a = req.body, customerId = _a.customerId, rideId = _a.rideId, status = _a.status, rating = _a.rating, comment = _a.comment;
+    var bookingId = +req.params.id;
+    var data = [customerId, rideId, status, rating, comment];
+    database.query(query, data, function (err, rows) {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        }
+        else {
+            res.status(200).send({
+                message: 'Successfully updated Booking'
+            });
+        }
+    });
+});
+// Delete booking
+app["delete"]('/bookings/:id', isLoggedIn(), function (req, res) {
+    // Create database query and id
+    var query = "DELETE FROM booking WHERE booking_id = ?";
+    var bookingId = +req.params.id;
+    database.query(query, bookingId, function (err, rows) {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        }
+        else {
+            res.status(200).send({
+                message: 'Successfully deleted Booking'
+            });
+        }
+    });
+});
+/*****************************************************************************
+ * Routes for vehicles                                                       *
+ *****************************************************************************/
+// Get single vehicle
+app.get('/vehicles/:id', function (req, res) {
+    // Create database query and id
+    var query = "SELECT * FROM Vehicle WHERE vehicle_id = ?";
+    var vehicleId = +req.params.id;
+    database.query(query, vehicle, function (err, rows) {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        }
+        else {
+            if (rows.length === 1) {
+                var vehicle = rows.map(function (row) { return row = {
+                    vehicleId: row.vehicle_id,
+                    userId: row.user_id,
+                    brand: row.brand,
+                    model: row.model,
+                    seats: row.seats,
+                    storage: row.storage,
+                    image: row.car_image
+                }; });
+                res.status(200).send({
+                    vehicle: vehicle,
+                    message: 'Successfully requested Vehicle'
+                });
+            }
+            else {
+                res.status(404).send({
+                    message: 'Cannot resolve Vehicle'
+                });
+            }
+        }
+    });
+});
+// Create new vehicle
+app.post('/vehicles', isLoggedIn(), function (req, res) {
+    // Create database query and data
+    var query = "INSERT INTO Vehicle (user_id, brand, model, seats, storage, car_image) VALUES (?, ?, ?, ?, ?, ?)";
+    var _a = req.body, userId = _a.userId, brand = _a.brand, model = _a.model, seats = _a.seats, storage = _a.storage, image = _a.image;
+    var data = [userId, brand, model, seats, storage, image];
+    database.query(query, data, function (err, rows) {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        }
+        else {
+            res.status(200).send({
+                message: 'Successfully created Vehicle'
+            });
+        }
+    });
+});
+// Update vehicle
+app.put('/vehicles/:id', isLoggedIn(), function (req, res) {
+    // Create database query and data
+    var query = "UPDATE Vehicle SET user_id = ?, brand = ?, model = ?, seats = ?, storage = ?, car_image = ? WHERE vehicle_id = ?";
+    var _a = req.body, userId = _a.userId, brand = _a.brand, model = _a.model, seats = _a.seats, storage = _a.storage, image = _a.image;
+    var vehicleId = +req.params.id;
+    var data = [userId, brand, model, seats, storage, image];
+    database.query(query, data, function (err, rows) {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        }
+        else {
+            res.status(200).send({
+                message: 'Successfully updated Vehicle'
+            });
+        }
+    });
+});
+// Delete vehicle
+app["delete"]('/vehicles/:id', isLoggedIn(), function (req, res) {
+    // Create database query and id
+    var query = "DELETE FROM Vehicle WHERE vehicle_id = ?";
+    var vehicleId = +req.params.id;
+    database.query(query, vehicleId, function (err, rows) {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        }
+        else {
+            res.status(200).send({
+                message: 'Successfully deleted Vehicle'
+            });
+        }
+    });
+});
+/*****************************************************************************
  * Routes for profile                                                        *
  *****************************************************************************/
+// Get profile
 app.get('/profile', isLoggedIn(), function (req, res) {
     // Send recipe list to client
     var query = "SELECT * FROM User WHERE user_id = ?";
@@ -234,6 +460,7 @@ app.get('/profile', isLoggedIn(), function (req, res) {
         }
     });
 });
+// Get cars of user
 app.get('/cars', isLoggedIn(), function (req, res) {
     // Send recipe list to client
     var query = "SELECT * FROM Vehicle WHERE user_id = ?";
@@ -254,7 +481,7 @@ app.get('/cars', isLoggedIn(), function (req, res) {
                     model: row.model,
                     seats: row.seats,
                     storage: row.storage,
-                    carImage: row.car_image,
+                    carImage: row.car_image
                 };
                 carList.push(car);
             }
@@ -266,6 +493,7 @@ app.get('/cars', isLoggedIn(), function (req, res) {
         }
     });
 });
+// Get ratings
 app.get('/comments', isLoggedIn(), function (req, res) {
     // Send recipe list to client
     var query = "SELECT `Ride`.*, `Ride`.`driver_id`, `booking`.*, `User`.`user_id`, `User`.`first_name`, `User`.`profile_picture` FROM `Ride` LEFT JOIN `booking` ON `booking`.`ride_id` = `Ride`.`ride_id` LEFT JOIN `User` ON `booking`.`customer_id` = `User`.`user_id` WHERE `driver_id` = ?";
@@ -312,11 +540,12 @@ function isLoggedIn() {
         else {
             // User is not logged in
             res.status(401).send({
-                message: 'Session expired, please log in again',
+                message: 'Session expired, please log in again'
             });
         }
     };
 }
+// Login
 app.post('/login', function (req, res) {
     // Read data from request
     var username = req.body.username;
@@ -329,7 +558,7 @@ app.post('/login', function (req, res) {
         if (err) {
             // Login data is incorrect, user is not logged in
             res.status(500).send({
-                message: 'Database request failed: ' + err,
+                message: 'Database request failed: ' + err
             });
         }
         else {
@@ -340,7 +569,7 @@ app.post('/login', function (req, res) {
                     uId: rows[0].user_id,
                     name: rows[0].first_name,
                     nachname: rows[0].last_name,
-                    loginname: rows[0].loginname,
+                    loginname: rows[0].loginname
                 };
                 req.session.user = user; // Store user object in session for authentication
                 res.status(200).send({
@@ -351,12 +580,13 @@ app.post('/login', function (req, res) {
             else {
                 // Login data is incorrect, user is not logged in
                 res.status(401).send({
-                    message: 'Username or password is incorrect.',
+                    message: 'Username or password is incorrect.'
                 });
             }
         }
     });
 });
+// Register new user
 app.post('/register', function (req, res) {
     // Read data from request
     var username = req.body.username;
@@ -372,14 +602,14 @@ app.post('/register', function (req, res) {
     database.query(query, username, function (err, rows) {
         if (err) {
             res.status(500).send({
-                message: 'Database request failed: ' + err,
+                message: 'Database request failed: ' + err
             });
         }
         else {
             // Check if database response contains exactly one entry
             if (rows.length === 1) {
                 res.status(409).send({
-                    message: 'Username already exists',
+                    message: 'Username already exists'
                 });
             }
             //Username is available
@@ -390,12 +620,12 @@ app.post('/register', function (req, res) {
                 database.query(query_1, data, function (err, rows) {
                     if (err) {
                         res.status(500).send({
-                            message: 'Database request failed: ' + err,
+                            message: 'Database request failed: ' + err
                         });
                     }
                     else {
                         res.status(201).send({
-                            message: 'Successfully created User',
+                            message: 'Successfully created User'
                         });
                     }
                 });
@@ -403,9 +633,10 @@ app.post('/register', function (req, res) {
         }
     });
 });
+// Check if user is logged in
 app.get('/login', isLoggedIn(), function (req, res) {
     res.status(200).send({
         message: 'User still logged in',
-        user: req.session.user, // Send user object to client for greeting message
+        user: req.session.user
     });
 });

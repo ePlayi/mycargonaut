@@ -4,7 +4,7 @@
 import express = require ('express');
 import {Request, Response} from 'express';
 const cors = require('cors');
-const history = require('connect-history-api-fallback');
+// const history = require('connect-history-api-fallback');
 import crypto = require("crypto")
 import {Connection, FieldInfo, MysqlError, OkPacket, Pool} from "mysql";
 import mysql = require ("mysql");      // handles database connections
@@ -32,7 +32,7 @@ const database: Pool = mysql.createPool({
 const app = express();
 const port = process.env.PORT || 3001;
 app.use(cors());
-app.use(history());
+// app.use(history());
 let server = app.listen(port, () => {
     console.log('Server started');
     //---- connect to database ----------------------------------------------------
@@ -72,7 +72,7 @@ declare module 'express-session' {
 /*****************************************************************************
  * STATIC ROUTES                                                             *
  *****************************************************************************/
-const basedir: string = __dirname + '/../..';  // get rid of /server/src
+const basedir: string = __dirname + '/../..';  // get rid of /backend/src
 app.use('/', express.static(basedir + '/frontend/build'));
 
 /*****************************************************************************
@@ -143,7 +143,7 @@ app.get('/rides', (req: Request, res: Response) => {
             });
 
             res.status(200).send({
-                rideList: rideList,
+                rideList,
                 message: 'Successfully requested Rides'
             });
         }
@@ -151,7 +151,7 @@ app.get('/rides', (req: Request, res: Response) => {
 });
 
 // Create new ride
-app.post('/rides', (req: Request, res: Response) => {
+app.post('/rides', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and data
     const query: string = "INSERT INTO Ride (driver_id, vehicle_id, start, destination, dateTime, price, description, open) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
     const { vehicleId, start, destination, dateTime, price, description, open } = req.body
@@ -172,7 +172,7 @@ app.post('/rides', (req: Request, res: Response) => {
 });
 
 // Update ride
-app.put('/rides/:id', (req: Request, res: Response) => {
+app.put('/rides/:id', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and data
     const query: string = "UPDATE Ride SET driver_id = ?, vehicle_id = ?, start = ?, destination = ?, dateTime = ?, price = ?, description = ?, open = ? WHERE ride_id = ?"
     const { vehicleId, start, destination, dateTime, price, description, open } = req.body
@@ -194,7 +194,7 @@ app.put('/rides/:id', (req: Request, res: Response) => {
 });
 
 // Delete ride
-app.delete('/rides/:id', (req: Request, res: Response) => {
+app.delete('/rides/:id', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and id
     const query: string = "DELETE FROM Ride WHERE ride_id = ?"
     const rideId: number = +req.params.id
@@ -214,9 +214,247 @@ app.delete('/rides/:id', (req: Request, res: Response) => {
 });
 
 /*****************************************************************************
+ * Routes for bookings                                                       *
+ *****************************************************************************/
+
+// Get single booking
+app.get('/bookings/:id', (req: Request, res: Response) => {
+    // Create database query and id
+    const query: string = "SELECT * FROM booking WHERE booking_id = ?"
+    const bookingId: number = +req.params.id
+    
+    database.query(query, bookingId, (err: MysqlError, rows: any[]) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            if (rows.length === 1) {
+                const booking = rows.map(row => row = {
+                    bookingId: row.booking_id,
+                    customerId: row.customer_id,
+                    rideId: row.ride_id,
+                    status: row.status,
+                    rating: row.rating,
+                    comment: row.comment
+                });
+
+                res.status(200).send({
+                    booking,
+                    message: 'Successfully requested Bookings'
+                });
+            } else {
+                res.status(404).send({
+                    message: 'Cannot resolve Ride'
+                });
+            }
+        }
+    });
+});
+
+// Get booking requests for ride
+app.get('/rides/:id/bookings', isLoggedIn(), (req: Request, res: Response) => {
+    // Create database query and id
+    const query: string = "SELECT * FROM booking WHERE ride_id = ?"
+    const rideId: number = +req.params.id
+    
+    database.query(query, rideId, (err: MysqlError, rows: any[]) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            const bookingList = rows.map(row => row = {
+                bookingId: row.booking_id,
+                customerId: row.customer_id,
+                rideId: row.ride_id,
+                status: row.status,
+                rating: row.rating,
+                comment: row.comment
+            });
+
+            res.status(200).send({
+                bookingList,
+                message: 'Successfully requested Bookings'
+            });
+        }
+    });
+});
+
+// Create new booking
+app.post('/bookings', isLoggedIn(), (req: Request, res: Response) => {
+    // Create database query and data
+    const query: string = "INSERT INTO booking (customer_id, ride_id, status, NULL, NULL) VALUES (?, ?, ?, ?, ?)"
+    const { customerId, rideId, status } = req.body
+    const data : [number, number, string ] = [ customerId, rideId, status ]
+    
+    database.query(query, data, (err, rows) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            res.status(200).send({
+                message: 'Successfully created Booking'
+            });
+        }
+    });
+});
+
+// Update booking
+app.put('/bookings/:id', isLoggedIn(), (req: Request, res: Response) => {
+    // Create database query and data
+    const query: string = "UPDATE booking SET customer_id = ?, ride_id = ?, status = ?, rating = ?, comment = ? WHERE booking_id = ?"
+    const { customerId, rideId, status, rating, comment } = req.body
+    const bookingId: number = +req.params.id
+    const data : [number, number, string, number, string] = [ customerId, rideId, status, rating, comment ]
+
+    database.query(query, data, (err: MysqlError, rows: any) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            res.status(200).send({
+                message: 'Successfully updated Booking'
+            });
+        }
+    });
+});
+
+// Delete booking
+app.delete('/bookings/:id', isLoggedIn(), (req: Request, res: Response) => {
+    // Create database query and id
+    const query: string = "DELETE FROM booking WHERE booking_id = ?"
+    const bookingId: number = +req.params.id
+
+    database.query(query, bookingId, (err: MysqlError, rows: any) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            }); 
+        } else {
+            res.status(200).send({
+                message: 'Successfully deleted Booking'
+            });
+        }
+    });
+});
+
+/*****************************************************************************
+ * Routes for vehicles                                                       *
+ *****************************************************************************/
+
+// Get single vehicle
+app.get('/vehicles/:id', (req: Request, res: Response) => {
+    // Create database query and id
+    const query: string = "SELECT * FROM Vehicle WHERE vehicle_id = ?"
+    const vehicleId: number = +req.params.id
+
+    database.query(query, vehicle, (err: MysqlError, rows: any[]) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            if (rows.length === 1) {
+                const vehicle = rows.map(row => row = {
+                    vehicleId: row.vehicle_id,
+                    userId: row.user_id,
+                    brand: row.brand,
+                    model: row.model,
+                    seats: row.seats,
+                    storage: row.storage,
+                    image: row.car_image
+                });
+                
+                res.status(200).send({
+                    vehicle,
+                    message: 'Successfully requested Vehicle'
+                });
+            } else {
+                res.status(404).send({
+                    message: 'Cannot resolve Vehicle'
+                });
+            }
+        }
+    });
+});
+
+// Create new vehicle
+app.post('/vehicles', isLoggedIn(), (req: Request, res: Response) => {
+    // Create database query and data
+    const query: string = "INSERT INTO Vehicle (user_id, brand, model, seats, storage, car_image) VALUES (?, ?, ?, ?, ?, ?)"
+    const { userId, brand, model, seats, storage, image } = req.body
+    const data : [number, string, string, number, number, string] = [ userId, brand, model, seats, storage, image ]
+
+    database.query(query, data, (err, rows) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            res.status(200).send({
+                message: 'Successfully created Vehicle'
+            });
+        }
+    });
+});
+
+// Update vehicle
+app.put('/vehicles/:id', isLoggedIn(), (req: Request, res: Response) => {
+    // Create database query and data
+    const query: string = "UPDATE Vehicle SET user_id = ?, brand = ?, model = ?, seats = ?, storage = ?, car_image = ? WHERE vehicle_id = ?"
+    const { userId, brand, model, seats, storage, image } = req.body
+    const vehicleId: number = +req.params.id
+    const data : [number, string, string, number, number, string] = [ userId, brand, model, seats, storage, image ]
+
+    database.query(query, data, (err, rows) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            res.status(200).send({
+                message: 'Successfully updated Vehicle'
+            });
+        }
+    });
+});
+
+// Delete vehicle
+app.delete('/vehicles/:id', isLoggedIn(), (req: Request, res: Response) => {
+    // Create database query and id
+    const query: string = "DELETE FROM Vehicle WHERE vehicle_id = ?"
+    const vehicleId: number = +req.params.id
+
+    database.query(query, vehicleId, (err: MysqlError, rows: any) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            }); 
+        } else {
+            res.status(200).send({
+                message: 'Successfully deleted Vehicle'
+            });
+        }
+    });
+});
+
+/*****************************************************************************
  * Routes for profile                                                        *
  *****************************************************************************/
 
+// Get profile
 app.get('/profile', isLoggedIn(), (req: Request, res: Response) => {
     // Send recipe list to client
     const query: string = "SELECT * FROM User WHERE user_id = ?"
@@ -258,6 +496,7 @@ app.get('/profile', isLoggedIn(), (req: Request, res: Response) => {
     });
 });
 
+// Get cars of user
 app.get('/cars', isLoggedIn(), (req: Request, res: Response) => {
     // Send recipe list to client
     const query: string= "SELECT * FROM Vehicle WHERE user_id = ?"
@@ -291,6 +530,7 @@ app.get('/cars', isLoggedIn(), (req: Request, res: Response) => {
     });
 });
 
+// Get ratings
 app.get('/comments', isLoggedIn(), (req: Request, res: Response) => {
     // Send recipe list to client
     const query: string= "SELECT `Ride`.*, `Ride`.`driver_id`, `booking`.*, `User`.`user_id`, `User`.`first_name`, `User`.`profile_picture` FROM `Ride` LEFT JOIN `booking` ON `booking`.`ride_id` = `Ride`.`ride_id` LEFT JOIN `User` ON `booking`.`customer_id` = `User`.`user_id` WHERE `driver_id` = ?"
@@ -345,6 +585,7 @@ function isLoggedIn() {
     };
 }
 
+// Login
 app.post('/login', (req: Request, res: Response) => {
     // Read data from request
     const username: string = req.body.username;
@@ -385,6 +626,7 @@ app.post('/login', (req: Request, res: Response) => {
     });
 });
 
+// Register new user
 app.post('/register', (req: Request, res: Response) => {
     // Read data from request
     const username: string = req.body.username;
@@ -435,6 +677,7 @@ app.post('/register', (req: Request, res: Response) => {
     });
 });
 
+// Check if user is logged in
 app.get('/login', isLoggedIn(), (req: Request, res: Response) => {
     res.status(200).send({
         message: 'User still logged in',
