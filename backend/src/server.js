@@ -199,8 +199,7 @@ app.delete('/rides/:id', isLoggedIn(), function (req, res) {
 app.get('/bookings/:id', function (req, res) {
     // Create database query and id
     var query = "SELECT * FROM booking WHERE booking_id = ?";
-    var bookingId = +req.params.id;
-    database.query(query, bookingId, function (err, rows) {
+    database.query(query, req.params.id, function (err, rows) {
         if (err) {
             // Database operation has failed
             res.status(500).send({
@@ -231,11 +230,10 @@ app.get('/bookings/:id', function (req, res) {
     });
 });
 // Get bookings for customer
-app.get('/customers/:id/bookings', isLoggedIn(), function (req, res) {
+app.get('/profile/bookings', isLoggedIn(), function (req, res) {
     // Create database query and id
     var query = "SELECT * FROM booking WHERE customer_id = ?";
-    var customerId = +req.params.id;
-    database.query(query, customerId, function (err, rows) {
+    database.query(query, req.session.user.uId, function (err, rows) {
         if (err) {
             // Database operation has failed
             res.status(500).send({
@@ -262,8 +260,7 @@ app.get('/customers/:id/bookings', isLoggedIn(), function (req, res) {
 app.get('/rides/:id/bookings', isLoggedIn(), function (req, res) {
     // Create database query and id
     var query = "SELECT * FROM booking WHERE ride_id = ?";
-    var rideId = +req.params.id;
-    database.query(query, rideId, function (err, rows) {
+    database.query(query, req.params.id, function (err, rows) {
         if (err) {
             // Database operation has failed
             res.status(500).send({
@@ -289,7 +286,7 @@ app.get('/rides/:id/bookings', isLoggedIn(), function (req, res) {
 // Create new booking
 app.post('/bookings', isLoggedIn(), function (req, res) {
     // Create database query and data
-    var query = "INSERT INTO booking (customer_id, ride_id, status, NULL, NULL) VALUES (?, ?, ?, ?, ?)";
+    var query = "INSERT INTO booking (customer_id, ride_id, status, rating, comment) VALUES (?, ?, ?, NULL, NULL)";
     var _a = req.body, customerId = _a.customerId, rideId = _a.rideId, status = _a.status;
     var data = [customerId, rideId, status];
     database.query(query, data, function (err, rows) {
@@ -311,8 +308,7 @@ app.put('/bookings/:id', isLoggedIn(), function (req, res) {
     // Create database query and data
     var query = "UPDATE booking SET customer_id = ?, ride_id = ?, status = ?, rating = ?, comment = ? WHERE booking_id = ?";
     var _a = req.body, customerId = _a.customerId, rideId = _a.rideId, status = _a.status, rating = _a.rating, comment = _a.comment;
-    var bookingId = +req.params.id;
-    var data = [customerId, rideId, status, rating, comment];
+    var data = [customerId, rideId, status, rating, comment, req.params.id];
     database.query(query, data, function (err, rows) {
         if (err) {
             // Database operation has failed

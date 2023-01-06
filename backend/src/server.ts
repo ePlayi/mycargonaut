@@ -222,9 +222,8 @@ app.delete('/rides/:id', isLoggedIn(), (req: Request, res: Response) => {
 app.get('/bookings/:id', (req: Request, res: Response) => {
     // Create database query and id
     const query: string = "SELECT * FROM booking WHERE booking_id = ?"
-    const bookingId: number = +req.params.id
 
-    database.query(query, bookingId, (err: MysqlError, rows: any[]) => {
+    database.query(query, req.params.id, (err: MysqlError, rows: any[]) => {
         if (err) {
             // Database operation has failed
             res.status(500).send({
@@ -255,12 +254,11 @@ app.get('/bookings/:id', (req: Request, res: Response) => {
 });
 
 // Get bookings for customer
-app.get('/customers/:id/bookings', isLoggedIn(), (req: Request, res: Response) => {
+app.get('/profile/bookings', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and id
     const query: string = "SELECT * FROM booking WHERE customer_id = ?"
-    const customerId: number = +req.params.id
-
-    database.query(query, customerId, (err: MysqlError, rows: any[]) => {
+    
+    database.query(query, req.session.user.uId, (err: MysqlError, rows: any[]) => {
         if (err) {
             // Database operation has failed
             res.status(500).send({
@@ -288,9 +286,8 @@ app.get('/customers/:id/bookings', isLoggedIn(), (req: Request, res: Response) =
 app.get('/rides/:id/bookings', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and id
     const query: string = "SELECT * FROM booking WHERE ride_id = ?"
-    const rideId: number = +req.params.id
 
-    database.query(query, rideId, (err: MysqlError, rows: any[]) => {
+    database.query(query, req.params.id, (err: MysqlError, rows: any[]) => {
         if (err) {
             // Database operation has failed
             res.status(500).send({
@@ -317,9 +314,9 @@ app.get('/rides/:id/bookings', isLoggedIn(), (req: Request, res: Response) => {
 // Create new booking
 app.post('/bookings', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and data
-    const query: string = "INSERT INTO booking (customer_id, ride_id, status, NULL, NULL) VALUES (?, ?, ?, ?, ?)"
+    const query: string = "INSERT INTO booking (customer_id, ride_id, status, rating, comment) VALUES (?, ?, ?, NULL, NULL)"
     const { customerId, rideId, status } = req.body
-    const data : [number, number, string ] = [ customerId, rideId, status ]
+    const data = [ customerId, rideId, status ]
 
     database.query(query, data, (err, rows) => {
         if (err) {
@@ -340,8 +337,7 @@ app.put('/bookings/:id', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and data
     const query: string = "UPDATE booking SET customer_id = ?, ride_id = ?, status = ?, rating = ?, comment = ? WHERE booking_id = ?"
     const { customerId, rideId, status, rating, comment } = req.body
-    const bookingId: number = +req.params.id
-    const data : [number, number, string, number, string] = [ customerId, rideId, status, rating, comment ]
+    const data = [ customerId, rideId, status, rating, comment, req.params.id ]
 
     database.query(query, data, (err: MysqlError, rows: any) => {
         if (err) {
@@ -361,9 +357,8 @@ app.put('/bookings/:id', isLoggedIn(), (req: Request, res: Response) => {
 app.delete('/bookings/:id', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and id
     const query: string = "DELETE FROM booking WHERE booking_id = ?"
-    const bookingId: number = +req.params.id
 
-    database.query(query, bookingId, (err: MysqlError, rows: any) => {
+    database.query(query, req.params.id, (err: MysqlError, rows: any) => {
         if (err) {
             // Database operation has failed
             res.status(500).send({
@@ -526,6 +521,8 @@ app.get('/profile', isLoggedIn(), (req: Request, res: Response) => {
         }
     });
 });
+
+// Get profile by id
 app.get('/profile/:id', isLoggedIn(), (req: Request, res: Response) => {
     // Send recipe list to client
     const query: string = "SELECT * FROM User WHERE user_id = ?"
@@ -568,9 +565,7 @@ app.get('/profile/:id', isLoggedIn(), (req: Request, res: Response) => {
     });
 });
 
-
-
-//Update profile
+// Update profile
 app.put('/profile', isLoggedIn(), (req: Request, res: Response) => {
     const user :any = req.body.user
     const query: string = "UPDATE `User` SET `first_name` = ?, `last_name` = ?, `email` = ?, `mobile_nr` = ?, `birthdate` = ?, `gender` = ?, `address` = ?, `profile_picture` = ?, `description` = ? WHERE `User`.`user_id` = ?"
@@ -590,7 +585,7 @@ app.put('/profile', isLoggedIn(), (req: Request, res: Response) => {
     });
 });
 
-//Update user password
+// Update user password
 app.put('/password', isLoggedIn(), (req: Request, res: Response) => {
     const password: string = req.body.password;
     const passwordHashed :string = crypto.createHash("sha512").update(password).digest('hex')
@@ -800,7 +795,7 @@ app.get('/login', isLoggedIn(), (req: Request, res: Response) => {
     });
 });
 
-//Logout the user
+// Logout the user
 app.post('/logout', (req: Request, res: Response) => {
     // Log out user
     delete req.session.user; // Delete user from session
