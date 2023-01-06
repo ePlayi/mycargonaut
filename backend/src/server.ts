@@ -32,7 +32,7 @@ const database: Pool = mysql.createPool({
 const app = express();
 const port = process.env.PORT || 3001;
 app.use(cors());
-app.use(history());
+// app.use(history());
 let server = app.listen(port, () => {
     console.log('Server started');
     //---- connect to database ----------------------------------------------------
@@ -83,9 +83,8 @@ app.use('/', express.static(basedir + '/frontend/build'));
 app.get('/rides/:id', (req: Request, res: Response) => {
     // Create database query and id
     const query: string = "SELECT * FROM Ride WHERE ride_id = ?"
-    const rideId: string = req.params.id
 
-    database.query(query, rideId, (err: MysqlError, rows: any[]) => {
+    database.query(query, req.params.id, (err: MysqlError, rows: any[]) => {
         if (err) {
             // Database operation has failed
             res.status(500).send({
@@ -102,7 +101,9 @@ app.get('/rides/:id', (req: Request, res: Response) => {
                     dateTime: row.dateTime,
                     price: row.price,
                     description: row.description,
-                    open: row.open
+                    open: row.open,
+                    posLongitude: row.pos_long,
+                    posLatitude: row.pos_lat
                 });
 
                 res.status(200).send({
@@ -139,7 +140,9 @@ app.get('/rides', (req: Request, res: Response) => {
                 dateTime: row.dateTime,
                 price: row.price,
                 description: row.description,
-                open: row.open
+                open: row.open,
+                posLongitude: row.pos_long,
+                posLatitude: row.pos_lat
             });
 
             res.status(200).send({
@@ -153,9 +156,9 @@ app.get('/rides', (req: Request, res: Response) => {
 // Create new ride
 app.post('/rides', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and data
-    const query: string = "INSERT INTO Ride (driver_id, vehicle_id, start, destination, dateTime, price, description, open) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
-    const { vehicleId, start, destination, dateTime, price, description, open } = req.body
-    const data : [number, string, string, string, number, string, boolean] = [ vehicleId, start, destination, dateTime, price, description, open ]
+    const query: string = "INSERT INTO Ride (driver_id, vehicle_id, start, destination, dateTime, price, description, open, pos_long, pos_lat) VALUES (?, ?, ?, ?, ?, ?, ?, true, null, null)"
+    const { driverId, vehicleId, start, destination, dateTime, price, description } = req.body
+    const data = [ driverId, vehicleId, start, destination, dateTime, price, description ]
 
     database.query(query, data, (err: MysqlError, rows: any) => {
         if (err) {
@@ -174,10 +177,9 @@ app.post('/rides', isLoggedIn(), (req: Request, res: Response) => {
 // Update ride
 app.put('/rides/:id', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and data
-    const query: string = "UPDATE Ride SET driver_id = ?, vehicle_id = ?, start = ?, destination = ?, dateTime = ?, price = ?, description = ?, open = ? WHERE ride_id = ?"
-    const { vehicleId, start, destination, dateTime, price, description, open } = req.body
-    const rideId: number = +req.params.id
-    const data : [number, number, string, string, string, number, string, boolean] = [ rideId, vehicleId, start, destination, dateTime, price, description, open ]
+    const query: string = "UPDATE Ride SET driver_id = ?, vehicle_id = ?, start = ?, destination = ?, dateTime = ?, price = ?, description = ?, open = ?, pos_long = ?, pos_lat = ? WHERE ride_id = ?"
+    const { driverId, vehicleId, start, destination, dateTime, price, description, open, posLongitude, posLatitude } = req.body
+    const data = [ driverId, vehicleId, start, destination, dateTime, price, description, open, posLongitude, posLatitude, req.params.id ]
 
     database.query(query, data, (err: MysqlError, rows: any) => {
         if (err) {
@@ -197,9 +199,8 @@ app.put('/rides/:id', isLoggedIn(), (req: Request, res: Response) => {
 app.delete('/rides/:id', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and id
     const query: string = "DELETE FROM Ride WHERE ride_id = ?"
-    const rideId: number = +req.params.id
 
-    database.query(query, rideId, (err: MysqlError, rows: any) => {
+    database.query(query, req.params.id, (err: MysqlError, rows: any) => {
         if (err) {
             // Database operation has failed
             res.status(500).send({
