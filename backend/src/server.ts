@@ -4,7 +4,7 @@
 import express = require ('express');
 import {Request, Response} from 'express';
 const cors = require('cors');
-// const history = require('connect-history-api-fallback');
+const history = require('connect-history-api-fallback');
 import crypto = require("crypto")
 import {Connection, FieldInfo, MysqlError, OkPacket, Pool} from "mysql";
 import mysql = require ("mysql");      // handles database connections
@@ -32,7 +32,7 @@ const database: Pool = mysql.createPool({
 const app = express();
 const port = process.env.PORT || 3001;
 app.use(cors());
-// app.use(history());
+app.use(history());
 let server = app.listen(port, () => {
     console.log('Server started');
     //---- connect to database ----------------------------------------------------
@@ -492,6 +492,26 @@ app.get('/profile', isLoggedIn(), (req: Request, res: Response) => {
                     message: 'Cannot resolve User'
                 });
             }
+        }
+    });
+});
+
+//Update profile
+app.put('/profile', isLoggedIn(), (req: Request, res: Response) => {
+    const user :any = req.body.user
+    const query: string = "UPDATE `User` SET `first_name` = ?, `last_name` = ?, `email` = ?, `mobile_nr` = ?, `birthdate` = ?, `gender` = ?, `address` = ?, `profile_picture` = ?, `description` = ? WHERE `User`.`user_id` = ?"
+    const data : [string, string, string, string, string, string, string, string, string, number] = [user.name, user.nachname, user.email, user.mobilenr, user.birthdate, user.gender, user.adress, user.profilePicture, user.description, req.session.user.uId ]
+
+    database.query(query, data, (err: MysqlError, rows: any[]) => {
+        if (err){
+            res.status(500).send({
+                message: 'Database request failed',
+            });
+        }
+        else{
+            res.status(200).send({
+                message: 'Successfully updated user profile',
+            });
         }
     });
 });

@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  *****************************************************************************/
 var express = require("express");
 var cors = require('cors');
-// const history = require('connect-history-api-fallback');
+var history = require('connect-history-api-fallback');
 var crypto = require("crypto");
 var mysql = require("mysql"); // handles database connections
 var session = require("cookie-session");
@@ -24,7 +24,7 @@ var database = mysql.createPool({
 var app = express();
 var port = process.env.PORT || 3001;
 app.use(cors());
-// app.use(history());
+app.use(history());
 var server = app.listen(port, function () {
     console.log('Server started');
     //---- connect to database ----------------------------------------------------
@@ -457,6 +457,24 @@ app.get('/profile', isLoggedIn(), function (req, res) {
                     message: 'Cannot resolve User'
                 });
             }
+        }
+    });
+});
+//Update profile
+app.put('/profile', isLoggedIn(), function (req, res) {
+    var user = req.body.user;
+    var query = "UPDATE `User` SET `first_name` = ?, `last_name` = ?, `email` = ?, `mobile_nr` = ?, `birthdate` = ?, `gender` = ?, `address` = ?, `profile_picture` = ?, `description` = ? WHERE `User`.`user_id` = ?";
+    var data = [user.name, user.nachname, user.email, user.mobilenr, user.birthdate, user.gender, user.adress, user.profilePicture, user.description, req.session.user.uId];
+    database.query(query, data, function (err, rows) {
+        if (err) {
+            res.status(500).send({
+                message: 'Database request failed',
+            });
+        }
+        else {
+            res.status(200).send({
+                message: 'Successfully updated user profile',
+            });
         }
     });
 });

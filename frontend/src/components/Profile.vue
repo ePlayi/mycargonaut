@@ -84,7 +84,7 @@
 -->
   <section>
     <div style="float: right">
-      <button class="btn btn-warning" @click="openEditProfileModal"><i class="fa-solid fa-pen fa-2x" ></i></button>
+      <button class="btn btn-warning" @click="editProfileModal=true"><i class="fa-solid fa-pen fa-2x" ></i></button>
     </div>
     <div class="row d-flex align-items-center justify-content-center mb-5" style="text-align: center">
       <div class="col-md-6 col-12">
@@ -161,36 +161,36 @@
       <template #body>
         <div class="form-group">
           <label for="inputFirstname">Vorname</label>
-          <input type="text" class="form-control" id="inputFirstname" placeholder="Vorname..." v-model="editFirstname">
+          <input type="text" class="form-control" id="inputFirstname" placeholder="Vorname..." v-model="user.name">
 
           <label for="inputLastname">Nachname</label>
-          <input type="text" class="form-control" id="inputLastname" placeholder="Nachname..." v-model="editLastname">
+          <input type="text" class="form-control" id="inputLastname" placeholder="Nachname..." v-model="user.nachname">
 
           <label for="inputMail">Mail</label>
-          <input type="text" class="form-control" id="inputMail" placeholder="Mail..." v-model="editMail">
+          <input type="text" class="form-control" id="inputMail" placeholder="Mail..." v-model="user.email">
 
           <label for="inputMobileNr">Handy Nummer</label>
-          <input type="text" class="form-control" id="inputMobileNr" placeholder="Handy..." v-model="editMobileNr">
+          <input type="text" class="form-control" id="inputMobileNr" placeholder="Handy..." v-model="user.mobilenr">
 
           <label for="inputBirthdate">Geburtsdatum</label>
-          <input type="date" class="form-control" id="inputBirthdate" placeholder="Datum" v-model="editBirthdate">
+          <input type="date" class="form-control" id="inputBirthdate" placeholder="Datum" v-model="user.birthdate">
 
           <label for="inputGender">Geschlecht</label>
-          <input type="text" class="form-control" id="inputGender" placeholder="Geschlecht..." v-model="editGender">
+          <input type="text" class="form-control" id="inputGender" placeholder="Geschlecht..." v-model="user.gender">
 
           <label for="inputAdress">Adresss</label>
-          <input type="text" class="form-control" id="inputAdress" placeholder="Adresse..." v-model="editAdress">
+          <input type="text" class="form-control" id="inputAdress" placeholder="Adresse..." v-model="user.adress">
 
           <label for="inputPicture">Bild</label>
-          <input type="text" class="form-control" id="inputPicture" placeholder="Bild URL..." v-model="editPicture">
+          <input type="text" class="form-control" id="inputPicture" placeholder="Bild URL..." v-model="user.profilePicture">
 
           <label for="inputDescription">Beschreibung</label>
-          <textarea type="text" class="form-control" rows="3" id="inputDescription" v-model="editDescription"></textarea>
+          <textarea type="text" class="form-control" rows="3" id="inputDescription" v-model="user.description"></textarea>
 
         </div>
       </template>
       <template #footer>
-        <button type="button" class="btn btn-primary" @click="addToWeekplan()">Hinzufügen</button>
+        <button type="button" class="btn btn-primary" @click="saveEditProfile(this.user)">Speichern</button>
       </template>
     </modal>
   </Teleport>
@@ -244,9 +244,24 @@ export default {
     }
   },
   methods:{
-    openEditProfileModal(){
-      this.editProfileModal=true
+    saveEditProfile(user){
+      this.axios.request({
+        method: 'PUT',
+        url: this.url+'profile',
+        data: {
+          user
+        }
+      })
+          .then(function(response){
+            if (response.status){
+              this.getProfileInformation()
+            }
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
     },
+
     getProfileInformation(){
       this.axios.get(this.url+'profile',{
       })
