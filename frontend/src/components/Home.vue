@@ -11,7 +11,7 @@
     <div class="text-center" style="margin: 0 auto">
       <div class="row">
         <div class="col-md-3 col mb-3">
-          <div class="card" >
+          <div class="card">
             <img class="card-img-top" src="../assets/images/undraw/search-image.svg" alt="Card image cap">
             <div class="card-body">
               <h5 class="card-title">Alle Angebote</h5>
@@ -67,10 +67,10 @@ header{
 }
 .card{
   width: auto;
-  height: 30vh;
+  height: 300px;
 }
 .card-img-top{
-  margin-top: 16px;
+  margin-top: 20px;
   height: 10rem;
 }
 </style>
