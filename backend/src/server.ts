@@ -332,7 +332,7 @@ app.delete('/bookings/:id', (req: Request, res: Response) => {
     const query: string = "DELETE FROM booking WHERE booking_id = ?"
     const bookingId: number = +req.params.id
 
-    database.query(query, booking, (err: MysqlError, rows: any) => {
+    database.query(query, bookingId, (err: MysqlError, rows: any) => {
         if (err) {
             // Database operation has failed
             res.status(500).send({
@@ -341,6 +341,89 @@ app.delete('/bookings/:id', (req: Request, res: Response) => {
         } else {
             res.status(200).send({
                 message: 'Successfully deleted Booking'
+            });
+        }
+    });
+});
+
+/*****************************************************************************
+ * Routes for vehicles                                                       *
+ *****************************************************************************/
+
+// Get single vehicle
+app.get('/vehicles/:id', (req: Request, res: Response) => {
+    // Create database query and id
+    const query: string = "SELECT * FROM Vehicle WHERE vehicle_id = ?"
+    const vehicleId: number = +req.params.id
+
+    database.query(query, vehicle, (err: MysqlError, rows: any[]) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            if (rows.length === 1) {
+                const vehicle = rows.map(row => row = {
+                    vehicleId: row.vehicle_id,
+                    userId: row.user_id,
+                    brand: row.brand,
+                    model: row.model,
+                    seats: row.seats,
+                    storage: row.storage,
+                    image: row.car_image
+                });
+                
+                res.status(200).send({
+                    vehicle,
+                    message: 'Successfully requested Vehicle'
+                });
+            } else {
+                res.status(404).send({
+                    message: 'Cannot resolve Vehicle'
+                });
+            }
+        }
+    });
+});
+
+// Update vehicle
+app.put('/vehicles/:id', (req: Request, res: Response) => {
+    // Create database query and data
+    const query: string = "UPDATE Vehicle SET user_id = ?, brand = ?, model = ?, seats = ?, storage = ?, car_image = ? WHERE vehicle_id = ?"
+    const { userId, brand, model, seats, storage, image } = req.body
+    const vehicleId: number = +req.params.id
+    const data : [number, string, string, number, number, string] = [ userId, brand, model, seats, storage, image ]
+
+    database.query(query, data, (err, rows) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            res.status(200).send({
+                message: 'Successfully updated Vehicle'
+            });
+        }
+    });
+});
+
+// Delete vehicle
+app.delete('/vehicles/:id', (req: Request, res: Response) => {
+    // Create database query and id
+    const query: string = "DELETE FROM Vehicle WHERE vehicle_id = ?"
+    const vehicleId: number = +req.params.id
+
+    database.query(query, vehicleId, (err: MysqlError, rows: any) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            }); 
+        } else {
+            res.status(200).send({
+                message: 'Successfully deleted Vehicle'
             });
         }
     });
