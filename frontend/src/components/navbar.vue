@@ -22,6 +22,7 @@
   width: 100%;
   display: flex;
   justify-content: space-between;
+  z-index: 555;
 }
 
 /* Style the links inside the navigation bar */
