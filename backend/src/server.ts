@@ -222,7 +222,7 @@ app.get('/bookings/:id', (req: Request, res: Response) => {
     // Create database query and id
     const query: string = "SELECT * FROM booking WHERE booking_id = ?"
     const bookingId: number = +req.params.id
-    
+
     database.query(query, bookingId, (err: MysqlError, rows: any[]) => {
         if (err) {
             // Database operation has failed
@@ -258,7 +258,7 @@ app.get('/rides/:id/bookings', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and id
     const query: string = "SELECT * FROM booking WHERE ride_id = ?"
     const rideId: number = +req.params.id
-    
+
     database.query(query, rideId, (err: MysqlError, rows: any[]) => {
         if (err) {
             // Database operation has failed
@@ -289,7 +289,7 @@ app.post('/bookings', isLoggedIn(), (req: Request, res: Response) => {
     const query: string = "INSERT INTO booking (customer_id, ride_id, status, NULL, NULL) VALUES (?, ?, ?, ?, ?)"
     const { customerId, rideId, status } = req.body
     const data : [number, number, string ] = [ customerId, rideId, status ]
-    
+
     database.query(query, data, (err, rows) => {
         if (err) {
             // Database operation has failed
@@ -337,7 +337,7 @@ app.delete('/bookings/:id', isLoggedIn(), (req: Request, res: Response) => {
             // Database operation has failed
             res.status(500).send({
                 message: 'Database request failed: ' + err
-            }); 
+            });
         } else {
             res.status(200).send({
                 message: 'Successfully deleted Booking'
@@ -356,7 +356,7 @@ app.get('/vehicles/:id', (req: Request, res: Response) => {
     const query: string = "SELECT * FROM Vehicle WHERE vehicle_id = ?"
     const vehicleId: number = +req.params.id
 
-    database.query(query, vehicle, (err: MysqlError, rows: any[]) => {
+    database.query(query, vehicleId, (err: MysqlError, rows: any[]) => {
         if (err) {
             // Database operation has failed
             res.status(500).send({
@@ -373,7 +373,7 @@ app.get('/vehicles/:id', (req: Request, res: Response) => {
                     storage: row.storage,
                     image: row.car_image
                 });
-                
+
                 res.status(200).send({
                     vehicle,
                     message: 'Successfully requested Vehicle'
@@ -441,7 +441,7 @@ app.delete('/vehicles/:id', isLoggedIn(), (req: Request, res: Response) => {
             // Database operation has failed
             res.status(500).send({
                 message: 'Database request failed: ' + err
-            }); 
+            });
         } else {
             res.status(200).send({
                 message: 'Successfully deleted Vehicle'

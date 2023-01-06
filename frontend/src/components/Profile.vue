@@ -83,6 +83,9 @@
     </v-container>
 -->
   <section>
+    <div style="float: right">
+      <button class="btn btn-warning" @click="openEditProfileModal"><i class="fa-solid fa-pen fa-2x" ></i></button>
+    </div>
     <div class="row d-flex align-items-center justify-content-center mb-5" style="text-align: center">
       <div class="col-md-6 col-12">
         <h2>{{user.name}} {{user.nachname}}</h2>
@@ -145,13 +148,62 @@
       </div>
     </div>
   </section>
+  <!--Modal to Edit Profile-->
+  <Teleport to="body">
+    <!-- use the modal component, pass in the prop -->
+    <modal :show="editProfileModal" @close="editProfileModal = false">
+      <template #header>
+        <p>Profil bearbeiten</p>
+        <button class="btn btn-secondary" style="text-align: right" @click="editProfileModal = false;">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </template>
+      <template #body>
+        <div class="form-group">
+          <label for="inputFirstname">Vorname</label>
+          <input type="text" class="form-control" id="inputFirstname" placeholder="Vorname..." v-model="editFirstname">
+
+          <label for="inputLastname">Nachname</label>
+          <input type="text" class="form-control" id="inputLastname" placeholder="Nachname..." v-model="editLastname">
+
+          <label for="inputMail">Mail</label>
+          <input type="text" class="form-control" id="inputMail" placeholder="Mail..." v-model="editMail">
+
+          <label for="inputMobileNr">Handy Nummer</label>
+          <input type="text" class="form-control" id="inputMobileNr" placeholder="Handy..." v-model="editMobileNr">
+
+          <label for="inputBirthdate">Geburtsdatum</label>
+          <input type="date" class="form-control" id="inputBirthdate" placeholder="Datum" v-model="editBirthdate">
+
+          <label for="inputGender">Geschlecht</label>
+          <input type="text" class="form-control" id="inputGender" placeholder="Geschlecht..." v-model="editGender">
+
+          <label for="inputAdress">Adresss</label>
+          <input type="text" class="form-control" id="inputAdress" placeholder="Adresse..." v-model="editAdress">
+
+          <label for="inputPicture">Bild</label>
+          <input type="text" class="form-control" id="inputPicture" placeholder="Bild URL..." v-model="editPicture">
+
+          <label for="inputDescription">Beschreibung</label>
+          <textarea type="text" class="form-control" rows="3" id="inputDescription" v-model="editDescription"></textarea>
+
+        </div>
+      </template>
+      <template #footer>
+        <button type="button" class="btn btn-primary" @click="addToWeekplan()">Hinzufügen</button>
+      </template>
+    </modal>
+  </Teleport>
 </template>
 
 
 <script>
-
+import Modal from "@/components/Modal"
 export default {
   name: "Profile",
+  components:{
+    Modal
+  },
   created() {
     document.title = "Profil";
   },
@@ -172,9 +224,29 @@ export default {
       user:{},
       cars:[],
       comments:[],
+      editProfileModal: false,
+
+      //everything to edit user profile
+      editFirstname: "",
+      editLastname: "",
+      editMail: "",
+      editMobileNr: "",
+      editBirthdate:"",
+      editGender: "",
+      editAdress: "",
+      editPicture: "",
+      editDescription: "",
+
+
+
+
+
     }
   },
   methods:{
+    openEditProfileModal(){
+      this.editProfileModal=true
+    },
     getProfileInformation(){
       this.axios.get(this.url+'profile',{
       })
