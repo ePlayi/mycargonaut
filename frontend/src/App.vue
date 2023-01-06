@@ -81,9 +81,9 @@ export default {
       register_mail: "",
       register_mobilenr: "",
       //IF LOCAL TESTED USE THIS URL FOR THE API CALLS
-      //url: 'http://localhost:3001/'
+      url: 'http://localhost:3001/'
 
-      url: 'https://mycargonaut.onrender.com/'
+      //url: 'https://mycargonaut.onrender.com/'
 
     }
   },
