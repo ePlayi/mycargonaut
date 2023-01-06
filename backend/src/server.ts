@@ -254,6 +254,36 @@ app.get('/bookings/:id', (req: Request, res: Response) => {
     });
 });
 
+// Get bookings for customer
+app.get('/customers/:id/bookings', isLoggedIn(), (req: Request, res: Response) => {
+    // Create database query and id
+    const query: string = "SELECT * FROM booking WHERE customer_id = ?"
+    const customerId: number = +req.params.id
+    
+    database.query(query, customerId, (err: MysqlError, rows: any[]) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            const bookingList = rows.map(row => row = {
+                bookingId: row.booking_id,
+                customerId: row.customer_id,
+                rideId: row.ride_id,
+                status: row.status,
+                rating: row.rating,
+                comment: row.comment
+            });
+
+            res.status(200).send({
+                bookingList,
+                message: 'Successfully requested Bookings'
+            });
+        }
+    });
+});
+
 // Get booking requests for ride
 app.get('/rides/:id/bookings', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and id

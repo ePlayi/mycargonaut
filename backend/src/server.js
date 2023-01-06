@@ -230,6 +230,34 @@ app.get('/bookings/:id', function (req, res) {
         }
     });
 });
+// Get bookings for customer
+app.get('/customers/:id/bookings', isLoggedIn(), function (req, res) {
+    // Create database query and id
+    var query = "SELECT * FROM booking WHERE customer_id = ?";
+    var customerId = +req.params.id;
+    database.query(query, customerId, function (err, rows) {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        }
+        else {
+            var bookingList = rows.map(function (row) { return row = {
+                bookingId: row.booking_id,
+                customerId: row.customer_id,
+                rideId: row.ride_id,
+                status: row.status,
+                rating: row.rating,
+                comment: row.comment
+            }; });
+            res.status(200).send({
+                bookingList: bookingList,
+                message: 'Successfully requested Bookings'
+            });
+        }
+    });
+});
 // Get booking requests for ride
 app.get('/rides/:id/bookings', isLoggedIn(), function (req, res) {
     // Create database query and id
