@@ -35,8 +35,8 @@
           {{dialog.ride.description}}
         </v-card-text>
         <v-card-actions>
-          <v-btn color="primary" >Jetzt für {{ dialog.ride.price }}€ buchen</v-btn>
-          <v-btn color="primary" @click="dialog.open = false;">Schließen</v-btn>
+          <v-btn color="green" >Jetzt für {{ dialog.ride.price }}€ buchen</v-btn>
+          <v-btn color="red" @click="dialog.open = false;">Schließen</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
