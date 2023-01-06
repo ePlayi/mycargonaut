@@ -12,6 +12,7 @@
               style="width: 150px; height: 150px; border-radius: 50%;"
               class="ma-4">
               Fahrer: {{ride.driverId}}
+              Fahrer: {{ getUser(ride.driverId)!==null ? getUser(ride.driverId).name : "Loading..." }}
             </v-col>
             <v-col class="offer-card-col" cols="12" md="3">
               Abfahrt am {{ride.dateTime}}
@@ -82,6 +83,13 @@ export default {
           .then((response) => {
             this.rides=response.data.rideList
             console.log(this.rides)
+          })
+    },
+    getUser(userId){
+      this.axios.get(this.url+'profile/'+userId,{
+      })
+          .then((response) => {
+            return response.data.user
           })
     },
   }
