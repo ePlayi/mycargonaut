@@ -256,7 +256,7 @@ app.get('/bookings/:id', (req: Request, res: Response) => {
 // Get bookings for customer
 app.get('/profile/bookings', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and id
-    const query: string = "SELECT * FROM booking WHERE customer_id = ?"
+    const query: string = "SELECT `booking`.*, `booking`.`ride_id`, `Ride`.* FROM `booking` LEFT JOIN `Ride` ON `booking`.`ride_id` = `Ride`.`ride_id` WHERE `booking`.`customer_id` = ?;"
 
     database.query(query, req.session.user.uId, (err: MysqlError, rows: any[]) => {
         if (err) {
@@ -271,7 +271,9 @@ app.get('/profile/bookings', isLoggedIn(), (req: Request, res: Response) => {
                 rideId: row.ride_id,
                 status: row.status,
                 rating: row.rating,
-                comment: row.comment
+                comment: row.comment,
+                start: row.start,
+                destination: row.destination
             });
 
             res.status(200).send({
@@ -474,8 +476,128 @@ app.delete('/vehicles/:id', isLoggedIn(), (req: Request, res: Response) => {
 });
 
 /*****************************************************************************
- * Routes for profile                                                        *
+ * Routes for Tracking                                                       *
  *****************************************************************************/
+// Update position of driver where booking.status = 4
+
+app.put('/updatePos', isLoggedIn(), (req: Request, res: Response) => {
+    // Create database query and data
+    const rideId = req.body.rideId
+    const long = req.body.long
+    const lat = req.body.lat
+
+    const query : string = "UPDATE `Ride` SET `pos_long` = ?, `pos_lat` = ? WHERE `Ride`.`ride_id` = ?;"
+    const data : [number, number, number] = [long, lat, rideId]
+
+    database.query(query, data, (err: MysqlError, rows: any) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            res.status(200).send({
+                message: 'Successfully updated Position'
+            });
+        }
+    });
+});
+
+app.put('/changeStatusRide', isLoggedIn(), (req: Request, res: Response) => {
+    // Create database query and data
+    const rideId = req.body.id
+    const changeTo = req.body.changeTo
+    const query : string = "UPDATE `booking` SET `status` = ? WHERE `booking`.`booking_id` = ?"
+    const data : [number, number] = [changeTo, rideId]
+
+    database.query(query, data, (err: MysqlError, rows: any) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            res.status(200).send({
+                message: 'Successfully started ride'
+            });
+        }
+    });
+});
+
+
+app.get('/activeRides', isLoggedIn(), (req: Request, res: Response) => {
+    // Create database query and id
+    const query: string = "SELECT `booking`.*, `Ride`.*, `booking`.`status`, `Ride`.`driver_id` FROM `booking` LEFT JOIN `Ride` ON `booking`.`ride_id` = `Ride`.`ride_id` WHERE `booking`.`status` = '4' AND `Ride`.`driver_id` = ?;"
+
+    database.query(query, req.session.user.uId, (err: MysqlError, rows: any[]) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            if (rows.length>0){
+                const activeRides =  {
+                    bookingId: rows[0].booking_id,
+                    customerId: rows[0].customer_id,
+                    rideId: rows[0].ride_id,
+                    start: rows[0].start,
+                    destination: rows[0].destination,
+                    customerName: rows[0].first_name + ' ' + rows[0].last_name
+                };
+
+                res.status(200).send({
+                    activeRides,
+                    message: 'Successfully requested Accepted Bookings'
+                });
+            }else{
+                res.status(204).send({
+                    message: 'No active rides'
+                });
+            }
+
+        }
+    });
+});
+
+// Get rides for driver wehere status = 2
+app.get('/ridesAccepted', isLoggedIn(), (req: Request, res: Response) => {
+    // Create database query and id
+    const query: string = "SELECT `booking`.*, `Ride`.*, `User`.*, `booking`.`status`, `Ride`.`driver_id` FROM `booking` LEFT JOIN `Ride` ON `booking`.`ride_id` = `Ride`.`ride_id` LEFT JOIN `User` ON `booking`.`customer_id` = `User`.`user_id` WHERE `booking`.`status` = '2' AND `Ride`.`driver_id` = ?;"
+
+    database.query(query, req.session.user.uId, (err: MysqlError, rows: any[]) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            const acceptedList = rows.map(row => row = {
+                bookingId: row.booking_id,
+                customerId: row.customer_id,
+                rideId: row.ride_id,
+                status: row.status,
+                rating: row.rating,
+                comment: row.comment,
+                start: row.start,
+                destination: row.destination,
+                customerName: row.first_name + ' ' + row.last_name
+            });
+
+            res.status(200).send({
+                acceptedList,
+                message: 'Successfully requested Accepted Bookings'
+            });
+        }
+    });
+});
+
+
+/*****************************************************************************
+ * Routes for Profile                                                        *
+ *****************************************************************************/
+
+
 
 // Get profile
 app.get('/profile', isLoggedIn(), (req: Request, res: Response) => {

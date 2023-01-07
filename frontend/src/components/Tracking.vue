@@ -57,10 +57,32 @@
         </v-card>
     </v-container>
 -->
-  <h3 class="text-center">Offene Fahrten</h3>
+
+
+  <div v-if="activeRide===true">
+    <h1 class="text-center">Lassen Sie diesen Screen aktiv, damit die Position getrackt werden kann</h1>
+    <h2>Sie haben folgende Fahrt aktiv:</h2>
+    <div>
+      <p>{{activeRides.customerName}} - {{activeRides.start}}->{{activeRides.destination}}</p>
+    </div>
+
+    <button class="btn btn-primary" @click="changeStatusTo(this.activeRideId, 5)">Fahrt abschließen</button>
+  </div>
+<div v-if="activeRide===false">
+  <h3 class="text-center">Aktiv Trackbare Fahrten</h3>
   <select class="form-select" v-model="activeSelected" @change="getPos()">
-    <option v-for="booking in bookings" :key="booking" @click="activeSelected=booking.rideId">{{booking.rideId}} - {{booking.status}}</option>
+    <option v-for="booking in trackableBookings" :key="booking" @click="activeSelected=booking.rideId">{{booking.rideId}} : {{booking.start}}-{{booking.destination}}</option>
   </select>
+
+  <h3 class="text-center">Offene akzeptierte Fahrten</h3>
+  <select class="form-select" v-model="selectAccepted">
+    <option v-for="acc in accepted" :key="acc" :value="acc.rideId">{{acc.customerName}} : {{acc.start}}-{{acc.destination}}</option>
+  </select>
+
+  <p>Fahrt für {{selectAccepted}} beginnen <button class="btn btn-primary" @click="changeStatusTo(selectAccepted, 4)">Los gehts!</button></p>
+
+</div>
+
   <hr>
   <div class="map-box">
     <l-map ref="map" v-model:zoom="zoom" :center=position :maxZoom=18>
@@ -94,11 +116,19 @@ export default {
 
   },
   mounted() {
-
+    setInterval(()=>{
+      if (this.activeRide===true){
+        console.log("Interval triggered")
+        this.getOwnPos()
+        this.updateLocation(this.activeRideId)
+      }
+    }, 5000)
   },
   beforeMount() {
     this.getBookings()
     this.getOwnPos()
+    this.getAcceptedRides()
+    this.getActiveRide()
   },
   data() {
     return {
@@ -107,6 +137,8 @@ export default {
       // url: 'https://mycargonaut.onrender.com/',
 
       activeSelected:{},
+      selectAccepted:"",
+      activeRide: false,
 
       //entry zoomlevel
       zoom: 8,
@@ -114,15 +146,81 @@ export default {
       position: [0,0],
       ride:{},
 
+      long:0,
+      lat: 0,
+
       bookings:[],
+
+      accepted:[],
+
+      activeRides: {},
+      activeRideId:0,
+    }
+  },
+  computed:{
+    trackableBookings: function (){
+      return this.bookings.filter(i => i.status === 4)
     }
   },
   methods:{
+    getActiveRide(){
+      this.axios.get(this.url+'activeRides',{
+      })
+          .then((response) => {
+            this.activeRides=response.data.activeRides
+            this.activeRideId = this.activeRides.rideId
+            this.activeRide=true
+
+          })
+    },
+    updateLocation(){
+      this.axios.request({
+        method: 'PUT',
+        url: this.url+'updatePos',
+        data: {
+          rideId: this.activeRideId,
+          long: this.long,
+          lat: this.lat
+        }
+      })
+          .then(function(response){
+            if (response.status){
+              console.log("still driving")
+            }
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+    },
+    changeStatusTo(id, changeTo){
+      this.axios.request({
+        method: 'PUT',
+        url: this.url+'changeStatusRide',
+        data: {
+          id:id,
+          changeTo: changeTo
+        }
+      })
+          .then(()=>{
+            //FUCKIT ICH RELOADE DIE PAGE HUSO
+            window.location.reload()
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+    },
+    getAcceptedRides(){
+      this.axios.get(this.url+'ridesAccepted',{
+      })
+          .then((response) => {
+            this.accepted=response.data.acceptedList
+            console.log(this.accepted)
+          })
+    },
     getOwnPos(){
       navigator.geolocation.getCurrentPosition((location)=> {
-        console.log(location.coords.latitude);
-        console.log(location.coords.longitude);
-        console.log(location.coords.accuracy);
+        this.long = location.coords.longitude
+        this.lat = location.coords.latitude
         this.position=[location.coords.latitude, location.coords.longitude]
       });
     },
@@ -139,7 +237,7 @@ export default {
           })
     },
     getBookings(){
-      this.axios.get(this.url+'customers/bookings',{
+      this.axios.get(this.url+'profile/bookings',{
       })
           .then((response) => {
             this.bookings=response.data.bookingList
