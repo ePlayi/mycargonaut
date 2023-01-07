@@ -128,7 +128,7 @@
       <p>Handynummer: {{user.mobilenr}}</p>
       <p v-if="user.gender">Geschlecht: {{user.gender}}</p>
       <p v-if="user.birthdate">Geboren: {{user.birthdate}}</p>
-      <p v-if="user.adress">Adresse: {{user.adress}}</p>
+      <p v-if="user.address">Addresse: {{user.address}}</p>
 
     </div>
     <div class="row mb-5">
@@ -206,8 +206,8 @@
           <label for="inputGender">Geschlecht</label>
           <input type="text" class="form-control" id="inputGender" placeholder="Geschlecht..." v-model="user.gender">
 
-          <label for="inputAdress">Adresss</label>
-          <input type="text" class="form-control" id="inputAdress" placeholder="Adresse..." v-model="user.adress">
+          <label for="inputAddress">Address</label>
+          <input type="text" class="form-control" id="inputAddress" placeholder="Addresse..." v-model="user.address">
 
           <label for="inputPicture">Bild</label>
           <input type="text" class="form-control" id="inputPicture" placeholder="Bild URL..." v-model="user.profilePicture">
@@ -261,14 +261,9 @@ export default {
       editMobileNr: "",
       editBirthdate:"",
       editGender: "",
-      editAdress: "",
+      editAddress: "",
       editPicture: "",
       editDescription: "",
-
-
-
-
-
     }
   },
   methods:{
@@ -294,21 +289,21 @@ export default {
       this.axios.get(this.url+'profile',{
       })
           .then((response) => {
-            this.user=response.data.user
+            this.user = response.data.user
           })
     },
     getCars(){
-      this.axios.get(this.url+'cars',{
+      this.axios.get(this.url+'profile/vehicles',{
       })
           .then((response) => {
-            this.cars=response.data.carList
+            this.cars = response.data.vehicleList
           })
     },
     getComments(){
-      this.axios.get(this.url+'comments',{
+      this.axios.get(this.url+'profile/ratings',{
       })
           .then((response) => {
-            this.comments=response.data.commentList
+            this.comments = response.data.ratingList
             console.log(this.comments)
           })
     },
