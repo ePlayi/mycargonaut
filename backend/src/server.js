@@ -1,5 +1,5 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 /*****************************************************************************
  * Import package                                                            *
  *****************************************************************************/
@@ -16,7 +16,7 @@ var database = mysql.createPool({
     user: 'u468072002_mycargonaut',
     password: 'mycargonautThmKms2022',
     database: 'u468072002_mycargonaut',
-    multipleStatements: true,
+    multipleStatements: true
 });
 /*****************************************************************************
  * Define and start web-app server, define json-Parser                       *
@@ -175,7 +175,7 @@ app.put('/rides/:id', isLoggedIn(), function (req, res) {
     });
 });
 // Delete ride
-app.delete('/rides/:id', isLoggedIn(), function (req, res) {
+app["delete"]('/rides/:id', isLoggedIn(), function (req, res) {
     // Create database query and id
     var query = "DELETE FROM Ride WHERE ride_id = ?";
     database.query(query, req.params.id, function (err, rows) {
@@ -324,11 +324,10 @@ app.put('/bookings/:id', isLoggedIn(), function (req, res) {
     });
 });
 // Delete booking
-app.delete('/bookings/:id', isLoggedIn(), function (req, res) {
+app["delete"]('/bookings/:id', isLoggedIn(), function (req, res) {
     // Create database query and id
     var query = "DELETE FROM booking WHERE booking_id = ?";
-    var bookingId = +req.params.id;
-    database.query(query, bookingId, function (err, rows) {
+    database.query(query, req.params.id, function (err, rows) {
         if (err) {
             // Database operation has failed
             res.status(500).send({
@@ -349,8 +348,7 @@ app.delete('/bookings/:id', isLoggedIn(), function (req, res) {
 app.get('/vehicles/:id', function (req, res) {
     // Create database query and id
     var query = "SELECT * FROM Vehicle WHERE vehicle_id = ?";
-    var vehicleId = +req.params.id;
-    database.query(query, vehicleId, function (err, rows) {
+    database.query(query, req.params.id, function (err, rows) {
         if (err) {
             // Database operation has failed
             res.status(500).send({
@@ -406,8 +404,7 @@ app.put('/vehicles/:id', isLoggedIn(), function (req, res) {
     // Create database query and data
     var query = "UPDATE Vehicle SET user_id = ?, brand = ?, model = ?, seats = ?, storage = ?, car_image = ? WHERE vehicle_id = ?";
     var _a = req.body, userId = _a.userId, brand = _a.brand, model = _a.model, seats = _a.seats, storage = _a.storage, image = _a.image;
-    var vehicleId = +req.params.id;
-    var data = [userId, brand, model, seats, storage, image];
+    var data = [userId, brand, model, seats, storage, image, req.params.id];
     database.query(query, data, function (err, rows) {
         if (err) {
             // Database operation has failed
@@ -423,7 +420,7 @@ app.put('/vehicles/:id', isLoggedIn(), function (req, res) {
     });
 });
 // Delete vehicle
-app.delete('/vehicles/:id', isLoggedIn(), function (req, res) {
+app["delete"]('/vehicles/:id', isLoggedIn(), function (req, res) {
     // Create database query and id
     var query = "DELETE FROM Vehicle WHERE vehicle_id = ?";
     var vehicleId = +req.params.id;
@@ -485,6 +482,7 @@ app.get('/profile', isLoggedIn(), function (req, res) {
         }
     });
 });
+// Get profile by id
 app.get('/profile/:id', isLoggedIn(), function (req, res) {
     // Send recipe list to client
     var query = "SELECT * FROM User WHERE user_id = ?";
@@ -526,7 +524,7 @@ app.get('/profile/:id', isLoggedIn(), function (req, res) {
         }
     });
 });
-//Update profile
+// Update profile
 app.put('/profile', isLoggedIn(), function (req, res) {
     var user = req.body.user;
     var query = "UPDATE `User` SET `first_name` = ?, `last_name` = ?, `email` = ?, `mobile_nr` = ?, `birthdate` = ?, `gender` = ?, `address` = ?, `profile_picture` = ?, `description` = ? WHERE `User`.`user_id` = ?";
@@ -534,17 +532,17 @@ app.put('/profile', isLoggedIn(), function (req, res) {
     database.query(query, data, function (err, rows) {
         if (err) {
             res.status(500).send({
-                message: 'Database request failed',
+                message: 'Database request failed'
             });
         }
         else {
             res.status(200).send({
-                message: 'Successfully updated user profile',
+                message: 'Successfully updated user profile'
             });
         }
     });
 });
-//Update user password
+// Update user password
 app.put('/password', isLoggedIn(), function (req, res) {
     var password = req.body.password;
     var passwordHashed = crypto.createHash("sha512").update(password).digest('hex');
@@ -553,12 +551,12 @@ app.put('/password', isLoggedIn(), function (req, res) {
     database.query(query, data, function (err, rows) {
         if (err) {
             res.status(500).send({
-                message: 'Database request failed',
+                message: 'Database request failed'
             });
         }
         else {
             res.status(200).send({
-                message: 'Successfully updated user password',
+                message: 'Successfully updated user password'
             });
         }
     });
@@ -584,7 +582,7 @@ app.get('/cars', isLoggedIn(), function (req, res) {
                     model: row.model,
                     seats: row.seats,
                     storage: row.storage,
-                    carImage: row.car_image,
+                    carImage: row.car_image
                 };
                 carList.push(car);
             }
@@ -643,7 +641,7 @@ function isLoggedIn() {
         else {
             // User is not logged in
             res.status(401).send({
-                message: 'Session expired, please log in again',
+                message: 'Session expired, please log in again'
             });
         }
     };
@@ -661,7 +659,7 @@ app.post('/login', function (req, res) {
         if (err) {
             // Login data is incorrect, user is not logged in
             res.status(500).send({
-                message: 'Database request failed: ' + err,
+                message: 'Database request failed: ' + err
             });
         }
         else {
@@ -672,7 +670,7 @@ app.post('/login', function (req, res) {
                     uId: rows[0].user_id,
                     name: rows[0].first_name,
                     nachname: rows[0].last_name,
-                    loginname: rows[0].loginname,
+                    loginname: rows[0].loginname
                 };
                 req.session.user = user; // Store user object in session for authentication
                 res.status(200).send({
@@ -683,7 +681,7 @@ app.post('/login', function (req, res) {
             else {
                 // Login data is incorrect, user is not logged in
                 res.status(401).send({
-                    message: 'Username or password is incorrect.',
+                    message: 'Username or password is incorrect.'
                 });
             }
         }
@@ -705,14 +703,14 @@ app.post('/register', function (req, res) {
     database.query(query, username, function (err, rows) {
         if (err) {
             res.status(500).send({
-                message: 'Database request failed: ' + err,
+                message: 'Database request failed: ' + err
             });
         }
         else {
             // Check if database response contains exactly one entry
             if (rows.length === 1) {
                 res.status(409).send({
-                    message: 'Username already exists',
+                    message: 'Username already exists'
                 });
             }
             //Username is available
@@ -723,12 +721,12 @@ app.post('/register', function (req, res) {
                 database.query(query_1, data, function (err, rows) {
                     if (err) {
                         res.status(500).send({
-                            message: 'Database request failed: ' + err,
+                            message: 'Database request failed: ' + err
                         });
                     }
                     else {
                         res.status(201).send({
-                            message: 'Successfully created User',
+                            message: 'Successfully created User'
                         });
                     }
                 });
@@ -740,14 +738,14 @@ app.post('/register', function (req, res) {
 app.get('/login', isLoggedIn(), function (req, res) {
     res.status(200).send({
         message: 'User still logged in',
-        user: req.session.user, // Send user object to client for greeting message
+        user: req.session.user
     });
 });
-//Logout the user
+// Logout the user
 app.post('/logout', function (req, res) {
     // Log out user
     delete req.session.user; // Delete user from session
     res.status(200).send({
-        message: 'Successfully logged out',
+        message: 'Successfully logged out'
     });
 });

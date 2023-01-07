@@ -380,9 +380,8 @@ app.delete('/bookings/:id', isLoggedIn(), (req: Request, res: Response) => {
 app.get('/vehicles/:id', (req: Request, res: Response) => {
     // Create database query and id
     const query: string = "SELECT * FROM Vehicle WHERE vehicle_id = ?"
-    const vehicleId: number = +req.params.id
 
-    database.query(query, vehicleId, (err: MysqlError, rows: any[]) => {
+    database.query(query, req.params.id, (err: MysqlError, rows: any[]) => {
         if (err) {
             // Database operation has failed
             res.status(500).send({
@@ -418,7 +417,7 @@ app.post('/vehicles', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and data
     const query: string = "INSERT INTO Vehicle (user_id, brand, model, seats, storage, car_image) VALUES (?, ?, ?, ?, ?, ?)"
     const { userId, brand, model, seats, storage, image } = req.body
-    const data : [number, string, string, number, number, string] = [ userId, brand, model, seats, storage, image ]
+    const data = [ userId, brand, model, seats, storage, image ]
 
     database.query(query, data, (err, rows) => {
         if (err) {
@@ -439,8 +438,7 @@ app.put('/vehicles/:id', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and data
     const query: string = "UPDATE Vehicle SET user_id = ?, brand = ?, model = ?, seats = ?, storage = ?, car_image = ? WHERE vehicle_id = ?"
     const { userId, brand, model, seats, storage, image } = req.body
-    const vehicleId: number = +req.params.id
-    const data : [number, string, string, number, number, string] = [ userId, brand, model, seats, storage, image ]
+    const data = [ userId, brand, model, seats, storage, image, req.params.id ]
 
     database.query(query, data, (err, rows) => {
         if (err) {
@@ -460,9 +458,8 @@ app.put('/vehicles/:id', isLoggedIn(), (req: Request, res: Response) => {
 app.delete('/vehicles/:id', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and id
     const query: string = "DELETE FROM Vehicle WHERE vehicle_id = ?"
-    const vehicleId: number = +req.params.id
 
-    database.query(query, vehicleId, (err: MysqlError, rows: any) => {
+    database.query(query, req.params.id, (err: MysqlError, rows: any) => {
         if (err) {
             // Database operation has failed
             res.status(500).send({
