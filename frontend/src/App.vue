@@ -229,7 +229,7 @@ export default {
   },
   data(){
     return{
-      loggedIn: false,
+      loggedIn: true,
       loginname:"",
       password:"",
       register_component: false,

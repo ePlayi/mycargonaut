@@ -1,17 +1,19 @@
 <template>
     <v-container id="main-container" align="center">
         <v-card class="profile-container" rounded="4" color="whitesmoke">
-          <div class="ma-8" style="position: absolute; right: 0">
-            <button class="btn btn-warning" @click="editProfileModal=true"><i class="fa-solid fa-pen fa-2x" ></i></button>
-          </div>
           <v-row justify="center" align="center">
-              <v-col class="profile-pic-name" lg="6" cols="12">
-                      <v-avatar size="200px" class="ma-8">
-                          <v-img :src="user.profilePicture"></v-img>
+              <v-col class="profile-pic-name" sm="8" cols="12" align="start" justify="start">
+                      <v-avatar size="130px" class="ma-8">
+                          <v-img :src="user.profilePicture" cover></v-img>
                       </v-avatar>
-                      <h1 style="margin-left: 10px">{{user.name}} {{user.nachname}}</h1>
+                      <div>
+                        <!-- Loginname -->
+                        <h1 class="ml-4">{{ user.loginname }}</h1>
+                        <!-- Echter Name -->
+                        <span class="ml-4">{{user.name}} {{user.nachname}}, erreichbar unter {{user.mobilenr}}</span>
+                      </div>
               </v-col>
-              <v-col lg="6" cols="12">
+              <v-col lg="4" cols="12">
                   <v-icon class="mx-2" icon="fas fa-star" color="orange" size="large"/>
                   <v-icon class="mx-2" icon="fas fa-star" color="orange" size="large"/>
                   <v-icon class="mx-2" icon="fas fa-star" color="orange" size="large"/>
@@ -19,7 +21,7 @@
                   <v-icon class="mx-2" icon="fas fa-star" color="orange" size="large"/>
               </v-col>
           </v-row>
-          <v-row class="bottom-row">
+          <!-- <v-row class="bottom-row">
               <v-col lg="6" cols="12">
                   <v-card class="ma-4" color="grey" rounded="4" width="90%" elevation="0" justify="center" align="center">
                       <h2 class="my-4">Über mich</h2>
@@ -33,81 +35,144 @@
                   <v-card class="ma-4" color="grey" rounded="4" width="90%" elevation="0">
                       <h2 class="my-4">Meine Fahrzeuge</h2>
                       <v-row>
-                          <v-col lg="4">
+                          <v-col cols="4" v-for="car in cars" :key="car">
                               <v-img
                               class="car-image my-4"
                               aspect-ratio="1"
-                              src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
+                              :src="car.carImage"
                               cover
                               />
+                              <span>{{ car.brand }} {{ car.model }}</span>
+                              <p>Sitze: {{ car.seats }}</p>
+                              <p>Stauraum: {{ car.storage }}</p>
                           </v-col>
-                          <v-col lg="4">
+                          <v-col cols="4" v-for="car in cars" :key="car">
                               <v-img
                               class="car-image my-4"
                               aspect-ratio="1"
-                              src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
+                              :src="car.carImage"
                               cover
                               />
-                          </v-col>
-                          <v-col lg="4">
-                              <v-img
-                              class="car-image my-4 mb-10"
-                              aspect-ratio="1"
-                              src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
-                              cover
-                              />
-                          </v-col>
-                          <v-col lg="4">
-                              <v-img
-                              class="car-image my-4 mb-10"
-                              aspect-ratio="1"
-                              src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
-                              cover
-                              />
+                              <span>{{ car.brand }} {{ car.model }}</span>
+                              <p>Sitze: {{ car.seats }}</p>
+                              <p>Stauraum: {{ car.storage }}</p>
                           </v-col>
                       </v-row>
                   </v-card>
               </v-col>
-          </v-row>
+          </v-row> -->
         </v-card>
 
-        <v-card class="comment-card" rounded="4" style="margin-top: 30px">
-          <v-card-title class="my-4">
-            <h2>Kommentare</h2>
-          </v-card-title>
-          <v-card-text v-if="comments.length===0">
-            <h5>Dieser Benutzer hat noch keine Kommentare erhalten</h5>
-          </v-card-text>
-          <v-card-text v-for="comment in comments" :key="comment" class="ma-8">
-            <v-row justify="center" align="center">
-              <v-col cols="12" sm="3" justify="center" align="center">
-                <v-row justify="center" align="center">
-                  <v-avatar v-if="comment.customerImage !==''" size="100px" class="mx-8">
-                    <v-img :src="comment.customerImage"></v-img>
-                  </v-avatar>
-                  <v-avatar v-if="comment.customerImage ===''" size="100px" class="mx-8">
-                    <v-img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"></v-img>
-                  </v-avatar>
-                </v-row>
-                <v-row justify="center" align="center">
-                  <span class="mt-2">{{comment.customerName}}</span>
-                </v-row>
-              </v-col>
-              <v-col cols="6">
-                <span>
-                  {{comment.comment}}
-                </span>
-              </v-col>
-              <v-col cols="12" lg="3">
-                <v-icon class="mx-2" icon="fas fa-star" :color="comment.rating >= 1 ? 'orange' : 'grey'" size="large"/>
-                <v-icon class="mx-2" icon="fas fa-star" :color="comment.rating >= 2 ? 'orange' : 'grey'" size="large"/>
-                <v-icon class="mx-2" icon="fas fa-star" :color="comment.rating >= 3 ? 'orange' : 'grey'" size="large"/>
-                <v-icon class="mx-2" icon="fas fa-star" :color="comment.rating >= 4 ? 'orange' : 'grey'" size="large"/>
-                <v-icon class="mx-2" icon="fas fa-star" :color="comment.rating >= 5 ? 'orange' : 'grey'" size="large"/>
-              </v-col>
-            </v-row>
-          </v-card-text>
+        <v-card class="more-card" rounded="4" style="margin-top: 30px">
+          <v-tabs
+            v-model="tab"
+            bg-color="grey lighten-4"
+          >
+            <v-tab value="comments">Bewertungen</v-tab>
+            <v-tab value="cars">Fahrzeuge</v-tab>
+            <!-- <v-tab value="three">Informationen</v-tab> -->
+            <v-tab value="edit">Profil Bearbeiten</v-tab>
+          </v-tabs>
 
+          <v-card-text>
+            <v-window v-model="tab">
+              <v-window-item value="comments">
+                <v-card class="comment-card" rounded="4" elevation="0">
+                  <v-card-text v-if="comments.length===0">
+                    <h5>Dieser Benutzer hat noch keine Kommentare erhalten</h5>
+                  </v-card-text>
+                  <v-card-text v-for="comment in comments" :key="comment">
+                    <v-card color="grey lighten-4" rounded="3">
+                      <v-card-text class="my-4">
+                        <v-row justify="center" align="center">
+                          <v-col cols="12" sm="2" justify="center" align="center">
+                            <v-row justify="center" align="center">
+                              <v-avatar v-if="comment.customerImage !==''" size="80px" class="mx-8">
+                                <v-img :src="comment.customerImage"></v-img>
+                              </v-avatar>
+                              <v-avatar v-if="comment.customerImage ===''" size="80px" class="mx-8">
+                                <v-img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"></v-img>
+                              </v-avatar>
+                            </v-row>
+                            <v-row justify="center" align="center">
+                              <span class="mt-2">{{comment.customerName}}</span>
+                            </v-row>
+                          </v-col>
+                          <v-col cols="6" align="start" justify="start">
+                            <span>
+                              "{{comment.comment}}"
+                            </span>
+                          </v-col>
+                          <v-col cols="12" lg="4">
+                            <v-icon class="mx-2" icon="fas fa-star" :color="comment.rating >= 1 ? 'orange' : '#cccccc'" size="large"/>
+                            <v-icon class="mx-2" icon="fas fa-star" :color="comment.rating >= 2 ? 'orange' : '#cccccc'" size="large"/>
+                            <v-icon class="mx-2" icon="fas fa-star" :color="comment.rating >= 3 ? 'orange' : '#cccccc'" size="large"/>
+                            <v-icon class="mx-2" icon="fas fa-star" :color="comment.rating >= 4 ? 'orange' : '#cccccc'" size="large"/>
+                            <v-icon class="mx-2" icon="fas fa-star" :color="comment.rating >= 5 ? 'orange' : '#cccccc'" size="large"/>
+                          </v-col>
+                        </v-row>
+                      </v-card-text>
+                    </v-card>
+                    
+                  </v-card-text>
+
+                </v-card>
+              </v-window-item>
+
+              <v-window-item value="cars">
+                <v-row v-for="car in cars" :key="car" justify="center" align="center">
+                  <v-col cols="12" sm="4">
+                    <v-img :src="car.carImage" class="car-image"></v-img>
+                  </v-col>
+                  <v-col cols="12" sm="4">
+                    <h2>{{ car.brand }} {{ car.model }}</h2>
+                  </v-col>
+                  <v-col cols="12" sm="4">
+                    <h4>Sitze: {{ car.seats }}</h4>
+                    <h4>Tragfläche {{ car.storage }}</h4>
+                  </v-col>
+                </v-row>
+              </v-window-item>
+
+              <v-window-item value="three">
+                Three
+              </v-window-item>
+
+              <v-window-item value="edit">
+        <p>Profil bearbeiten</p>
+        <div class="form-group">
+          <label for="inputFirstname">Vorname</label>
+          <input type="text" class="form-control" id="inputFirstname" placeholder="Vorname..." v-model="user.name">
+
+          <label for="inputLastname">Nachname</label>
+          <input type="text" class="form-control" id="inputLastname" placeholder="Nachname..." v-model="user.nachname">
+
+          <label for="inputMail">Mail</label>
+          <input type="text" class="form-control" id="inputMail" placeholder="Mail..." v-model="user.email">
+
+          <label for="inputMobileNr">Handy Nummer</label>
+          <input type="text" class="form-control" id="inputMobileNr" placeholder="Handy..." v-model="user.mobilenr">
+
+          <label for="inputBirthdate">Geburtsdatum</label>
+          <input type="date" class="form-control" id="inputBirthdate" placeholder="Datum" v-model="user.birthdate">
+
+          <label for="inputGender">Geschlecht</label>
+          <input type="text" class="form-control" id="inputGender" placeholder="Geschlecht..." v-model="user.gender">
+
+          <label for="inputAddress">Address</label>
+          <input type="text" class="form-control" id="inputAddress" placeholder="Addresse..." v-model="user.address">
+
+          <label for="inputPicture">Bild</label>
+          <input type="text" class="form-control" id="inputPicture" placeholder="Bild URL..." v-model="user.profilePicture">
+
+          <label for="inputDescription">Beschreibung</label>
+          <textarea type="text" class="form-control" rows="3" id="inputDescription" v-model="user.description"></textarea>
+
+        </div>
+        <button type="button" class="btn btn-primary" @click="saveEditProfile(this.user)">Speichern</button>
+              </v-window-item>
+            </v-window>
+          </v-card-text>
         </v-card>
     </v-container>
   <!-- <section>
@@ -179,7 +244,7 @@
   <!--Modal to Edit Profile-->
   <Teleport to="body">
     <!-- use the modal component, pass in the prop -->
-    <modal :show="editProfileModal" @close="editProfileModal = false">
+    <!-- <modal :show="editProfileModal" @close="editProfileModal = false">
       <template #header>
         <p>Profil bearbeiten</p>
         <button class="btn btn-secondary" style="text-align: right" @click="editProfileModal = false;">
@@ -220,18 +285,14 @@
       <template #footer>
         <button type="button" class="btn btn-primary" @click="saveEditProfile(this.user)">Speichern</button>
       </template>
-    </modal>
+    </modal> -->
   </Teleport>
 </template>
 
 
 <script>
-import Modal from "@/components/Modal"
 export default {
   name: "Profile",
-  components:{
-    Modal
-  },
   created() {
     document.title = "Profil";
   },
@@ -253,6 +314,7 @@ export default {
       cars:[],
       comments:[],
       editProfileModal: false,
+      tab: null,
 
       //everything to edit user profile
       editFirstname: "",
@@ -351,12 +413,16 @@ export default {
 
 
 .profile-container {
-    max-width: 1300px;
+    max-width: 1000px;
     margin-top: 1vh;
 }
 
 .comment-card {
-  max-width: 1300px;
+  max-width: 1000px;
+}
+
+.more-card {
+  max-width: 1000px;
 }
 
 .profile-pic-name {
