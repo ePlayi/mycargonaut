@@ -29,7 +29,7 @@ const database: Pool = mysql.createPool({
 const app = express();
 const port = process.env.PORT || 3001;
 app.use(cors());
-// app.use(history());
+app.use(history());
 let server = app.listen(port, () => {
     console.log('Server started');
     //---- connect to database ----------------------------------------------------
@@ -89,19 +89,19 @@ app.get('/rides/:id', (req: Request, res: Response) => {
             });
         } else {
             if (rows.length === 1){
-                const ride = rows.map(row => row = {
-                    rideId: row.ride_id,
-                    driverId: row.driver_id,
-                    vehicleId: row.vehicle_id,
-                    start: row.start,
-                    destination: row.destination,
-                    dateTime: row.dateTime,
-                    price: row.price,
-                    description: row.description,
-                    open: row.open,
-                    posLongitude: row.pos_long,
-                    posLatitude: row.pos_lat
-                });
+                const ride = {
+                    rideId: rows[0].ride_id,
+                    driverId: rows[0].driver_id,
+                    vehicleId: rows[0].vehicle_id,
+                    start: rows[0].start,
+                    destination: rows[0].destination,
+                    dateTime: rows[0].dateTime,
+                    price: rows[0].price,
+                    description: rows[0].description,
+                    open: rows[0].open,
+                    posLongitude: rows[0].pos_long,
+                    posLatitude: rows[0].pos_lat
+                };
 
                 res.status(200).send({
                     ride,
@@ -254,7 +254,7 @@ app.get('/bookings/:id', (req: Request, res: Response) => {
 app.get('/profile/bookings', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and id
     const query: string = "SELECT * FROM booking WHERE customer_id = ?"
-    
+
     database.query(query, req.session.user.uId, (err: MysqlError, rows: any[]) => {
         if (err) {
             // Database operation has failed

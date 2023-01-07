@@ -15,7 +15,7 @@
             <img class="card-img-top" src="../assets/images/undraw/search-image.svg" alt="Card image cap">
             <div class="card-body">
               <h5 class="card-title">Alle Angebote</h5>
-              <router-link to="/offers" class="btn btn-primary">Durchstöbern</router-link>
+              <router-link to="/offers" class="btn btn-primary">Durchstöbern & Suchen</router-link>
             </div>
           </div>
         </div>
@@ -23,7 +23,7 @@
           <div class="card" >
             <img class="card-img-top" src="../assets/images/undraw/order-image.svg" alt="Card image cap">
             <div class="card-body">
-              <h5 class="card-title">Ich biete / suche</h5>
+              <h5 class="card-title">Ich biete</h5>
               <router-link to="/createOffer" class="btn btn-primary">Angebot machen</router-link>
             </div>
           </div>
@@ -67,10 +67,10 @@ header{
 }
 .card{
   width: auto;
-  height: 30vh;
+  height: 300px;
 }
 .card-img-top{
-  margin-top: 16px;
+  margin-top: 20px;
   height: 10rem;
 }
 </style>

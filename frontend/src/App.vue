@@ -107,7 +107,7 @@
                                     prepend-icon="fas fa-camera"
                                 ></v-file-input>
                             </v-col> -->
-                            
+
                             <v-col
                             cols="12"
                             >
@@ -129,7 +129,7 @@
                             </v-col>
 
                             <v-col
-                            cols="12" 
+                            cols="12"
                             sm="6"
                             >
                             <v-text-field
@@ -140,7 +140,7 @@
                             </v-col>
 
                             <v-col
-                            cols="12" 
+                            cols="12"
                             sm="6"
                             >
                             <v-text-field
@@ -151,7 +151,7 @@
                             </v-col>
 
                             <v-col
-                            cols="12" 
+                            cols="12"
                             sm="6"
                             >
                             <v-text-field
@@ -162,7 +162,7 @@
                             </v-col>
 
                             <v-col
-                            cols="12" 
+                            cols="12"
                             sm="6"
                             >
                             <v-text-field
@@ -173,7 +173,7 @@
                             </v-col>
 
                             <v-col
-                            cols="12" 
+                            cols="12"
                             sm="6"
                             >
                             <v-text-field
@@ -184,7 +184,7 @@
                             </v-col>
 
                             <v-col
-                            cols="12" 
+                            cols="12"
                             sm="6"
                             >
                             <v-text-field
@@ -204,7 +204,7 @@
                 elevation="0"
                 variant="outlined"
                 rounded="2"
-                @click="register()">
+                @click="register(); register_component = false">
                     Jetzt Registrieren
                 </v-btn>
             </v-card>
@@ -342,11 +342,13 @@ export default {
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
+
 body{
   background-color: #d3d3d3;
 }
 #app {
-  font-family: "Arial",serif;
+  font-family: 'Montserrat', sans-serif;
   margin-bottom: 60px;
 }
 section{

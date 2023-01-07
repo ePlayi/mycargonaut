@@ -1,88 +1,116 @@
 <template>
-  <!--
     <v-container id="main-container" align="center">
         <v-card class="profile-container" rounded="4" color="whitesmoke">
-            <v-row justify="center" align="center">
-                <v-col class="profile-pic-name" lg="6" sm="12" xs="12">
-                        <v-avatar size="200px" class="ma-8">
-                            <v-img src="https://cdn.vuetifyjs.com/images/lists/1.jpg"></v-img>
-                        </v-avatar>
-                        <h1 style="margin-left: 10px">Mark Mustermann</h1>
-                </v-col>
-                <v-col lg="6" sm="12" xs="12">
-                    <v-icon class="mx-2" icon="fas fa-star" color="orange" size="large"/>
-                    <v-icon class="mx-2" icon="fas fa-star" color="orange" size="large"/>
-                    <v-icon class="mx-2" icon="fas fa-star" color="orange" size="large"/>
-                    <v-icon class="mx-2" icon="fas fa-star" color="orange" size="large"/>
-                    <v-icon class="mx-2" icon="fas fa-star" color="orange" size="large"/>
-                </v-col>
-            </v-row>
-            <v-row class="bottom-row">
-                <v-col lg="6" sm="12" xs="12">
-                    <v-card class="ma-4" color="grey" rounded="4" width="90%" elevation="0" justify="center" align="center">
-                        <h2 class="my-4">Bewertungen</h2>
+          <div class="ma-8" style="position: absolute; right: 0">
+            <button class="btn btn-warning" @click="editProfileModal=true"><i class="fa-solid fa-pen fa-2x" ></i></button>
+          </div>
+          <v-row justify="center" align="center">
+              <v-col class="profile-pic-name" lg="6" cols="12">
+                      <v-avatar size="200px" class="ma-8">
+                          <v-img :src="user.profilePicture"></v-img>
+                      </v-avatar>
+                      <h1 style="margin-left: 10px">{{user.name}} {{user.nachname}}</h1>
+              </v-col>
+              <v-col lg="6" cols="12">
+                  <v-icon class="mx-2" icon="fas fa-star" color="orange" size="large"/>
+                  <v-icon class="mx-2" icon="fas fa-star" color="orange" size="large"/>
+                  <v-icon class="mx-2" icon="fas fa-star" color="orange" size="large"/>
+                  <v-icon class="mx-2" icon="fas fa-star" color="orange" size="large"/>
+                  <v-icon class="mx-2" icon="fas fa-star" color="orange" size="large"/>
+              </v-col>
+          </v-row>
+          <v-row class="bottom-row">
+              <v-col lg="6" cols="12">
+                  <v-card class="ma-4" color="grey" rounded="4" width="90%" elevation="0" justify="center" align="center">
+                      <h2 class="my-4">Über mich</h2>
+                      <h5 class="my-4">Handynummer: {{user.mobilenr}}</h5>
+                      <p v-if="user.gender">Geschlecht: {{user.gender}}</p>
+                      <p v-if="user.birthdate">Geboren: {{user.birthdate}}</p>
+                      <p v-if="user.adress">Adresse: {{user.adress}}</p>
+                  </v-card>
+              </v-col>
+              <v-col lg="6" cols="12">
+                  <v-card class="ma-4" color="grey" rounded="4" width="90%" elevation="0">
+                      <h2 class="my-4">Meine Fahrzeuge</h2>
+                      <v-row>
+                          <v-col lg="4">
+                              <v-img
+                              class="car-image my-4"
+                              aspect-ratio="1"
+                              src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
+                              cover
+                              />
+                          </v-col>
+                          <v-col lg="4">
+                              <v-img
+                              class="car-image my-4"
+                              aspect-ratio="1"
+                              src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
+                              cover
+                              />
+                          </v-col>
+                          <v-col lg="4">
+                              <v-img
+                              class="car-image my-4 mb-10"
+                              aspect-ratio="1"
+                              src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
+                              cover
+                              />
+                          </v-col>
+                          <v-col lg="4">
+                              <v-img
+                              class="car-image my-4 mb-10"
+                              aspect-ratio="1"
+                              src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
+                              cover
+                              />
+                          </v-col>
+                      </v-row>
+                  </v-card>
+              </v-col>
+          </v-row>
+        </v-card>
 
-                        <v-row class="mx-4 mb-4" align="center" justify="center">
-                            <v-col lg="2">
-                                <v-avatar size="60px">
-                                    <v-img src="https://cdn.vuetifyjs.com/images/lists/1.jpg"></v-img>
-                                </v-avatar>
-                            </v-col>
-                            <v-col cols="10">
-                                <p>
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, nunc ut
-                                    aliquam aliquam, nunc nisl aliquet nisl, eget aliquet nisl nunc in elit. Sed
-                                    euismod, nunc ut aliquam aliquam, nunc nisl aliquet nisl, eget aliquet nisl nunc
-                                    in elit.
-                                </p>
-                            </v-col>
-                        </v-row>
-                    </v-card>
-                </v-col>
-                <v-col lg="6" sm="12" xs="12">
-                    <v-card class="ma-4" color="grey" rounded="4" width="90%" elevation="0">
-                        <h2 class="my-4">Meine Fahrzeuge</h2>
-                        <v-row>
-                            <v-col lg="4">
-                                <v-img
-                                class="car-image my-4"
-                                aspect-ratio="1"
-                                src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
-                                cover
-                                />
-                            </v-col>
-                            <v-col lg="4">
-                                <v-img
-                                class="car-image my-4"
-                                aspect-ratio="1"
-                                src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
-                                cover
-                                />
-                            </v-col>
-                            <v-col lg="4">
-                                <v-img
-                                class="car-image my-4 mb-10"
-                                aspect-ratio="1"
-                                src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
-                                cover
-                                />
-                            </v-col>
-                            <v-col lg="4">
-                                <v-img
-                                class="car-image my-4 mb-10"
-                                aspect-ratio="1"
-                                src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
-                                cover
-                                />
-                            </v-col>
-                        </v-row>
-                    </v-card>
-                </v-col>
+        <v-card class="comment-card" rounded="4" style="margin-top: 30px">
+          <v-card-title class="my-4">
+            <h2>Kommentare</h2>
+          </v-card-title>
+          <v-card-text v-if="comments.length===0">
+            <h5>Dieser Benutzer hat noch keine Kommentare erhalten</h5>
+          </v-card-text>
+          <v-card-text v-for="comment in comments" :key="comment" class="ma-8">
+            <v-row justify="center" align="center">
+              <v-col cols="12" sm="3" justify="center" align="center">
+                <v-row justify="center" align="center">
+                  <v-avatar v-if="comment.customerImage !==''" size="100px" class="mx-8">
+                    <v-img :src="comment.customerImage"></v-img>
+                  </v-avatar>
+                  <v-avatar v-if="comment.customerImage ===''" size="100px" class="mx-8">
+                    <v-img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"></v-img>
+                  </v-avatar>
+                </v-row>
+                <v-row justify="center" align="center">
+                  <span class="mt-2">{{comment.customerName}}</span>
+                </v-row>
+              </v-col>
+              <v-col cols="6">
+                <span>
+                  {{comment.comment}}
+                </span>
+              </v-col>
+              <v-col cols="12" lg="3">
+                <v-icon class="mx-2" icon="fas fa-star" :color="comment.rating >= 1 ? 'orange' : 'grey'" size="large"/>
+                <v-icon class="mx-2" icon="fas fa-star" :color="comment.rating >= 2 ? 'orange' : 'grey'" size="large"/>
+                <v-icon class="mx-2" icon="fas fa-star" :color="comment.rating >= 3 ? 'orange' : 'grey'" size="large"/>
+                <v-icon class="mx-2" icon="fas fa-star" :color="comment.rating >= 4 ? 'orange' : 'grey'" size="large"/>
+                <v-icon class="mx-2" icon="fas fa-star" :color="comment.rating >= 5 ? 'orange' : 'grey'" size="large"/>
+              </v-col>
             </v-row>
+          </v-card-text>
+
         </v-card>
     </v-container>
--->
-  <section>
+  <!-- <section>
     <div style="float: right">
       <button class="btn btn-warning" @click="editProfileModal=true"><i class="fa-solid fa-pen fa-2x" ></i></button>
     </div>
@@ -147,7 +175,7 @@
         </div>
       </div>
     </div>
-  </section>
+  </section> -->
   <!--Modal to Edit Profile-->
   <Teleport to="body">
     <!-- use the modal component, pass in the prop -->
@@ -324,7 +352,11 @@ export default {
 
 .profile-container {
     max-width: 1300px;
-    margin-top: 5vh;
+    margin-top: 1vh;
+}
+
+.comment-card {
+  max-width: 1300px;
 }
 
 .profile-pic-name {
