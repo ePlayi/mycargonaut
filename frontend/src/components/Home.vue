@@ -67,10 +67,10 @@ header{
 }
 .card{
   width: auto;
-  height: 30vh;
+  height: 300px;
 }
 .card-img-top{
-  margin-top: 16px;
+  margin-top: 20px;
   height: 10rem;
 }
 </style>
