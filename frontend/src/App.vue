@@ -204,7 +204,7 @@
                 elevation="0"
                 variant="outlined"
                 rounded="2"
-                @click="register()">
+                @click="register(); register_component = false">
                     Jetzt Registrieren
                 </v-btn>
             </v-card>

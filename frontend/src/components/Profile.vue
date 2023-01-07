@@ -71,10 +71,13 @@
           </v-row>
         </v-card>
 
-        <v-card class="comment-card" rounded="4" style="margin-top: 20px">
+        <v-card class="comment-card" rounded="4" style="margin-top: 30px">
           <v-card-title class="my-4">
             <h2>Kommentare</h2>
           </v-card-title>
+          <v-card-text v-if="comments.length===0">
+            <h5>Dieser Benutzer hat noch keine Kommentare erhalten</h5>
+          </v-card-text>
           <v-card-text v-for="comment in comments" :key="comment" class="ma-8">
             <v-row justify="center" align="center">
               <v-col cols="12" sm="3" justify="center" align="center">
@@ -354,7 +357,7 @@ export default {
 
 .profile-container {
     max-width: 1300px;
-    margin-top: 5vh;
+    margin-top: 1vh;
 }
 
 .comment-card {
