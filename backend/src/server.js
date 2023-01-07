@@ -423,8 +423,7 @@ app.put('/vehicles/:id', isLoggedIn(), function (req, res) {
 app["delete"]('/vehicles/:id', isLoggedIn(), function (req, res) {
     // Create database query and id
     var query = "DELETE FROM Vehicle WHERE vehicle_id = ?";
-    var vehicleId = +req.params.id;
-    database.query(query, vehicleId, function (err, rows) {
+    database.query(query, req.params.id, function (err, rows) {
         if (err) {
             // Database operation has failed
             res.status(500).send({
@@ -463,7 +462,7 @@ app.get('/profile', isLoggedIn(), function (req, res) {
                     mobilenr: rows[0].mobile_nr,
                     birthdate: rows[0].birthdate,
                     gender: rows[0].gender,
-                    adress: rows[0].adress,
+                    address: rows[0].address,
                     profilePicture: rows[0].profile_picture,
                     description: rows[0].description,
                     rating: rows[0].rating,
@@ -483,7 +482,7 @@ app.get('/profile', isLoggedIn(), function (req, res) {
     });
 });
 // Get profile by id
-app.get('/profile/:id', isLoggedIn(), function (req, res) {
+app.get('/user/:id', isLoggedIn(), function (req, res) {
     // Send recipe list to client
     var query = "SELECT * FROM User WHERE user_id = ?";
     var id = req.params.id;
@@ -505,7 +504,7 @@ app.get('/profile/:id', isLoggedIn(), function (req, res) {
                     mobilenr: rows[0].mobile_nr,
                     birthdate: rows[0].birthdate,
                     gender: rows[0].gender,
-                    adress: rows[0].adress,
+                    address: rows[0].address,
                     profilePicture: rows[0].profile_picture,
                     description: rows[0].description,
                     rating: rows[0].rating,
@@ -524,11 +523,78 @@ app.get('/profile/:id', isLoggedIn(), function (req, res) {
         }
     });
 });
+// Get vehicles of user
+app.get('/profile/vehicles', isLoggedIn(), function (req, res) {
+    // Send recipe list to client
+    var query = "SELECT * FROM Vehicle WHERE user_id = ?";
+    database.query(query, req.session.user.uId, function (err, rows) {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        }
+        else {
+            var vehicleList = [];
+            for (var _i = 0, rows_1 = rows; _i < rows_1.length; _i++) {
+                var row = rows_1[_i];
+                var vehicle = {
+                    vehicleId: row.vehicleId,
+                    brand: row.brand,
+                    model: row.model,
+                    seats: row.seats,
+                    storage: row.storage,
+                    carImage: row.car_image
+                };
+                vehicleList.push(vehicle);
+            }
+            // Send recipe list to client
+            res.status(200).send({
+                vehicleList: vehicleList,
+                message: 'Successfully requested cars'
+            });
+        }
+    });
+});
+// Get ratings
+app.get('/profile/ratings', isLoggedIn(), function (req, res) {
+    // Send recipe list to client
+    var query = "SELECT `Ride`.*, `Ride`.`driver_id`, `booking`.*, `User`.`user_id`, `User`.`first_name`, `User`.`profile_picture` FROM `Ride` LEFT JOIN `booking` ON `booking`.`ride_id` = `Ride`.`ride_id` LEFT JOIN `User` ON `booking`.`customer_id` = `User`.`user_id` WHERE `driver_id` = ?";
+    database.query(query, req.session.user.uId, function (err, rows) {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        }
+        else {
+            var ratingList = [];
+            for (var _i = 0, rows_2 = rows; _i < rows_2.length; _i++) {
+                var row = rows_2[_i];
+                var rating = {
+                    customerId: row.customer_id,
+                    customerImage: row.profile_picture,
+                    customerName: row.first_name,
+                    rating: row.rating,
+                    start: row.start,
+                    destination: row.destination,
+                    comment: row.comment
+                };
+                ratingList.push(rating);
+            }
+            // Send recipe list to client
+            res.status(200).send({
+                ratingList: ratingList,
+                message: 'Successfully requested comments'
+            });
+        }
+    });
+});
 // Update profile
 app.put('/profile', isLoggedIn(), function (req, res) {
     var user = req.body.user;
     var query = "UPDATE `User` SET `first_name` = ?, `last_name` = ?, `email` = ?, `mobile_nr` = ?, `birthdate` = ?, `gender` = ?, `address` = ?, `profile_picture` = ?, `description` = ? WHERE `User`.`user_id` = ?";
-    var data = [user.name, user.nachname, user.email, user.mobilenr, user.birthdate, user.gender, user.adress, user.profilePicture, user.description, req.session.user.uId];
+    var data = [user.name, user.nachname, user.email, user.mobilenr, user.birthdate, user.gender, user.address, user.profilePicture, user.description, req.session.user.uId];
     database.query(query, data, function (err, rows) {
         if (err) {
             res.status(500).send({
@@ -557,73 +623,6 @@ app.put('/password', isLoggedIn(), function (req, res) {
         else {
             res.status(200).send({
                 message: 'Successfully updated user password'
-            });
-        }
-    });
-});
-// Get cars of user
-app.get('/cars', isLoggedIn(), function (req, res) {
-    // Send recipe list to client
-    var query = "SELECT * FROM Vehicle WHERE user_id = ?";
-    database.query(query, req.session.user.uId, function (err, rows) {
-        if (err) {
-            // Database operation has failed
-            res.status(500).send({
-                message: 'Database request failed: ' + err
-            });
-        }
-        else {
-            var carList = [];
-            for (var _i = 0, rows_1 = rows; _i < rows_1.length; _i++) {
-                var row = rows_1[_i];
-                var car = {
-                    vehicelId: row.vehicelId,
-                    brand: row.brand,
-                    model: row.model,
-                    seats: row.seats,
-                    storage: row.storage,
-                    carImage: row.car_image
-                };
-                carList.push(car);
-            }
-            // Send recipe list to client
-            res.status(200).send({
-                carList: carList,
-                message: 'Successfully requested cars'
-            });
-        }
-    });
-});
-// Get ratings
-app.get('/comments', isLoggedIn(), function (req, res) {
-    // Send recipe list to client
-    var query = "SELECT `Ride`.*, `Ride`.`driver_id`, `booking`.*, `User`.`user_id`, `User`.`first_name`, `User`.`profile_picture` FROM `Ride` LEFT JOIN `booking` ON `booking`.`ride_id` = `Ride`.`ride_id` LEFT JOIN `User` ON `booking`.`customer_id` = `User`.`user_id` WHERE `driver_id` = ?";
-    database.query(query, req.session.user.uId, function (err, rows) {
-        if (err) {
-            // Database operation has failed
-            res.status(500).send({
-                message: 'Database request failed: ' + err
-            });
-        }
-        else {
-            var commentList = [];
-            for (var _i = 0, rows_2 = rows; _i < rows_2.length; _i++) {
-                var row = rows_2[_i];
-                var comment = {
-                    customerId: row.customer_id,
-                    customerImage: row.profile_picture,
-                    customerName: row.first_name,
-                    rating: row.rating,
-                    start: row.start,
-                    destination: row.destination,
-                    comment: row.comment
-                };
-                commentList.push(comment);
-            }
-            // Send recipe list to client
-            res.status(200).send({
-                commentList: commentList,
-                message: 'Successfully requested comments'
             });
         }
     });

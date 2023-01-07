@@ -13,8 +13,6 @@ import session = require ("cookie-session");
 //import models
 import {User} from './models/user';
 
-
-
 const database: Pool = mysql.createPool({
     connectionLimit: 5,
     //online
@@ -23,7 +21,6 @@ const database: Pool = mysql.createPool({
     password: 'mycargonautThmKms2022',
     database: 'u468072002_mycargonaut',
     multipleStatements: true,
-
 });
 
 /*****************************************************************************
@@ -498,7 +495,7 @@ app.get('/profile', isLoggedIn(), (req: Request, res: Response) => {
                     mobilenr: rows[0].mobile_nr,
                     birthdate: rows[0].birthdate,
                     gender: rows[0].gender,
-                    adress: rows[0].adress,
+                    address: rows[0].address,
                     profilePicture: rows[0].profile_picture,
                     description: rows[0].description,
                     rating: rows[0].rating,
@@ -520,7 +517,7 @@ app.get('/profile', isLoggedIn(), (req: Request, res: Response) => {
 });
 
 // Get profile by id
-app.get('/profile/:id', isLoggedIn(), (req: Request, res: Response) => {
+app.get('/user/:id', isLoggedIn(), (req: Request, res: Response) => {
     // Send recipe list to client
     const query: string = "SELECT * FROM User WHERE user_id = ?"
     const id:string = req.params.id
@@ -541,7 +538,7 @@ app.get('/profile/:id', isLoggedIn(), (req: Request, res: Response) => {
                     mobilenr: rows[0].mobile_nr,
                     birthdate: rows[0].birthdate,
                     gender: rows[0].gender,
-                    adress: rows[0].adress,
+                    address: rows[0].address,
                     profilePicture: rows[0].profile_picture,
                     description: rows[0].description,
                     rating: rows[0].rating,
@@ -562,11 +559,79 @@ app.get('/profile/:id', isLoggedIn(), (req: Request, res: Response) => {
     });
 });
 
+// Get vehicles of user
+app.get('/profile/vehicles', isLoggedIn(), (req: Request, res: Response) => {
+    // Send recipe list to client
+    const query: string= "SELECT * FROM Vehicle WHERE user_id = ?"
+    database.query(query, req.session.user.uId, (err: MysqlError, rows: any[]) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            const vehicleList  = [];
+            for (const row of rows) {
+
+                const vehicle= {
+                    vehicleId: row.vehicleId,
+                    brand: row.brand,
+                    model: row.model,
+                    seats: row.seats,
+                    storage: row.storage,
+                    carImage: row.car_image,
+                };
+                vehicleList.push(vehicle);
+            }
+
+            // Send recipe list to client
+            res.status(200).send({
+                vehicleList,
+                message: 'Successfully requested cars'
+            });
+        }
+    });
+});
+
+// Get ratings
+app.get('/profile/ratings', isLoggedIn(), (req: Request, res: Response) => {
+    // Send recipe list to client
+    const query: string= "SELECT `Ride`.*, `Ride`.`driver_id`, `booking`.*, `User`.`user_id`, `User`.`first_name`, `User`.`profile_picture` FROM `Ride` LEFT JOIN `booking` ON `booking`.`ride_id` = `Ride`.`ride_id` LEFT JOIN `User` ON `booking`.`customer_id` = `User`.`user_id` WHERE `driver_id` = ?"
+    database.query(query, req.session.user.uId, (err: MysqlError, rows: any[]) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else{
+            const ratingList  = [];
+            for (const row of rows) {
+
+                const rating = {
+                    customerId: row.customer_id,
+                    customerImage: row.profile_picture,
+                    customerName: row.first_name,
+                    rating: row.rating,
+                    start: row.start,
+                    destination: row.destination,
+                    comment: row.comment
+                };
+                ratingList.push(rating);
+            }
+            // Send recipe list to client
+            res.status(200).send({
+                ratingList,
+                message: 'Successfully requested comments'
+            });
+        }
+    });
+});
+
 // Update profile
 app.put('/profile', isLoggedIn(), (req: Request, res: Response) => {
     const user :any = req.body.user
     const query: string = "UPDATE `User` SET `first_name` = ?, `last_name` = ?, `email` = ?, `mobile_nr` = ?, `birthdate` = ?, `gender` = ?, `address` = ?, `profile_picture` = ?, `description` = ? WHERE `User`.`user_id` = ?"
-    const data : [string, string, string, string, string, string, string, string, string, number] = [user.name, user.nachname, user.email, user.mobilenr, user.birthdate, user.gender, user.adress, user.profilePicture, user.description, req.session.user.uId ]
+    const data : [string, string, string, string, string, string, string, string, string, number] = [user.name, user.nachname, user.email, user.mobilenr, user.birthdate, user.gender, user.address, user.profilePicture, user.description, req.session.user.uId ]
 
     database.query(query, data, (err: MysqlError, rows: any[]) => {
         if (err){
@@ -602,76 +667,6 @@ app.put('/password', isLoggedIn(), (req: Request, res: Response) => {
         }
     });
 });
-
-// Get cars of user
-app.get('/cars', isLoggedIn(), (req: Request, res: Response) => {
-    // Send recipe list to client
-    const query: string= "SELECT * FROM Vehicle WHERE user_id = ?"
-    database.query(query, req.session.user.uId, (err: MysqlError, rows: any[]) => {
-        if (err) {
-            // Database operation has failed
-            res.status(500).send({
-                message: 'Database request failed: ' + err
-            });
-        } else {
-            const carList  = [];
-            for (const row of rows) {
-
-                const car= {
-                    vehicelId: row.vehicelId,
-                    brand: row.brand,
-                    model: row.model,
-                    seats: row.seats,
-                    storage: row.storage,
-                    carImage: row.car_image,
-                };
-                carList.push(car);
-            }
-
-            // Send recipe list to client
-            res.status(200).send({
-                carList: carList,
-                message: 'Successfully requested cars'
-            });
-        }
-    });
-});
-
-// Get ratings
-app.get('/comments', isLoggedIn(), (req: Request, res: Response) => {
-    // Send recipe list to client
-    const query: string= "SELECT `Ride`.*, `Ride`.`driver_id`, `booking`.*, `User`.`user_id`, `User`.`first_name`, `User`.`profile_picture` FROM `Ride` LEFT JOIN `booking` ON `booking`.`ride_id` = `Ride`.`ride_id` LEFT JOIN `User` ON `booking`.`customer_id` = `User`.`user_id` WHERE `driver_id` = ?"
-    database.query(query, req.session.user.uId, (err: MysqlError, rows: any[]) => {
-        if (err) {
-            // Database operation has failed
-            res.status(500).send({
-                message: 'Database request failed: ' + err
-            });
-        } else{
-            const commentList  = [];
-            for (const row of rows) {
-
-                const comment= {
-                    customerId: row.customer_id,
-                    customerImage: row.profile_picture,
-                    customerName: row.first_name,
-                    rating: row.rating,
-                    start: row.start,
-                    destination: row.destination,
-                    comment: row.comment
-
-                };
-                commentList.push(comment);
-            }
-            // Send recipe list to client
-            res.status(200).send({
-                commentList: commentList,
-                message: 'Successfully requested comments'
-            });
-        }
-    });
-});
-
 
 /*****************************************************************************
  * Routes for the Login / Register                                           *
