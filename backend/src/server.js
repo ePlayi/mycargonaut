@@ -24,7 +24,7 @@ var database = mysql.createPool({
 var app = express();
 var port = process.env.PORT || 3001;
 app.use(cors());
-// app.use(history());
+app.use(history());
 var server = app.listen(port, function () {
     console.log('Server started');
     //---- connect to database ----------------------------------------------------
@@ -76,19 +76,19 @@ app.get('/rides/:id', function (req, res) {
         }
         else {
             if (rows.length === 1) {
-                var ride = rows.map(function (row) { return row = {
-                    rideId: row.ride_id,
-                    driverId: row.driver_id,
-                    vehicleId: row.vehicle_id,
-                    start: row.start,
-                    destination: row.destination,
-                    dateTime: row.dateTime,
-                    price: row.price,
-                    description: row.description,
-                    open: row.open,
-                    posLongitude: row.pos_long,
-                    posLatitude: row.pos_lat
-                }; });
+                var ride = {
+                    rideId: rows[0].ride_id,
+                    driverId: rows[0].driver_id,
+                    vehicleId: rows[0].vehicle_id,
+                    start: rows[0].start,
+                    destination: rows[0].destination,
+                    dateTime: rows[0].dateTime,
+                    price: rows[0].price,
+                    description: rows[0].description,
+                    open: rows[0].open,
+                    posLongitude: rows[0].pos_long,
+                    posLatitude: rows[0].pos_lat
+                };
                 res.status(200).send({
                     ride: ride,
                     message: 'Successfully requested Ride'
@@ -231,11 +231,10 @@ app.get('/bookings/:id', function (req, res) {
     });
 });
 // Get bookings for customer
-app.get('/customers/:id/bookings', isLoggedIn(), function (req, res) {
-    // Create database query and id
+app.get('/customers/bookings', isLoggedIn(), function (req, res) {
+    // Create database query
     var query = "SELECT * FROM booking WHERE customer_id = ?";
-    var customerId = +req.params.id;
-    database.query(query, customerId, function (err, rows) {
+    database.query(query, req.session.user.uId, function (err, rows) {
         if (err) {
             // Database operation has failed
             res.status(500).send({

@@ -107,7 +107,7 @@
                                     prepend-icon="fas fa-camera"
                                 ></v-file-input>
                             </v-col> -->
-                            
+
                             <v-col
                             cols="12"
                             >
@@ -129,7 +129,7 @@
                             </v-col>
 
                             <v-col
-                            cols="12" 
+                            cols="12"
                             sm="6"
                             >
                             <v-text-field
@@ -140,7 +140,7 @@
                             </v-col>
 
                             <v-col
-                            cols="12" 
+                            cols="12"
                             sm="6"
                             >
                             <v-text-field
@@ -151,7 +151,7 @@
                             </v-col>
 
                             <v-col
-                            cols="12" 
+                            cols="12"
                             sm="6"
                             >
                             <v-text-field
@@ -162,7 +162,7 @@
                             </v-col>
 
                             <v-col
-                            cols="12" 
+                            cols="12"
                             sm="6"
                             >
                             <v-text-field
@@ -173,7 +173,7 @@
                             </v-col>
 
                             <v-col
-                            cols="12" 
+                            cols="12"
                             sm="6"
                             >
                             <v-text-field
@@ -184,7 +184,7 @@
                             </v-col>
 
                             <v-col
-                            cols="12" 
+                            cols="12"
                             sm="6"
                             >
                             <v-text-field
@@ -229,7 +229,7 @@ export default {
   },
   data(){
     return{
-      loggedIn: true,
+      loggedIn: false,
       loginname:"",
       password:"",
       register_component: false,
