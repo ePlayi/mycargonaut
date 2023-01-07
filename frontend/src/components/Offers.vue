@@ -64,6 +64,7 @@ export default {
   },
   beforeMount() {
     this.getAllRides()
+    console.log(this.getUser(52))
   },
   methods:{
     async getOffers() {
@@ -82,6 +83,13 @@ export default {
           .then((response) => {
             this.rides=response.data.rideList
             console.log(this.rides)
+          })
+    },
+    getUser(userId) {
+      this.axios.get(this.url+'user/'+userId,{
+      })
+          .then((response) => {
+            return response.data.user
           })
     },
   }
