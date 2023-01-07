@@ -7,20 +7,28 @@
             </v-card-title>
         </v-card>
 
-        <v-card rounded="4" v-if="vehicles.length===0" class="my-8 content-card">
+        <v-card rounded="4" v-if="cars.length===0" class="my-8 content-card">
             <v-card-text align="center">
                 Du hast leider noch keine Autos registriert. 
                 Unter <router-link to="/vehicles" style="text-decoration: none">Meine Fahrzeuge</router-link> kannst du dein erstes Auto anlegen.
             </v-card-text>
         </v-card>
 
-        <v-card rounded="4" class="my-8 content-card" v-if="vehicles.length>0">
+        <v-card rounded="4" class="my-8 content-card" v-if="cars.length>0">
             <v-card-text>
                 <v-form class="login-form">
                     <v-container>
                         <v-select 
-                        label="Wähle dein Auto"
-                        :v-model="offer.vehicle">
+                        v-model="defaultCar"
+                        :hint="`${cars.brand}, ${cars.model}`"
+                        :items="cars"
+                        item-title="brand"
+                        item-value="model"
+                        label="Select"
+                        persistent-hint
+                        return-object
+                        single-line
+                        >
 
                         </v-select>
                         <v-row>
@@ -79,25 +87,50 @@
 <script>
 export default {
     name: "createOffer",
+    beforeMount() {
+        this.getCars()
+    },
+    created() {
+        document.title = "Angebot anlegen";
+    },
     data() {
         return {
+            //IF LOCAL TESTED USE THIS URL FOR THE API CALLS
+            url: 'http://localhost:3001/',
+            // url: 'https://mycargonaut.onrender.com/',
             offer: {
                 description: "",
                 price: "",
-                vehicle: "",
+                car: "",
                 start: "",
                 end: "",
             },
-            vehicles: [],
+            cars: [],
+            defaultCar: "",
+            carNames: [],
             rules: [v => v.length <= 128 || 'Max 128 characters, everything after will be cut off'],
         };
     },
     methods: {
-        getVehicles() {
-            console.log("get vehicles");
+        getCars(){
+        this.axios.get(this.url+'cars',{
+        })
+            .then((response) => {
+                this.cars=response.data.carList
+                this.defaultCar=this.cars[0]
+                this.getCarNames()
+            })
+        },
+        getCarNames(){
+            this.cars.forEach(car => {
+                this.carNames.push(car.brand + " " + car.model)
+                console.log(car)
+                console.log(this.carNames)
+            });
         },
         createOffer() {
             console.log(this.offer);
+            console.log(this.carNames)
         },
     }
 };
