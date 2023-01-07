@@ -20,12 +20,10 @@
                     <v-container>
                         <v-select 
                         v-model="defaultCar"
-                        :hint="`${cars.brand}, ${cars.model}`"
                         :items="cars"
                         item-title="brand"
                         item-value="model"
                         label="Select"
-                        persistent-hint
                         return-object
                         single-line
                         >
@@ -113,24 +111,18 @@ export default {
     },
     methods: {
         getCars(){
-        this.axios.get(this.url+'cars',{
+        this.axios.get(this.url+'profile/vehicles',{
         })
             .then((response) => {
-                this.cars=response.data.carList
-                this.defaultCar=this.cars[0]
-                this.getCarNames()
+                this.cars = response.data.vehicleList
+                this.defaultCar = this.cars[0]
             })
-        },
-        getCarNames(){
-            this.cars.forEach(car => {
-                this.carNames.push(car.brand + " " + car.model)
-                console.log(car)
-                console.log(this.carNames)
-            });
         },
         createOffer() {
             console.log(this.offer);
-            console.log(this.carNames)
+            this.cars.forEach(car=> {
+                console.log(car)
+            })
         },
     }
 };
