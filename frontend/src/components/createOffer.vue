@@ -1,6 +1,11 @@
 <template>
     <v-container>
         <!-- Angebot anlegen -->
+        <c-vard>
+            <v-card-title>
+                
+            </v-card-title>
+        </c-vard>
     </v-container>
 </template>
 
