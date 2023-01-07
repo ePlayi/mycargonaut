@@ -6,6 +6,7 @@ import tracking from "@/components/Tracking";
 import offers from "@/components/Offers";
 import login from "@/components/Login";
 import register from "@/components/Register";
+import createOffer from "@/components/createOffer";
 
 
 const routes =[
@@ -15,6 +16,7 @@ const routes =[
     {path: "/offers", component: offers},
     {path: "/login", component: login},
     {path: "/register", component: register},
+    {path: "/createOffer", component: createOffer},
 ]
 const router = createRouter({
     history: createWebHistory(),
