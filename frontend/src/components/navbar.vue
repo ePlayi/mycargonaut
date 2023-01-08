@@ -252,8 +252,8 @@ export default {
 
 /* Add a color to the active/current link */
 .nav-item.active {
-  background-color: #00564f;
-  color: rgba(255, 255, 255, 0.68);
+  background-color: #83b8b8;
+  color: black;
   margin: 0 10px;
   transform: scale(1.2);
   border-top-left-radius: 10px;
