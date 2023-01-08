@@ -175,7 +175,6 @@ export default {
       })
           .then((response) => {
             this.requests=response.data.requestList
-            console.log(this.requests)
           })
     },
 

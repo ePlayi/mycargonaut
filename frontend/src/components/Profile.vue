@@ -15,10 +15,10 @@
               </v-col>
               <v-col lg="4" cols="12">
                   <v-icon class="mx-2" icon="fas fa-star" color="orange" size="large"/>
-                  <v-icon class="mx-2" icon="fas fa-star" color="orange" size="large"/>
-                  <v-icon class="mx-2" icon="fas fa-star" color="orange" size="large"/>
-                  <v-icon class="mx-2" icon="fas fa-star" color="orange" size="large"/>
-                  <v-icon class="mx-2" icon="fas fa-star" color="orange" size="large"/>
+                  <v-icon class="mx-2" icon="fas fa-star" :color="rating >= 1.5 ? 'orange' : '#cccccc'" size="large"/>
+                  <v-icon class="mx-2" icon="fas fa-star" :color="rating >= 2.5 ? 'orange' : '#cccccc'" size="large"/>
+                  <v-icon class="mx-2" icon="fas fa-star" :color="rating >= 3.5 ? 'orange' : '#cccccc'" size="large"/>
+                  <v-icon class="mx-2" icon="fas fa-star" :color="rating >= 4.5 ? 'orange' : '#cccccc'" size="large"/>
               </v-col>
           </v-row>
         </v-card>
@@ -240,6 +240,7 @@ export default {
       user:{},
       cars:[],
       comments:[],
+      rating: 0,
       editProfileModal: false,
       tab: null,
 
@@ -318,6 +319,7 @@ export default {
       })
           .then((response) => {
             this.user = response.data.user
+            console.log(this.user)
           })
     },
     openEditModal(car){
@@ -389,6 +391,13 @@ export default {
           .then((response) => {
             this.comments = response.data.ratingList.filter(comment => comment.rating !== null)
             console.log(this.comments)
+            let counter = 0
+            this.comments.map(rating => {
+              this.rating += rating.rating
+              counter++
+            })
+            this.rating = this.rating / counter
+            console.log(this.rating)
           })
     },
   }
