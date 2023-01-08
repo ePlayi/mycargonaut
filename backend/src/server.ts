@@ -10,7 +10,7 @@ import {Connection, FieldInfo, MysqlError, OkPacket, Pool} from "mysql";
 import mysql = require ("mysql");      // handles database connections
 import session = require ("cookie-session");
 
-//import models
+// import models
 import {User} from './models/user';
 
 const database: Pool = mysql.createPool({
@@ -152,6 +152,14 @@ app.get('/rides', (req: Request, res: Response) => {
 
 // Create new ride
 app.post('/rides', isLoggedIn(), (req: Request, res: Response) => {
+    // Permission checking
+    if (req.session.user.userId !== req.body.driverId && req.session.user.role > 2) {
+        res.status(403).send({
+            message: 'You are not allowed to create a ride for another user'
+        });
+        return;
+    }
+
     // Create database query and data
     const query: string = "INSERT INTO Ride (driver_id, vehicle_id, start, destination, dateTime, price, description, open, pos_long, pos_lat) VALUES (?, ?, ?, ?, ?, ?, ?, true, null, null)"
     const { driverId, vehicleId, start, destination, dateTime, price, description } = req.body
@@ -173,6 +181,14 @@ app.post('/rides', isLoggedIn(), (req: Request, res: Response) => {
 
 // Update ride
 app.put('/rides/:id', isLoggedIn(), (req: Request, res: Response) => {
+    // Permission checking
+    if (req.session.user.userId !== req.body.driverId && req.session.user.role > 2) {
+        res.status(403).send({
+            message: 'You are not allowed to update a ride for another user'
+        });
+        return;
+    }
+
     // Create database query and data
     const query: string = "UPDATE Ride SET driver_id = ?, vehicle_id = ?, start = ?, destination = ?, dateTime = ?, price = ?, description = ?, open = ?, pos_long = ?, pos_lat = ? WHERE ride_id = ?"
     const { driverId, vehicleId, start, destination, dateTime, price, description, open, posLongitude, posLatitude } = req.body
@@ -475,8 +491,8 @@ app.delete('/vehicles/:id', isLoggedIn(), (req: Request, res: Response) => {
 /*****************************************************************************
  * Routes for Tracking                                                       *
  *****************************************************************************/
-// Update position of driver where booking.status = 4
 
+// Update position of driver where status = 4
 app.put('/updatePos', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and data
     const rideId = req.body.rideId
@@ -500,6 +516,7 @@ app.put('/updatePos', isLoggedIn(), (req: Request, res: Response) => {
     });
 });
 
+// Update status of ride
 app.put('/changeStatusRide', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and data
     const rideId = req.body.id
@@ -521,7 +538,7 @@ app.put('/changeStatusRide', isLoggedIn(), (req: Request, res: Response) => {
     });
 });
 
-
+// Get active rides
 app.get('/activeRides', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and id
     const query: string = "SELECT `booking`.*, `Ride`.*, `booking`.`status`, `Ride`.`driver_id` FROM `booking` LEFT JOIN `Ride` ON `booking`.`ride_id` = `Ride`.`ride_id` WHERE `booking`.`status` = '4' AND `Ride`.`driver_id` = ?;"
@@ -547,12 +564,11 @@ app.get('/activeRides', isLoggedIn(), (req: Request, res: Response) => {
                     activeRides,
                     message: 'Successfully requested Accepted Bookings'
                 });
-            }else{
+            } else {
                 res.status(204).send({
                     message: 'No active rides'
                 });
             }
-
         }
     });
 });
@@ -589,12 +605,9 @@ app.get('/ridesAccepted', isLoggedIn(), (req: Request, res: Response) => {
     });
 });
 
-
 /*****************************************************************************
  * Routes for Profile                                                        *
  *****************************************************************************/
-
-
 
 // Get profile
 app.get('/profile', isLoggedIn(), (req: Request, res: Response) => {
