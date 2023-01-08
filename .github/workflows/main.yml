@@ -23,14 +23,3 @@ jobs:
       run: (cd frontend && npm ci)
     - name: Build app
       run: (cd frontend && npm run build)
-      
-      
-  build-backend:
-    name: Build and deploy backend
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Install dependencies
-      run: (cd backend/src && npm ci)
-    - name: Run backend
-      run: (cd backend/src && node server.js)
