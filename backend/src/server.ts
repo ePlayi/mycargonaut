@@ -415,8 +415,8 @@ app.get('/vehicles/:id', (req: Request, res: Response) => {
 app.post('/vehicles', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and data
     const query: string = "INSERT INTO Vehicle (user_id, brand, model, seats, storage, car_image) VALUES (?, ?, ?, ?, ?, ?)"
-    const { userId, brand, model, seats, storage, image } = req.body
-    const data = [ userId, brand, model, seats, storage, image ]
+    const { brand, model, seats, storage, image } = req.body
+    const data = [ req.session.user.uId, brand, model, seats, storage, image ]
 
     database.query(query, data, (err, rows) => {
         if (err) {
@@ -433,11 +433,11 @@ app.post('/vehicles', isLoggedIn(), (req: Request, res: Response) => {
 });
 
 // Update vehicle
-app.put('/vehicles/:id', isLoggedIn(), (req: Request, res: Response) => {
+app.put('/vehicles', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and data
-    const query: string = "UPDATE Vehicle SET user_id = ?, brand = ?, model = ?, seats = ?, storage = ?, car_image = ? WHERE vehicle_id = ?"
-    const { userId, brand, model, seats, storage, image } = req.body
-    const data = [ userId, brand, model, seats, storage, image, req.params.id ]
+    const query: string = "UPDATE Vehicle SET seats = ?, storage = ? WHERE vehicle_id = ?"
+    const {seats, storage, vehicleId } = req.body
+    const data = [seats, storage, vehicleId ]
 
     database.query(query, data, (err, rows) => {
         if (err) {
@@ -696,7 +696,7 @@ app.get('/profile/vehicles', isLoggedIn(), (req: Request, res: Response) => {
             for (const row of rows) {
 
                 const vehicle= {
-                    vehicleId: row.vehicleId,
+                    vehicleId: row.vehicle_id,
                     brand: row.brand,
                     model: row.model,
                     seats: row.seats,
