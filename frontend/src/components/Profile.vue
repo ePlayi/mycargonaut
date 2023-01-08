@@ -365,7 +365,7 @@ export default {
       this.axios.get(this.url+'profile/ratings',{
       })
           .then((response) => {
-            this.comments = response.data.ratingList
+            this.comments = response.data.ratingList.filter(comment => comment.rating !== null)
             console.log(this.comments)
           })
     },

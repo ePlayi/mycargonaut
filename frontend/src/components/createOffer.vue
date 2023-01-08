@@ -144,7 +144,6 @@ export default {
             })
             this.offer.dateTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
             this.offer.driverId = this.user.uId
-            console.log(this.offer)
             this.axios.post(this.url+'rides', this.offer)
                 .then((response) => {
                     console.log(response)
