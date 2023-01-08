@@ -333,6 +333,21 @@ app.post('/bookings', isLoggedIn(), (req: Request, res: Response) => {
     const { customerId, rideId, status } = req.body
     const data = [ customerId, rideId, status ]
 
+    // Permission check
+    if (req.session.user.uId !== customerId && req.session.user.groupId > 2) {
+        res.status(403).send({
+            message: 'You are not allowed to create a booking for another user'
+        });
+        return;
+    }
+
+    if (status !== 1) {
+        res.status(403).send({
+            message: 'A booking can only be created with status "1" (requested)'
+        });
+        return;
+    }
+
     database.query(query, data, (err, rows) => {
         if (err) {
             // Database operation has failed
