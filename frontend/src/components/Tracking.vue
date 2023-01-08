@@ -72,10 +72,7 @@
   <div v-if="activeRide===true">
     <v-container class="tracking-container" align="center" justify="center">
       <v-card rounded="4">
-        <v-card-title class="mt-4">
-            <h1>Fahrt für "{{activeRides.customerName}}" ist aktiv</h1>
-        </v-card-title>
-        <v-card-text>
+        <v-card-text class="mt-4">
           <h2>Startpunkt: {{activeRides.start}} - Ziel: {{activeRides.destination}}</h2>
           <div>
             <p></p>
