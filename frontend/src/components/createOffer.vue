@@ -16,7 +16,11 @@
 
         <v-card rounded="4" class="my-8 content-card" v-if="cars.length>0">
             <v-card-text>
-                <v-form class="login-form">
+                <v-form 
+                ref="form"
+                v-model="valid"
+                lazy-validation 
+                class="login-form">
                     <v-container>
                         <v-select 
                         v-model="currentCar"
@@ -26,6 +30,7 @@
                         label="Select"
                         return-object
                         single-line
+                        :rules="requiredRule"
                         >
 
                         </v-select>
@@ -38,6 +43,7 @@
                                 v-model="offer.start"
                                 label="Abholort"
                                 type="text"
+                                :rules="requiredRule"
                                 required
                             ></v-text-field>
                             </v-col>
@@ -50,6 +56,7 @@
                                 v-model="offer.destination"
                                 label="Ankunftsort"
                                 type="text"
+                                :rules="requiredRule"
                                 required
                             ></v-text-field>
                             </v-col>
@@ -69,10 +76,17 @@
                                 label="Preis in Euro"
                                 type="number"
                                 required
+                                :rules="requiredRule"
                                 ></v-text-field>
                             </v-col>
                             <v-col cols="12" sm="6">
-                                <v-btn color="green" @click="createOffer()">Angebot machen</v-btn>
+                                <v-btn color="green" @click="createOffer()">Angebot machen</v-btn><v-btn
+                                    color="success"
+                                    class="mr-4"
+                                    @click="validate"
+                                    >
+                                    Validate
+                                    </v-btn>
                             </v-col>
                         </v-row>
                     </v-container>
@@ -87,7 +101,7 @@ export default {
     name: "createOffer",
     beforeMount() {
         this.getCars()
-        this.checkLogin()
+        this.getProfileInformation()
     },
     created() {
         document.title = "Angebot anlegen";
@@ -106,14 +120,21 @@ export default {
                 price: 0,
                 description: "",
             },
+            valid: true,
             cars: [],
             currentCar: null,
             carNames: [],
             user: null,
-            rules: [v => v.length <= 128 || 'Max 128 characters, everything after will be cut off'],
+            rules: [v => v.length <= 128, v => !!v || 'Required. Max 128 characters, everything after will be cut off'],
+            requiredRule: [v => !!v || 'This field is required'],
         };
     },
     methods: {
+        async validate () {
+        const { valid } = await this.$refs.form.validate()
+        if (valid) return true 
+        else return false
+      },
         getCars(){
         this.axios.get(this.url+'profile/vehicles',{
         })
@@ -129,7 +150,15 @@ export default {
                 this.offer.vehicleId = this.carNames[0].vehicleId
             })
         },
+        getProfileInformation(){
+        this.axios.get(this.url+'profile',{
+        })
+            .then((response) => {
+                this.user = response.data.user
+            })
+        },
         createOffer() {
+            if(!this.validate()) return
             this.cars.forEach(car => {
                 if (car.vehicleId === this.currentCar.vehicleId) {
                     this.offer.vehicleId = car.vehicleId
@@ -137,7 +166,6 @@ export default {
             })
             this.offer.dateTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
             this.offer.driverId = this.user.uId
-            console.log(this.offer)
             this.axios.post(this.url+'rides', this.offer)
                 .then((response) => {
                     console.log(response)
@@ -146,16 +174,6 @@ export default {
                 .catch(function (error) {
                     console.log(error);
                 });
-        },
-        checkLogin(){
-        this.axios.get(this.url+'login').then((response) => {
-            if(response.status===200){
-            this.user = response.data
-            }
-        })
-            .catch(function (error) {
-                console.log(error);
-            });
         },
     }
 };

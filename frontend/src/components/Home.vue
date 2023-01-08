@@ -3,7 +3,7 @@
     <img src="../assets/images/mainIMages/Header-Image.webp" class="header-image">
   </header>
   <section>
-    <h1 class="text-center">Das Ergebnis wenn DHL und eBay-Kleinanzeigen ein Kind bekommen:</h1>
+    <h1 class="text-center">Das Ergebnis wenn DHL und eBay-Kleinanzeigen ein Kind bekommen</h1>
     <div class="text-center mb-5">
       <img src="../assets/images/logo/semi_androidMyCargonautmdpi.png" class="img-fluid" width="200">
     </div>
@@ -32,7 +32,7 @@
           <div class="card" >
             <img class="card-img-top" src="../assets/images/undraw/tracking-image.svg" alt="Card image cap">
             <div class="card-body">
-              <h5 class="card-title">Wo ist?</h5>
+              <h5 class="card-title">Position des Fahrers</h5>
               <router-link to="/tracking" class="btn btn-primary">Tracking</router-link>
             </div>
           </div>

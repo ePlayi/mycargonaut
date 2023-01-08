@@ -148,10 +148,10 @@
           <label for="inputLastname">Nachname</label>
           <input type="text" class="form-control" id="inputLastname" placeholder="Nachname..." v-model="user.nachname">
 
-          <label for="inputMail">Mail</label>
+          <label for="inputMail">E-Mail Adresse</label>
           <input type="text" class="form-control" id="inputMail" placeholder="Mail..." v-model="user.email">
 
-          <label for="inputMobileNr">Handy Nummer</label>
+          <label for="inputMobileNr">Handynummer</label>
           <input type="text" class="form-control" id="inputMobileNr" placeholder="Handy..." v-model="user.mobilenr">
 
           <label for="inputBirthdate">Geburtsdatum</label>
@@ -160,10 +160,10 @@
           <label for="inputGender">Geschlecht</label>
           <input type="text" class="form-control" id="inputGender" placeholder="Geschlecht..." v-model="user.gender">
 
-          <label for="inputAddress">Address</label>
+          <label for="inputAddress">Addresse</label>
           <input type="text" class="form-control" id="inputAddress" placeholder="Addresse..." v-model="user.address">
 
-          <label for="inputPicture">Bild</label>
+          <label for="inputPicture">Profilbild</label>
           <input type="text" class="form-control" id="inputPicture" placeholder="Bild URL..." v-model="user.profilePicture">
 
           <label for="inputDescription">Beschreibung</label>
@@ -418,7 +418,7 @@ export default {
       this.axios.get(this.url+'profile/ratings',{
       })
           .then((response) => {
-            this.comments = response.data.ratingList
+            this.comments = response.data.ratingList.filter(comment => comment.rating !== null)
             console.log(this.comments)
           })
     },

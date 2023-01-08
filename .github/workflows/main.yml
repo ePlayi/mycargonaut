@@ -2,17 +2,7 @@ name: Build and Deploy
 
 on: [push, pull_request]
 
-jobs:
-  # test-frontend:
-    # name: Frontend Testing
-    # runs-on: ubuntu-latest
-    # steps:
-    # - uses: actions/checkout@v2
-    # - name: Install dependencies
-    #  run: (cd frontend && npm ci)
-    # - name: Run tests
-    #  run: (cd frontend && npm run test:unit)
-        
+jobs: 
   lint-frontend:
     name: Lint files
     runs-on: ubuntu-latest

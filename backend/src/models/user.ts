@@ -3,4 +3,5 @@ export interface User {
     name: string;
     nachname: string;
     loginname: string;
+    groupId: number;
 }
