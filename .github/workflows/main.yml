@@ -32,7 +32,5 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install dependencies
       run: (cd backend/src && npm ci)
-    - name: Compile backend
-      run: (cd backend/src && tsc server.ts)
     - name: Run backend
       run: (cd backend/src && node server.js)
