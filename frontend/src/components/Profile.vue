@@ -72,6 +72,7 @@
             <v-tab value="cars">Fahrzeuge</v-tab>
             <!-- <v-tab value="three">Informationen</v-tab> -->
             <v-tab value="edit">Profil Bearbeiten</v-tab>
+            <button class="btn btn-primary" @click="updateCurrencyModal=true">Kontostand</button>
           </v-tabs>
 
           <v-card-text>
@@ -113,7 +114,7 @@
                         </v-row>
                       </v-card-text>
                     </v-card>
-                    
+
                   </v-card-text>
 
                 </v-card>
@@ -287,14 +288,45 @@
       </template>
     </modal> -->
   </Teleport>
+
+
+
+  <!--MODAL TO UPDATE CURRENCY-->
+  <Teleport to="body">
+    <!-- use the modal component, pass in the prop -->
+    <modal :show="updateCurrencyModal" @close="updateCurrencyModal = false">
+      <template #header>
+        <p>Kontostand</p>
+        <button class="btn btn-secondary" style="text-align: right" @click="updateCurrencyModal = false;">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </template>
+      <template #body>
+        <div class="form-group mb-5">
+          <p>Aktueller Kontostand: {{user.currency}} Coins</p>
+          <hr>
+          <h3 class="text-center">Aufladen</h3>
+          <label for="inputCurrency">Menge</label>
+          <input type="number" class="form-control" id="inputCurrency" placeholder="Menge" v-model="addCurrency">
+        </div>
+      </template>
+      <template #footer>
+        <button class="btn btn-success" @click="updateCurrency(this.addCurrency)">Ändern</button>
+      </template>
+    </modal>
+  </Teleport>
 </template>
 
 
 <script>
+import Modal from "@/components/Modal";
 export default {
   name: "Profile",
   created() {
     document.title = "Profil";
+  },
+  components:{
+    Modal
   },
   mounted() {
 
@@ -326,9 +358,30 @@ export default {
       editAddress: "",
       editPicture: "",
       editDescription: "",
+
+      addCurrency:0,
+      updateCurrencyModal:false,
     }
   },
   methods:{
+    updateCurrency(){
+      this.axios.request({
+        method: 'PUT',
+        url: this.url+'currency',
+        data: {
+          change: this.addCurrency,
+          reason: 'topUp'
+        }
+      })
+          .then((response)=>{
+            if (response.status){
+              this.getProfileInformation()
+            }
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+    },
     saveEditProfile(user){
       this.axios.request({
         method: 'PUT',
@@ -337,7 +390,7 @@ export default {
           user
         }
       })
-          .then(function(response){
+          .then((response)=>{
             if (response.status){
               this.getProfileInformation()
             }

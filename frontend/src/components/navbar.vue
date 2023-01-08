@@ -21,11 +21,14 @@
       </template>
       <template #body>
         <div class="row">
-          <div class="col-6">
+          <div class="col mb-5">
             <button class="btn btn-danger" @click="logout()">Logout</button>
           </div>
-          <div class="col-6">
+          <div class="col mb-5">
             <button class="btn btn-warning" @click="settingsModal=false; changePassModal=true">Passwort ändern</button>
+          </div>
+          <div class="col mb-5">
+            <button class="btn btn-dark" @click="settingsModal=false; acceptDeclineModal=true">Anfragen</button>
           </div>
         </div>
 
@@ -61,6 +64,33 @@
       </template>
     </modal>
   </Teleport>
+
+  <!--MODAL TO ACCEPT/DECLINE BOOKINGS-->
+  <Teleport to="body">
+    <!-- use the modal component, pass in the prop -->
+    <modal :show="acceptDeclineModal" @close="acceptDeclineModal = false">
+      <template #header>
+        <p>Anfragen</p>
+        <button class="btn btn-secondary" style="text-align: right" @click="acceptDeclineModal = false;">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </template>
+      <template #body>
+        <select class="form-select" v-model="activeSelected">
+          <option v-for="request in requests" :key="request" :value="request.bookingId">{{request.customerName}} {{offerer = request.customerId}} : {{request.start}}-{{request.destination}} {{price=request.price}}</option>
+        </select>
+        <button class="btn btn-success" @click="changeStatusTo(2)">Annehmen</button>
+        <button class="btn btn-warning" @click="changeStatusTo(3)">Ablehnen</button>
+      </template>
+      <template #footer>
+        <p></p>
+      </template>
+    </modal>
+  </Teleport>
+
+
+
+
 </template>
 
 <script>
@@ -74,7 +104,7 @@ export default {
 
   },
   beforeMount() {
-
+    this.getRequests()
   },
   data() {
     return {
@@ -83,6 +113,13 @@ export default {
 
       newPassword:"",
       newPasswordConfirm:"",
+      activeSelected:0,
+      requests:[],
+      acceptDeclineModal:false,
+      price:0,
+      offerer:0,
+
+
 
       //IF LOCAL TESTED USE THIS URL FOR THE API CALLS
       url: 'http://localhost:3001/',
@@ -91,6 +128,58 @@ export default {
     }
   },
   methods:{
+    changeStatusTo(status){
+      this.axios.request({
+        method: 'PUT',
+        url: this.url+'changeStatusRide',
+        data: {
+          rideid: this.activeSelected,
+          changeTo: status
+        }
+      })
+          .then((response)=>{
+            if (response.data.changedTo===3){
+              this.updateCurrency()
+            }else{
+              alert("Fahrt angenommen")
+              this.getRequests()
+            }
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+    },
+    getRidePrice(){
+
+    },
+    updateCurrency() {
+      this.axios.request({
+        method: 'PUT',
+        url: this.url+'currencyBack',
+        data: {
+          change: this.price,
+          customer: this.offerer
+        }
+      })
+          .then((response)=>{
+            if (response.status===200){
+              alert("Anfrage abgelehnt")
+            }
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+    },
+    getRequests(){
+      this.axios.get(this.url+'requestedRides',{
+      })
+          .then((response) => {
+            this.requests=response.data.requestList
+            console.log(this.requests)
+          })
+    },
+
+
     changePassword(password){
       if (this.newPassword===this.newPasswordConfirm){
         this.axios.request({

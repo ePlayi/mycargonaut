@@ -289,8 +289,8 @@ app.get('/rides/:id/bookings', isLoggedIn(), function (req, res) {
 app.post('/bookings', isLoggedIn(), function (req, res) {
     // Create database query and data
     var query = "INSERT INTO booking (customer_id, ride_id, status, rating, comment) VALUES (?, ?, ?, NULL, NULL)";
-    var _a = req.body, customerId = _a.customerId, rideId = _a.rideId, status = _a.status;
-    var data = [customerId, rideId, status];
+    var rideId = req.body.rideId;
+    var data = [req.session.user.uId, rideId, 1];
     database.query(query, data, function (err, rows) {
         if (err) {
             // Database operation has failed
@@ -466,7 +466,7 @@ app.put('/updatePos', isLoggedIn(), function (req, res) {
 });
 app.put('/changeStatusRide', isLoggedIn(), function (req, res) {
     // Create database query and data
-    var rideId = req.body.id;
+    var rideId = req.body.rideid;
     var changeTo = req.body.changeTo;
     var query = "UPDATE `booking` SET `status` = ? WHERE `booking`.`booking_id` = ?";
     var data = [changeTo, rideId];
@@ -479,7 +479,8 @@ app.put('/changeStatusRide', isLoggedIn(), function (req, res) {
         }
         else {
             res.status(200).send({
-                message: 'Successfully started ride'
+                message: 'Successfully changed ride status',
+                changedTo: changeTo
             });
         }
     });
@@ -543,6 +544,37 @@ app.get('/ridesAccepted', isLoggedIn(), function (req, res) {
             res.status(200).send({
                 acceptedList: acceptedList,
                 message: 'Successfully requested Accepted Bookings'
+            });
+        }
+    });
+});
+// Get rides for driver wehere status = 2
+app.get('/requestedRides', isLoggedIn(), function (req, res) {
+    // Create database query and id
+    var query = "SELECT `booking`.*, `Ride`.*, `User`.*, `booking`.`status`, `Ride`.`driver_id` FROM `booking` LEFT JOIN `Ride` ON `booking`.`ride_id` = `Ride`.`ride_id` LEFT JOIN `User` ON `booking`.`customer_id` = `User`.`user_id` WHERE `booking`.`status` = '1' AND `Ride`.`driver_id` = ?;";
+    database.query(query, req.session.user.uId, function (err, rows) {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        }
+        else {
+            var requestList = rows.map(function (row) { return row = {
+                bookingId: row.booking_id,
+                customerId: row.customer_id,
+                rideId: row.ride_id,
+                status: row.status,
+                rating: row.rating,
+                comment: row.comment,
+                start: row.start,
+                destination: row.destination,
+                price: row.price,
+                customerName: row.first_name + ' ' + row.last_name
+            }; });
+            res.status(200).send({
+                requestList: requestList,
+                message: 'Successfully requested  requests'
             });
         }
     });
@@ -718,6 +750,110 @@ app.put('/profile', isLoggedIn(), function (req, res) {
         }
     });
 });
+// Update currency
+app.put('/currency', isLoggedIn(), function (req, res) {
+    var change = req.body.change;
+    var offerer = req.body.offerer;
+    var user = req.session.user.uId;
+    var reason = req.body.reason;
+    var userCurrency;
+    //check if the reason is to top up account, if not, it's a booking
+    if (reason === 'topUp') {
+        var query = 'UPDATE `User` SET `currency` = `currency` + ? WHERE `User`.`user_id` = ?';
+        var data = [change, user];
+        database.query(query, data, function (err, rows) {
+            if (err) {
+                res.status(500).send({
+                    message: 'Database request failed',
+                });
+            }
+            else {
+                res.status(200).send({
+                    message: 'Successfully updated currency',
+                });
+            }
+        });
+    }
+    if (reason === 'booking' || reason === 'declined') {
+        //checking if user is able to pay
+        var query = 'SELECT currency FROM User WHERE user_id = ?';
+        database.query(query, user, function (err, rows) {
+            if (err) {
+                res.status(500).send({
+                    message: 'Database request failed',
+                });
+            }
+            else {
+                userCurrency = rows[0].currency;
+                if (userCurrency >= change) {
+                    //setting the value of the drivers profile + the change
+                    var query_1 = 'UPDATE `User` SET `currency` = `currency` + ? WHERE `User`.`user_id` = ?';
+                    var data = [change, offerer];
+                    database.query(query_1, data, function (err, rows) {
+                        if (err) {
+                            res.status(500).send({
+                                message: 'Database request failed',
+                            });
+                        }
+                        else {
+                            //setting value of user - the price
+                            var query_2 = 'UPDATE `User` SET `currency` = `currency` - ? WHERE `User`.`user_id` = ?';
+                            var data_1 = [change, user];
+                            database.query(query_2, data_1, function (err, rows) {
+                                if (err) {
+                                    res.status(500).send({
+                                        message: 'Database request failed',
+                                    });
+                                }
+                                else {
+                                    res.status(200).send({
+                                        message: 'Successfully changed currency',
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+                else {
+                    res.status(203).send({
+                        message: 'Not enough Coins',
+                    });
+                }
+            }
+        });
+    }
+});
+app.put('/currencyBack', isLoggedIn(), function (req, res) {
+    var change = req.body.change;
+    var customer = req.body.customer;
+    //setting the value of the drivers profile - the change
+    var query = 'UPDATE `User` SET `currency` = `currency` - ? WHERE `User`.`user_id` = ?';
+    var data = [change, req.session.user.uId];
+    database.query(query, data, function (err, rows) {
+        if (err) {
+            res.status(500).send({
+                message: 'Database request failed',
+            });
+        }
+        else {
+            //setting value of customer + the price
+            var query_3 = 'UPDATE `User` SET `currency` = `currency` + ? WHERE `User`.`user_id` = ?';
+            var data_2 = [change, customer];
+            database.query(query_3, data_2, function (err, rows) {
+                if (err) {
+                    res.status(500).send({
+                        message: 'Database request failed',
+                    });
+                }
+                else {
+                    res.status(200).send({
+                        message: 'Successfully changed currency',
+                    });
+                }
+            });
+        }
+    });
+});
 // Update user password
 app.put('/password', isLoggedIn(), function (req, res) {
     var password = req.body.password;
@@ -825,9 +961,9 @@ app.post('/register', function (req, res) {
             //Username is available
             else {
                 //inserting values into user table
-                var query_1 = "INSERT INTO `User` (`user_id`, `group_id`, `first_name`, `last_name`, `loginname`, `email`, `password`, `mobile_nr`, `birthdate`, `gender`, `address`, `profile_picture`, `description`, `rating`, `currency`) VALUES (NULL, '3', ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL, NULL, NULL);";
+                var query_4 = "INSERT INTO `User` (`user_id`, `group_id`, `first_name`, `last_name`, `loginname`, `email`, `password`, `mobile_nr`, `birthdate`, `gender`, `address`, `profile_picture`, `description`, `rating`, `currency`) VALUES (NULL, '3', ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL, NULL, 0);";
                 var data = [name, lastname, username, mail, passwordHashed, phone,];
-                database.query(query_1, data, function (err, rows) {
+                database.query(query_4, data, function (err, rows) {
                     if (err) {
                         res.status(500).send({
                             message: 'Database request failed: ' + err,

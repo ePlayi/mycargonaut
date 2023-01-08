@@ -314,8 +314,8 @@ app.get('/rides/:id/bookings', isLoggedIn(), (req: Request, res: Response) => {
 app.post('/bookings', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and data
     const query: string = "INSERT INTO booking (customer_id, ride_id, status, rating, comment) VALUES (?, ?, ?, NULL, NULL)"
-    const { customerId, rideId, status } = req.body
-    const data = [ customerId, rideId, status ]
+    const {rideId} = req.body
+    const data = [ req.session.user.uId, rideId, 1 ]
 
     database.query(query, data, (err, rows) => {
         if (err) {
@@ -502,7 +502,7 @@ app.put('/updatePos', isLoggedIn(), (req: Request, res: Response) => {
 
 app.put('/changeStatusRide', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and data
-    const rideId = req.body.id
+    const rideId = req.body.rideid
     const changeTo = req.body.changeTo
     const query : string = "UPDATE `booking` SET `status` = ? WHERE `booking`.`booking_id` = ?"
     const data : [number, number] = [changeTo, rideId]
@@ -515,7 +515,8 @@ app.put('/changeStatusRide', isLoggedIn(), (req: Request, res: Response) => {
             });
         } else {
             res.status(200).send({
-                message: 'Successfully started ride'
+                message: 'Successfully changed ride status',
+                changedTo: changeTo
             });
         }
     });
@@ -584,6 +585,39 @@ app.get('/ridesAccepted', isLoggedIn(), (req: Request, res: Response) => {
             res.status(200).send({
                 acceptedList,
                 message: 'Successfully requested Accepted Bookings'
+            });
+        }
+    });
+});
+
+// Get rides for driver wehere status = 2
+app.get('/requestedRides', isLoggedIn(), (req: Request, res: Response) => {
+    // Create database query and id
+    const query: string = "SELECT `booking`.*, `Ride`.*, `User`.*, `booking`.`status`, `Ride`.`driver_id` FROM `booking` LEFT JOIN `Ride` ON `booking`.`ride_id` = `Ride`.`ride_id` LEFT JOIN `User` ON `booking`.`customer_id` = `User`.`user_id` WHERE `booking`.`status` = '1' AND `Ride`.`driver_id` = ?;"
+
+    database.query(query, req.session.user.uId, (err: MysqlError, rows: any[]) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            const requestList = rows.map(row => row = {
+                bookingId: row.booking_id,
+                customerId: row.customer_id,
+                rideId: row.ride_id,
+                status: row.status,
+                rating: row.rating,
+                comment: row.comment,
+                start: row.start,
+                destination: row.destination,
+                price: row.price,
+                customerName: row.first_name + ' ' + row.last_name
+            });
+
+            res.status(200).send({
+                requestList,
+                message: 'Successfully requested  requests'
             });
         }
     });
@@ -769,6 +803,121 @@ app.put('/profile', isLoggedIn(), (req: Request, res: Response) => {
     });
 });
 
+// Update currency
+app.put('/currency', isLoggedIn(), (req: Request, res: Response) => {
+    const change = req.body.change
+    let offerer = req.body.offerer
+    let user = req.session.user.uId
+    const reason:string = req.body.reason
+    let userCurrency: number;
+    //check if the reason is to top up account, if not, it's a booking
+    if (reason === 'topUp'){
+        const query : string= 'UPDATE `User` SET `currency` = `currency` + ? WHERE `User`.`user_id` = ?'
+        const data: [number, number] = [change, user]
+        database.query(query, data, (err: MysqlError, rows: any[]) => {
+            if (err){
+                res.status(500).send({
+                    message: 'Database request failed',
+                });
+            }
+            else{
+                res.status(200).send({
+                    message: 'Successfully updated currency',
+                });
+            }
+        });
+    }
+    if(reason==='booking' || reason ==='declined'){
+        //checking if user is able to pay
+        const query : string = 'SELECT currency FROM User WHERE user_id = ?'
+        database.query(query, user, (err: MysqlError, rows: any[]) => {
+            if (err){
+                res.status(500).send({
+                    message: 'Database request failed',
+                });
+            }
+            else{
+                userCurrency = rows[0].currency
+                if (userCurrency>=change){
+                    //setting the value of the drivers profile + the change
+                    const query:string = 'UPDATE `User` SET `currency` = `currency` + ? WHERE `User`.`user_id` = ?'
+                    const data: [number, number] = [change, offerer]
+                    database.query(query, data, (err: MysqlError, rows: any[]) => {
+                        if (err){
+                            res.status(500).send({
+                                message: 'Database request failed',
+                            });
+                        }
+                        else{
+
+                            //setting value of user - the price
+                            const query:string = 'UPDATE `User` SET `currency` = `currency` - ? WHERE `User`.`user_id` = ?'
+                            const data: [number, number] = [change, user]
+                            database.query(query, data, (err: MysqlError, rows: any[]) => {
+                                if (err){
+                                    res.status(500).send({
+                                        message: 'Database request failed',
+                                    });
+                                }
+                                else{
+
+                                    res.status(200).send({
+                                        message: 'Successfully changed currency',
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }else{
+                    res.status(203).send({
+                        message: 'Not enough Coins',
+                    });
+                }
+            }
+        });
+
+
+    }
+
+});
+app.put('/currencyBack', isLoggedIn(), (req: Request, res: Response) => {
+    const change = req.body.change
+    let customer = req.body.customer
+    //setting the value of the drivers profile - the change
+    const query:string = 'UPDATE `User` SET `currency` = `currency` - ? WHERE `User`.`user_id` = ?'
+    const data: [number, number] = [change, req.session.user.uId]
+    database.query(query, data, (err: MysqlError, rows: any[]) => {
+        if (err){
+            res.status(500).send({
+                message: 'Database request failed',
+            });
+        }
+        else{
+            //setting value of customer + the price
+            const query:string = 'UPDATE `User` SET `currency` = `currency` + ? WHERE `User`.`user_id` = ?'
+            const data: [number, number] = [change, customer]
+            database.query(query, data, (err: MysqlError, rows: any[]) => {
+                if (err){
+                    res.status(500).send({
+                        message: 'Database request failed',
+                    });
+                }
+                else{
+
+                    res.status(200).send({
+                        message: 'Successfully changed currency',
+                    });
+                }
+            });
+        }
+    });
+
+
+
+
+
+});
+
 // Update user password
 app.put('/password', isLoggedIn(), (req: Request, res: Response) => {
     const password: string = req.body.password;
@@ -881,7 +1030,7 @@ app.post('/register', (req: Request, res: Response) => {
             else {
 
                 //inserting values into user table
-                const query : string = "INSERT INTO `User` (`user_id`, `group_id`, `first_name`, `last_name`, `loginname`, `email`, `password`, `mobile_nr`, `birthdate`, `gender`, `address`, `profile_picture`, `description`, `rating`, `currency`) VALUES (NULL, '3', ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL, NULL, NULL);"
+                const query : string = "INSERT INTO `User` (`user_id`, `group_id`, `first_name`, `last_name`, `loginname`, `email`, `password`, `mobile_nr`, `birthdate`, `gender`, `address`, `profile_picture`, `description`, `rating`, `currency`) VALUES (NULL, '3', ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL, NULL, 0);"
                 const data : [string, string, string, string, string, string] = [name, lastname, username, mail, passwordHashed, phone, ]
 
                 database.query(query, data, (err: MysqlError, rows: any) => {

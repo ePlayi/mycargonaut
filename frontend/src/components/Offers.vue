@@ -17,7 +17,7 @@
               Abfahrt am {{ride.dateTime}}
             </v-col>
             <v-col class="offer-card-col" cols="12" md="2">
-              <h4>Preis: {{ride.price}}€</h4>
+              <h4>Preis: {{ride.price}} Coins</h4>
             </v-col>
             <v-col class="offer-card-col" cols="12" md="3">
               <v-btn color="green" @click="getOffers(); dialog.open = true; dialog.ride = ride">Angebot ansehen</v-btn>
@@ -35,7 +35,7 @@
           {{dialog.ride.description}}
         </v-card-text>
         <v-card-actions>
-          <v-btn color="green" >Jetzt für {{ dialog.ride.price }}€ buchen</v-btn>
+          <v-btn color="green" :disabled="dialog.ride.driverId === this.user.uId" @click="bookOrder(dialog.ride.rideId, dialog.ride.price, dialog.ride.driverId)">Jetzt für {{ dialog.ride.price }} Coins buchen</v-btn>
           <v-btn color="red" @click="dialog.open = false;">Schließen</v-btn>
         </v-card-actions>
       </v-card>
@@ -54,18 +54,57 @@ export default {
       dialog: {
         open: false,
         ride: null,
+        user:{},
       },
       //IF LOCAL TESTED USE THIS URL FOR THE API CALLS
       url: 'http://localhost:3001/',
       //url: 'https://mycargonaut.onrender.com/',
-      
+
       rides: [],
     }
   },
   beforeMount() {
     this.getAllRides()
+    this.getProfileInformation()
   },
   methods:{
+    bookOrder(id, price, driverId){
+      this.axios.request({
+        method: 'POST',
+        url: this.url+'bookings',
+        data: {
+          rideId:id
+        },
+      })
+        .then(() => {
+          this.updateCurrency(price, driverId)
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+      },
+    updateCurrency(price, offerer) {
+      this.axios.request({
+        method: 'PUT',
+        url: this.url+'currency',
+        data: {
+          change: price,
+          reason: 'booking',
+          offerer: offerer
+        }
+      })
+          .then((response)=>{
+            if (response.status===203){
+              alert("Nicht genügend Coins")
+            }
+            if (response.status===200){
+              alert("Anfrage gesendet")
+            }
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+    },
     async getOffers() {
       console.log("Function called")
     },
