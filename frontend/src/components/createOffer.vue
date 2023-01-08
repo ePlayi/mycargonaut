@@ -87,7 +87,7 @@ export default {
     name: "createOffer",
     beforeMount() {
         this.getCars()
-        this.checkLogin()
+        this.getProfileInformation()
     },
     created() {
         document.title = "Angebot anlegen";
@@ -129,6 +129,13 @@ export default {
                 this.offer.vehicleId = this.carNames[0].vehicleId
             })
         },
+        getProfileInformation(){
+        this.axios.get(this.url+'profile',{
+        })
+            .then((response) => {
+                this.user = response.data.user
+            })
+        },
         createOffer() {
             this.cars.forEach(car => {
                 if (car.vehicleId === this.currentCar.vehicleId) {
@@ -146,16 +153,6 @@ export default {
                 .catch(function (error) {
                     console.log(error);
                 });
-        },
-        checkLogin(){
-        this.axios.get(this.url+'login').then((response) => {
-            if(response.status===200){
-            this.user = response.data
-            }
-        })
-            .catch(function (error) {
-                console.log(error);
-            });
         },
     }
 };
