@@ -29,11 +29,11 @@
             bg-color="#83b8b8"
           >
             <v-tab value="comments">Bewertungen</v-tab>
-            <v-tab value="cars">Fahrzeuge</v-tab>
+            <v-tab value="cars" v-if="otherProfile===false">Fahrzeuge</v-tab>
             <!-- <v-tab value="three">Informationen</v-tab> -->
-            <v-tab value="edit">Profil Bearbeiten</v-tab>
+            <v-tab value="edit" >Profil Informationen</v-tab>
             <v-spacer></v-spacer>
-            <v-tab value="currency">Finanzen</v-tab>
+            <v-tab value="currency" v-if="otherProfile===false">Finanzen</v-tab>
             <!-- <button class="btn btn-primary" @click="updateCurrencyModal=true">Kontostand</button> -->
           </v-tabs>
 
@@ -50,12 +50,14 @@
                         <v-row justify="center" align="center">
                           <v-col cols="12" sm="2" justify="center" align="center">
                             <v-row justify="center" align="center">
-                              <v-avatar v-if="comment.customerImage !==''" size="80px" class="mx-8">
-                                <v-img :src="comment.customerImage"></v-img>
-                              </v-avatar>
-                              <v-avatar v-if="comment.customerImage ===''" size="80px" class="mx-8">
-                                <v-img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"></v-img>
-                              </v-avatar>
+                              <router-link :to="{ name: 'profile', query: {id: comment.customerId }}" @click="profileId=comment.customerId; getProfileInformation()">
+                                <v-avatar v-if="comment.customerImage !==''" size="80px" class="mx-8">
+                                  <v-img :src="comment.customerImage"></v-img>
+                                </v-avatar>
+                                <v-avatar v-if="comment.customerImage ===''" size="80px" class="mx-8">
+                                  <v-img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"></v-img>
+                                </v-avatar>
+                              </router-link>
                             </v-row>
                             <v-row justify="center" align="center">
                               <span class="mt-2">{{comment.customerName}}</span>
@@ -82,12 +84,12 @@
                 </v-card>
               </v-window-item>
 
-              <v-window-item value="cars">
-                <button class="btn btn-success" @click="addCarModal=true">Hinzufügen</button>
+              <v-window-item value="cars" v-if="otherProfile===false">
+                <button class="btn btn-success" @click="addCarModal=true" v-if="otherProfile===false">Hinzufügen</button>
                 <v-row v-for="car in cars" :key="car" justify="center" align="center">
                   <v-col cols="12" sm="4">
                     <v-img :src="car.carImage" class="car-image"></v-img>
-                    <button class="btn btn-warning" @click="openEditModal(car)">Bearbeiten</button>
+                    <button class="btn btn-warning" @click="openEditModal(car)" v-if="otherProfile===false">Bearbeiten</button>
                   </v-col>
                   <v-col cols="12" sm="4">
                     <h2>{{ car.brand }} {{ car.model }}</h2>
@@ -100,34 +102,36 @@
               </v-window-item>
 
               <v-window-item value="edit">
-        <p>Profil bearbeiten</p>
+        <p>Profil Informationen</p>
         <div class="form-group">
           <label for="inputFirstname">Vorname</label>
-          <input type="text" class="form-control" id="inputFirstname" placeholder="Vorname..." v-model="user.name">
+          <input :disabled="otherProfile===true" type="text" class="form-control" id="inputFirstname" placeholder="Vorname..." v-model="user.name">
 
           <label for="inputLastname">Nachname</label>
-          <input type="text" class="form-control" id="inputLastname" placeholder="Nachname..." v-model="user.nachname">
+          <input :disabled="otherProfile===true" type="text" class="form-control" id="inputLastname" placeholder="Nachname..." v-model="user.nachname">
 
           <label for="inputMail">E-Mail Adresse</label>
-          <input type="text" class="form-control" id="inputMail" placeholder="Mail..." v-model="user.email">
+          <input :disabled="otherProfile===true" type="text" class="form-control" id="inputMail" placeholder="Mail..." v-model="user.email">
 
           <label for="inputMobileNr">Handynummer</label>
-          <input type="text" class="form-control" id="inputMobileNr" placeholder="Handy..." v-model="user.mobilenr">
+          <input :disabled="otherProfile===true" type="text" class="form-control" id="inputMobileNr" placeholder="Handy..." v-model="user.mobilenr">
 
           <label for="inputBirthdate">Geburtsdatum</label>
-          <input type="date" class="form-control" id="inputBirthdate" placeholder="Datum" v-model="user.birthdate">
+          <input :disabled="otherProfile===true" type="date" class="form-control" id="inputBirthdate" placeholder="Datum" v-model="user.birthdate">
 
           <label for="inputGender">Geschlecht</label>
-          <input type="text" class="form-control" id="inputGender" placeholder="Geschlecht..." v-model="user.gender">
+          <input :disabled="otherProfile===true" type="text" class="form-control" id="inputGender" placeholder="Geschlecht..." v-model="user.gender">
 
           <label for="inputAddress">Addresse</label>
-          <input type="text" class="form-control" id="inputAddress" placeholder="Addresse..." v-model="user.address">
+          <input :disabled="otherProfile===true" type="text" class="form-control" id="inputAddress" placeholder="Addresse..." v-model="user.address">
 
-          <label for="inputPicture">Profilbild</label>
-          <input type="text" class="form-control" id="inputPicture" placeholder="Bild URL..." v-model="user.profilePicture">
+          <label for="inputPicture" v-if="otherProfile===false">Profilbild</label>
+          <input v-if="otherProfile===false" :disabled="otherProfile===true" type="text" class="form-control" id="inputPicture" placeholder="Bild URL..." v-model="user.profilePicture">
 
           <label for="inputDescription">Beschreibung</label>
-          <textarea type="text" class="form-control" rows="3" id="inputDescription" v-model="user.description"></textarea>
+
+          <textarea v-if="otherProfile===true" disabled type="text" class="form-control" rows="3" id="inputDescription" v-model="user.description"></textarea>
+          <textarea v-if="otherProfile===false" type="text" class="form-control" rows="3" id="inputDescription" v-model="user.description"></textarea>
 
         </div>
         <button type="button" class="btn btn-primary" @click="saveEditProfile(this.user)">Speichern</button>
@@ -147,7 +151,7 @@
           </v-card-text>
         </v-card>
     </v-container>
-  
+
     <!--MODAL TO EDIT CAR-->
   <Teleport to="body">
     <!-- use the modal component, pass in the prop -->
@@ -243,6 +247,9 @@ export default {
       rating: 0,
       editProfileModal: false,
       tab: null,
+      profileId: new URLSearchParams(window.location.search).get('id'),
+      otherProfile:false,
+
 
       //everything to edit user profile
       editFirstname: "",
@@ -313,14 +320,24 @@ export default {
             console.log(error);
           });
     },
-
     getProfileInformation(){
-      this.axios.get(this.url+'profile',{
-      })
-          .then((response) => {
-            this.user = response.data.user
-            console.log(this.user)
-          })
+      if (this.profileId){
+        this.axios.get(this.url+'user/'+this.profileId,{
+        })
+            .then((response) => {
+              this.user = response.data.user
+              this.otherProfile=true
+              this.getComments()
+            })
+      }else{
+        this.axios.get(this.url+'profile',{
+        })
+            .then((response) => {
+              this.user = response.data.user
+              console.log(this.user)
+            })
+      }
+
     },
     openEditModal(car){
       this.editCarId=car.vehicleId
@@ -386,19 +403,36 @@ export default {
           });
     },
     getComments(){
-      this.axios.get(this.url+'profile/ratings',{
-      })
-          .then((response) => {
-            this.comments = response.data.ratingList.filter(comment => comment.rating !== null)
-            console.log(this.comments)
-            let counter = 0
-            this.comments.map(rating => {
-              this.rating += rating.rating
-              counter++
+      if (this.profileId) {
+        this.axios.get(this.url+'profile/ratings/'+this.profileId,{
+        })
+            .then((response) => {
+              this.comments = response.data.ratingList.filter(comment => comment.rating !== null)
+              console.log(this.comments)
+              let counter = 0
+              this.comments.map(rating => {
+                this.rating += rating.rating
+                counter++
+              })
+              this.rating = this.rating / counter
+              console.log(this.rating)
             })
-            this.rating = this.rating / counter
-            console.log(this.rating)
-          })
+      }else{
+        this.axios.get(this.url+'profile/ratings',{
+        })
+            .then((response) => {
+              this.comments = response.data.ratingList.filter(comment => comment.rating !== null)
+              console.log(this.comments)
+              let counter = 0
+              this.comments.map(rating => {
+                this.rating += rating.rating
+                counter++
+              })
+              this.rating = this.rating / counter
+              console.log(this.rating)
+            })
+      }
+
     },
   }
 }

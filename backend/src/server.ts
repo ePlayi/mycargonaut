@@ -119,7 +119,7 @@ app.get('/rides/:id', (req: Request, res: Response) => {
 // Get all rides
 app.get('/rides', (req: Request, res: Response) => {
     // Create database query
-    const query: string = "SELECT * FROM Ride"
+    const query: string = "SELECT `Ride`.*, `User`.* FROM `Ride` LEFT JOIN `User` ON `Ride`.`driver_id` = `User`.`user_id`;"
 
     database.query(query, (err: MysqlError, rows: any[]) => {
         if (err) {
@@ -139,7 +139,9 @@ app.get('/rides', (req: Request, res: Response) => {
                 description: row.description,
                 open: row.open,
                 posLongitude: row.pos_long,
-                posLatitude: row.pos_lat
+                posLatitude: row.pos_lat,
+                driverImage: row.profile_picture,
+                driverName: row.first_name+' '+row.last_name
             });
 
             res.status(200).send({
@@ -771,6 +773,41 @@ app.get('/profile/ratings', isLoggedIn(), (req: Request, res: Response) => {
     const query: string= "SELECT `Ride`.*, `Ride`.`driver_id`, `booking`.*, `User`.`user_id`, `User`.`first_name`, `User`.`profile_picture` FROM `Ride` LEFT JOIN `booking` ON `booking`.`ride_id` = `Ride`.`ride_id` LEFT JOIN `User` ON `booking`.`customer_id` = `User`.`user_id` WHERE `driver_id` = ?"
 
     database.query(query, req.session.user.uId, (err: MysqlError, rows: any[]) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else{
+            const ratingList  = [];
+            for (const row of rows) {
+
+                const rating = {
+                    customerId: row.customer_id,
+                    customerImage: row.profile_picture,
+                    customerName: row.first_name,
+                    rating: row.rating,
+                    start: row.start,
+                    destination: row.destination,
+                    comment: row.comment
+                };
+                ratingList.push(rating);
+            }
+            // Send recipe list to client
+            res.status(200).send({
+                ratingList,
+                message: 'Successfully requested comments'
+            });
+        }
+    });
+});
+
+// Get rating from profile by Id
+app.get('/profile/ratings/:id', isLoggedIn(), (req: Request, res: Response) => {
+    // Create database query
+    const query: string= "SELECT `Ride`.*, `Ride`.`driver_id`, `booking`.*, `User`.`user_id`, `User`.`first_name`, `User`.`profile_picture` FROM `Ride` LEFT JOIN `booking` ON `booking`.`ride_id` = `Ride`.`ride_id` LEFT JOIN `User` ON `booking`.`customer_id` = `User`.`user_id` WHERE `driver_id` = ?"
+
+    database.query(query, req.params.id, (err: MysqlError, rows: any[]) => {
         if (err) {
             // Database operation has failed
             res.status(500).send({

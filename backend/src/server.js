@@ -1,5 +1,5 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 /*****************************************************************************
  * Import package                                                            *
  *****************************************************************************/
@@ -16,7 +16,7 @@ var database = mysql.createPool({
     user: 'u468072002_mycargonaut',
     password: 'mycargonautThmKms2022',
     database: 'u468072002_mycargonaut',
-    multipleStatements: true
+    multipleStatements: true,
 });
 /*****************************************************************************
  * Define and start web-app server, define json-Parser                       *
@@ -105,7 +105,7 @@ app.get('/rides/:id', function (req, res) {
 // Get all rides
 app.get('/rides', function (req, res) {
     // Create database query
-    var query = "SELECT * FROM Ride";
+    var query = "SELECT `Ride`.*, `User`.* FROM `Ride` LEFT JOIN `User` ON `Ride`.`driver_id` = `User`.`user_id`;";
     database.query(query, function (err, rows) {
         if (err) {
             // Database operation has failed
@@ -125,7 +125,9 @@ app.get('/rides', function (req, res) {
                 description: row.description,
                 open: row.open,
                 posLongitude: row.pos_long,
-                posLatitude: row.pos_lat
+                posLatitude: row.pos_lat,
+                driverImage: row.profile_picture,
+                driverName: row.first_name + ' ' + row.last_name
             }; });
             res.status(200).send({
                 rideList: rideList,
@@ -189,7 +191,7 @@ app.put('/rides/:id', isLoggedIn(), function (req, res) {
     });
 });
 // Delete ride
-app["delete"]('/rides/:id', isLoggedIn(), function (req, res) {
+app.delete('/rides/:id', isLoggedIn(), function (req, res) {
     // Create database query and id
     var query = "DELETE FROM Ride WHERE ride_id = ?";
     database.query(query, req.params.id, function (err, rows) {
@@ -340,7 +342,7 @@ app.put('/bookings/:id', isLoggedIn(), function (req, res) {
     });
 });
 // Delete booking
-app["delete"]('/bookings/:id', isLoggedIn(), function (req, res) {
+app.delete('/bookings/:id', isLoggedIn(), function (req, res) {
     // Create database query and id
     var query = "DELETE FROM booking WHERE booking_id = ?";
     database.query(query, req.params.id, function (err, rows) {
@@ -436,7 +438,7 @@ app.put('/vehicles', isLoggedIn(), function (req, res) {
     });
 });
 // Delete vehicle
-app["delete"]('/vehicles/:id', isLoggedIn(), function (req, res) {
+app.delete('/vehicles/:id', isLoggedIn(), function (req, res) {
     // Create database query and id
     var query = "DELETE FROM Vehicle WHERE vehicle_id = ?";
     database.query(query, req.params.id, function (err, rows) {
@@ -701,7 +703,7 @@ app.get('/profile/vehicles', isLoggedIn(), function (req, res) {
                     model: row.model,
                     seats: row.seats,
                     storage: row.storage,
-                    carImage: row.car_image
+                    carImage: row.car_image,
                 };
                 vehicleList.push(vehicle);
             }
@@ -747,6 +749,40 @@ app.get('/profile/ratings', isLoggedIn(), function (req, res) {
         }
     });
 });
+// Get rating from profile by Id
+app.get('/profile/ratings/:id', isLoggedIn(), function (req, res) {
+    // Create database query
+    var query = "SELECT `Ride`.*, `Ride`.`driver_id`, `booking`.*, `User`.`user_id`, `User`.`first_name`, `User`.`profile_picture` FROM `Ride` LEFT JOIN `booking` ON `booking`.`ride_id` = `Ride`.`ride_id` LEFT JOIN `User` ON `booking`.`customer_id` = `User`.`user_id` WHERE `driver_id` = ?";
+    database.query(query, req.params.id, function (err, rows) {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        }
+        else {
+            var ratingList = [];
+            for (var _i = 0, rows_3 = rows; _i < rows_3.length; _i++) {
+                var row = rows_3[_i];
+                var rating = {
+                    customerId: row.customer_id,
+                    customerImage: row.profile_picture,
+                    customerName: row.first_name,
+                    rating: row.rating,
+                    start: row.start,
+                    destination: row.destination,
+                    comment: row.comment
+                };
+                ratingList.push(rating);
+            }
+            // Send recipe list to client
+            res.status(200).send({
+                ratingList: ratingList,
+                message: 'Successfully requested comments'
+            });
+        }
+    });
+});
 // Update profile
 app.put('/profile', isLoggedIn(), function (req, res) {
     // Create database query and data
@@ -756,12 +792,12 @@ app.put('/profile', isLoggedIn(), function (req, res) {
     database.query(query, data, function (err, rows) {
         if (err) {
             res.status(500).send({
-                message: 'Database request failed'
+                message: 'Database request failed',
             });
         }
         else {
             res.status(200).send({
-                message: 'Successfully updated user profile'
+                message: 'Successfully updated user profile',
             });
         }
     });
@@ -780,12 +816,12 @@ app.put('/currency', isLoggedIn(), function (req, res) {
         database.query(query, data, function (err, rows) {
             if (err) {
                 res.status(500).send({
-                    message: 'Database request failed'
+                    message: 'Database request failed',
                 });
             }
             else {
                 res.status(200).send({
-                    message: 'Successfully updated currency'
+                    message: 'Successfully updated currency',
                 });
             }
         });
@@ -796,7 +832,7 @@ app.put('/currency', isLoggedIn(), function (req, res) {
         database.query(query, user, function (err, rows) {
             if (err) {
                 res.status(500).send({
-                    message: 'Database request failed'
+                    message: 'Database request failed',
                 });
             }
             else {
@@ -808,7 +844,7 @@ app.put('/currency', isLoggedIn(), function (req, res) {
                     database.query(query_1, data, function (err, rows) {
                         if (err) {
                             res.status(500).send({
-                                message: 'Database request failed'
+                                message: 'Database request failed',
                             });
                         }
                         else {
@@ -818,12 +854,12 @@ app.put('/currency', isLoggedIn(), function (req, res) {
                             database.query(query_2, data_1, function (err, rows) {
                                 if (err) {
                                     res.status(500).send({
-                                        message: 'Database request failed'
+                                        message: 'Database request failed',
                                     });
                                 }
                                 else {
                                     res.status(200).send({
-                                        message: 'Successfully changed currency'
+                                        message: 'Successfully changed currency',
                                     });
                                 }
                             });
@@ -832,7 +868,7 @@ app.put('/currency', isLoggedIn(), function (req, res) {
                 }
                 else {
                     res.status(203).send({
-                        message: 'Not enough Coins'
+                        message: 'Not enough Coins',
                     });
                 }
             }
@@ -848,7 +884,7 @@ app.put('/currencyBack', isLoggedIn(), function (req, res) {
     database.query(query, data, function (err, rows) {
         if (err) {
             res.status(500).send({
-                message: 'Database request failed'
+                message: 'Database request failed',
             });
         }
         else {
@@ -858,12 +894,12 @@ app.put('/currencyBack', isLoggedIn(), function (req, res) {
             database.query(query_3, data_2, function (err, rows) {
                 if (err) {
                     res.status(500).send({
-                        message: 'Database request failed'
+                        message: 'Database request failed',
                     });
                 }
                 else {
                     res.status(200).send({
-                        message: 'Successfully changed currency'
+                        message: 'Successfully changed currency',
                     });
                 }
             });
@@ -880,12 +916,12 @@ app.put('/password', isLoggedIn(), function (req, res) {
     database.query(query, data, function (err, rows) {
         if (err) {
             res.status(500).send({
-                message: 'Database request failed'
+                message: 'Database request failed',
             });
         }
         else {
             res.status(200).send({
-                message: 'Successfully updated user password'
+                message: 'Successfully updated user password',
             });
         }
     });
@@ -903,7 +939,7 @@ function isLoggedIn() {
         else {
             // User is not logged in
             res.status(401).send({
-                message: 'Session expired, please log in again'
+                message: 'Session expired, please log in again',
             });
         }
     };
@@ -921,7 +957,7 @@ app.post('/login', function (req, res) {
         if (err) {
             // Login data is incorrect, user is not logged in
             res.status(500).send({
-                message: 'Database request failed: ' + err
+                message: 'Database request failed: ' + err,
             });
         }
         else {
@@ -933,7 +969,7 @@ app.post('/login', function (req, res) {
                     name: rows[0].first_name,
                     nachname: rows[0].last_name,
                     loginname: rows[0].loginname,
-                    groupId: rows[0].group_id
+                    groupId: rows[0].group_id,
                 };
                 req.session.user = user; // Store user object in session for authentication
                 res.status(200).send({
@@ -944,7 +980,7 @@ app.post('/login', function (req, res) {
             else {
                 // Login data is incorrect, user is not logged in
                 res.status(401).send({
-                    message: 'Username or password is incorrect.'
+                    message: 'Username or password is incorrect.',
                 });
             }
         }
@@ -966,14 +1002,14 @@ app.post('/register', function (req, res) {
     database.query(query, username, function (err, rows) {
         if (err) {
             res.status(500).send({
-                message: 'Database request failed: ' + err
+                message: 'Database request failed: ' + err,
             });
         }
         else {
             // Check if database response contains exactly one entry
             if (rows.length === 1) {
                 res.status(409).send({
-                    message: 'Username already exists'
+                    message: 'Username already exists',
                 });
             }
             //Username is available
@@ -984,12 +1020,12 @@ app.post('/register', function (req, res) {
                 database.query(query_4, data, function (err, rows) {
                     if (err) {
                         res.status(500).send({
-                            message: 'Database request failed: ' + err
+                            message: 'Database request failed: ' + err,
                         });
                     }
                     else {
                         res.status(201).send({
-                            message: 'Successfully created User'
+                            message: 'Successfully created User',
                         });
                     }
                 });
@@ -1001,7 +1037,7 @@ app.post('/register', function (req, res) {
 app.get('/login', isLoggedIn(), function (req, res) {
     res.status(200).send({
         message: 'User still logged in',
-        user: req.session.user
+        user: req.session.user, // Send user object to client for greeting message
     });
 });
 // Logout the user
@@ -1009,6 +1045,6 @@ app.post('/logout', function (req, res) {
     // Log out user
     delete req.session.user; // Delete user from session
     res.status(200).send({
-        message: 'Successfully logged out'
+        message: 'Successfully logged out',
     });
 });

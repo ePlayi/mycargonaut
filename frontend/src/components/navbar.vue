@@ -149,9 +149,6 @@ export default {
             console.log(error);
           });
     },
-    getRidePrice(){
-
-    },
     updateCurrency() {
       this.axios.request({
         method: 'PUT',

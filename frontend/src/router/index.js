@@ -21,6 +21,8 @@ const routes =[
     {path: "/register", component: register},
     {path: "/createOffer", component: createOffer},
     {path: "/myVehicels", component: Vehicel},
+    {path: "/profile", name: "profile" , component: profile, props: true},
+
 ]
 const router = createRouter({
     history: createWebHistory(),

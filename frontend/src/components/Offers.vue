@@ -6,11 +6,13 @@
               <h2>{{ride.start}} &#8594; {{ride.destination}}</h2>
             </v-col>
             <v-col class="offer-card-col" cols="12" md="4">
-              <img
-              src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
-              style="width: 100px; height: 100px; border-radius: 50%;"
-              class="ma-4">
-              Fahrer: {{ride.driverId}}
+              <router-link :to="{ name: 'profile', query: {id: ride.driverId }}">
+                <img
+                :src="ride.driverImage"
+                style="width: 100px; height: 100px; border-radius: 50%;"
+                class="ma-4">
+              </router-link>
+              Fahrer: {{ride.driverName}}
             </v-col>
             <v-col class="offer-card-col" cols="12" md="3">
               Abfahrt am {{ride.dateTime}}
