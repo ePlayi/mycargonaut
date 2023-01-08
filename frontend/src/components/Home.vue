@@ -23,8 +23,8 @@
           <div class="card" >
             <img class="card-img-top" src="../assets/images/undraw/order-image.svg" alt="Card image cap">
             <div class="card-body">
-              <h5 class="card-title">Ich biete</h5>
-              <router-link to="/createOffer" class="btn btn-primary">Angebot machen</router-link>
+              <h5 class="card-title">Ich biete Fahrt an</h5>
+              <router-link to="/createOffer" class="btn btn-primary">Angebot erstellen</router-link>
             </div>
           </div>
         </div>

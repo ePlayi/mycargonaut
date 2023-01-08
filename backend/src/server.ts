@@ -333,21 +333,6 @@ app.post('/bookings', isLoggedIn(), (req: Request, res: Response) => {
     const {rideId} = req.body
     const data = [ req.session.user.uId, rideId, 1 ]
 
-    // Permission check
-    if (req.session.user.uId !== customerId && req.session.user.groupId > 2) {
-        res.status(403).send({
-            message: 'You are not allowed to create a booking for another user'
-        });
-        return;
-    }
-
-    if (status !== 1) {
-        res.status(403).send({
-            message: 'A booking can only be created with status "1" (requested)'
-        });
-        return;
-    }
-
     database.query(query, data, (err, rows) => {
         if (err) {
             // Database operation has failed
@@ -913,6 +898,7 @@ app.put('/currency', isLoggedIn(), (req: Request, res: Response) => {
     }
 
 });
+
 app.put('/currencyBack', isLoggedIn(), (req: Request, res: Response) => {
     const change = req.body.change
     let customer = req.body.customer
@@ -957,8 +943,6 @@ app.put('/password', isLoggedIn(), (req: Request, res: Response) => {
     const query : string = "UPDATE `User` SET `password` = ? WHERE `User`.`user_id` = ?"
     const password: string = req.body.password
     const passwordHashed :string = crypto.createHash("sha512").update(password).digest('hex')
-
-    const query : string = "UPDATE `User` SET `password` = ? WHERE `User`.`user_id` = ?"
     const data : [string, number] = [passwordHashed, req.session.user.uId]
 
     database.query(query, data, (err: MysqlError, rows: any[]) => {
