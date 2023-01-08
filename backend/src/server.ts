@@ -153,7 +153,7 @@ app.get('/rides', (req: Request, res: Response) => {
 // Create new ride
 app.post('/rides', isLoggedIn(), (req: Request, res: Response) => {
     // Permission checking
-    if (req.session.user.userId !== req.body.driverId && req.session.user.role > 2) {
+    if (req.session.user.uId !== req.body.driverId && req.session.user.groupId > 2) {
         res.status(403).send({
             message: 'You are not allowed to create a ride for another user'
         });
@@ -182,7 +182,7 @@ app.post('/rides', isLoggedIn(), (req: Request, res: Response) => {
 // Update ride
 app.put('/rides/:id', isLoggedIn(), (req: Request, res: Response) => {
     // Permission checking
-    if (req.session.user.userId !== req.body.driverId && req.session.user.role > 2) {
+    if (req.session.user.uId !== req.body.driverId && req.session.user.groupId > 2) {
         res.status(403).send({
             message: 'You are not allowed to update a ride for another user'
         });
@@ -847,6 +847,7 @@ app.post('/login', (req: Request, res: Response) => {
                     name: rows[0].first_name,
                     nachname: rows[0].last_name,
                     loginname: rows[0].loginname,
+                    groupId: rows[0].group_id,
                 };
                 req.session.user = user; // Store user object in session for authentication
                 res.status(200).send({

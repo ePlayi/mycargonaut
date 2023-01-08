@@ -136,6 +136,13 @@ app.get('/rides', function (req, res) {
 });
 // Create new ride
 app.post('/rides', isLoggedIn(), function (req, res) {
+    // Permission checking
+    if (req.session.user.uId !== req.body.driverId && req.session.user.groupId > 2) {
+        res.status(403).send({
+            message: 'You are not allowed to create a ride for another user'
+        });
+        return;
+    }
     // Create database query and data
     var query = "INSERT INTO Ride (driver_id, vehicle_id, start, destination, dateTime, price, description, open, pos_long, pos_lat) VALUES (?, ?, ?, ?, ?, ?, ?, true, null, null)";
     var _a = req.body, driverId = _a.driverId, vehicleId = _a.vehicleId, start = _a.start, destination = _a.destination, dateTime = _a.dateTime, price = _a.price, description = _a.description;
@@ -156,6 +163,13 @@ app.post('/rides', isLoggedIn(), function (req, res) {
 });
 // Update ride
 app.put('/rides/:id', isLoggedIn(), function (req, res) {
+    // Permission checking
+    if (req.session.user.uId !== req.body.driverId && req.session.user.groupId > 2) {
+        res.status(403).send({
+            message: 'You are not allowed to update a ride for another user'
+        });
+        return;
+    }
     // Create database query and data
     var query = "UPDATE Ride SET driver_id = ?, vehicle_id = ?, start = ?, destination = ?, dateTime = ?, price = ?, description = ?, open = ?, pos_long = ?, pos_lat = ? WHERE ride_id = ?";
     var _a = req.body, driverId = _a.driverId, vehicleId = _a.vehicleId, start = _a.start, destination = _a.destination, dateTime = _a.dateTime, price = _a.price, description = _a.description, open = _a.open, posLongitude = _a.posLongitude, posLatitude = _a.posLatitude;
@@ -781,7 +795,8 @@ app.post('/login', function (req, res) {
                     uId: rows[0].user_id,
                     name: rows[0].first_name,
                     nachname: rows[0].last_name,
-                    loginname: rows[0].loginname
+                    loginname: rows[0].loginname,
+                    groupId: rows[0].group_id
                 };
                 req.session.user = user; // Store user object in session for authentication
                 res.status(200).send({
