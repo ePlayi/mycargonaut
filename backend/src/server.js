@@ -305,6 +305,19 @@ app.post('/bookings', isLoggedIn(), function (req, res) {
     var query = "INSERT INTO booking (customer_id, ride_id, status, rating, comment) VALUES (?, ?, ?, NULL, NULL)";
     var _a = req.body, customerId = _a.customerId, rideId = _a.rideId, status = _a.status;
     var data = [customerId, rideId, status];
+    // Permission check
+    if (req.session.user.uId !== customerId && req.session.user.groupId > 2) {
+        res.status(403).send({
+            message: 'You are not allowed to create a booking for another user'
+        });
+        return;
+    }
+    if (status !== 1) {
+        res.status(403).send({
+            message: 'A booking can only be created with status "1" (requested)'
+        });
+        return;
+    }
     database.query(query, data, function (err, rows) {
         if (err) {
             // Database operation has failed

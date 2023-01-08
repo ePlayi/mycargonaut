@@ -626,8 +626,9 @@ app.get('/ridesAccepted', isLoggedIn(), (req: Request, res: Response) => {
 
 // Get profile
 app.get('/profile', isLoggedIn(), (req: Request, res: Response) => {
-    // Send recipe list to client
+    // Create database query
     const query: string = "SELECT * FROM User WHERE user_id = ?"
+
     database.query(query, req.session.user.uId, (err: MysqlError, rows: any[]) => {
         if (err) {
             // Database operation has failed
@@ -668,10 +669,10 @@ app.get('/profile', isLoggedIn(), (req: Request, res: Response) => {
 
 // Get profile by id
 app.get('/user/:id', isLoggedIn(), (req: Request, res: Response) => {
-    // Send recipe list to client
+    // Create database query
     const query: string = "SELECT * FROM User WHERE user_id = ?"
-    const id:string = req.params.id
-    database.query(query, id, (err: MysqlError, rows: any[]) => {
+
+    database.query(query, req.params.id, (err: MysqlError, rows: any[]) => {
         if (err) {
             // Database operation has failed
             res.status(500).send({
@@ -711,8 +712,9 @@ app.get('/user/:id', isLoggedIn(), (req: Request, res: Response) => {
 
 // Get vehicles of user
 app.get('/profile/vehicles', isLoggedIn(), (req: Request, res: Response) => {
-    // Send recipe list to client
+    // Create database query
     const query: string= "SELECT * FROM Vehicle WHERE user_id = ?"
+
     database.query(query, req.session.user.uId, (err: MysqlError, rows: any[]) => {
         if (err) {
             // Database operation has failed
@@ -745,8 +747,9 @@ app.get('/profile/vehicles', isLoggedIn(), (req: Request, res: Response) => {
 
 // Get ratings
 app.get('/profile/ratings', isLoggedIn(), (req: Request, res: Response) => {
-    // Send recipe list to client
+    // Create database query
     const query: string= "SELECT `Ride`.*, `Ride`.`driver_id`, `booking`.*, `User`.`user_id`, `User`.`first_name`, `User`.`profile_picture` FROM `Ride` LEFT JOIN `booking` ON `booking`.`ride_id` = `Ride`.`ride_id` LEFT JOIN `User` ON `booking`.`customer_id` = `User`.`user_id` WHERE `driver_id` = ?"
+   
     database.query(query, req.session.user.uId, (err: MysqlError, rows: any[]) => {
         if (err) {
             // Database operation has failed
@@ -779,9 +782,10 @@ app.get('/profile/ratings', isLoggedIn(), (req: Request, res: Response) => {
 
 // Update profile
 app.put('/profile', isLoggedIn(), (req: Request, res: Response) => {
-    const user :any = req.body.user
+    // Create database query and data
     const query: string = "UPDATE `User` SET `first_name` = ?, `last_name` = ?, `email` = ?, `mobile_nr` = ?, `birthdate` = ?, `gender` = ?, `address` = ?, `profile_picture` = ?, `description` = ? WHERE `User`.`user_id` = ?"
-    const data : [string, string, string, string, string, string, string, string, string, number] = [user.name, user.nachname, user.email, user.mobilenr, user.birthdate, user.gender, user.address, user.profilePicture, user.description, req.session.user.uId ]
+    const user: any = req.body.user
+    const data = [ user.name, user.nachname, user.email, user.mobilenr, user.birthdate, user.gender, user.address, user.profilePicture, user.description, req.session.user.uId ]
 
     database.query(query, data, (err: MysqlError, rows: any[]) => {
         if (err){
@@ -799,11 +803,12 @@ app.put('/profile', isLoggedIn(), (req: Request, res: Response) => {
 
 // Update user password
 app.put('/password', isLoggedIn(), (req: Request, res: Response) => {
-    const password: string = req.body.password;
-    const passwordHashed :string = crypto.createHash("sha512").update(password).digest('hex')
-
+    // Create database query and data
     const query : string = "UPDATE `User` SET `password` = ? WHERE `User`.`user_id` = ?"
+    const password: string = req.body.password
+    const passwordHashed :string = crypto.createHash("sha512").update(password).digest('hex')
     const data : [string, number] = [passwordHashed, req.session.user.uId]
+
     database.query(query, data, (err: MysqlError, rows: any[]) => {
         if (err){
             res.status(500).send({
