@@ -329,6 +329,7 @@ app.delete('/rides/:id', isLoggedIn(), (req: Request, res: Response) => {
  * Routes for bookings                                                       *
  *****************************************************************************/
 
+
 // Get single booking
 app.get('/bookings/:id', (req: Request, res: Response) => {
     // Create database query and id
@@ -360,6 +361,32 @@ app.get('/bookings/:id', (req: Request, res: Response) => {
                     message: 'Cannot resolve Ride'
                 });
             }
+        }
+    });
+});
+
+//Get bookinIds where userId
+app.get('/bookedRides', (req: Request, res: Response) => {
+    // Create database query and id
+    const query: string = "SELECT `ride_id` FROM `booking` WHERE `customer_id` = ?"
+
+    database.query(query, req.session.user.uId, (err: MysqlError, rows: any[]) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+
+                const booking_rideIds =[];
+                for (const row of rows){
+                    booking_rideIds.push(row.ride_id)
+                }
+                res.status(200).send({
+                    booking_rideIds,
+                    message: 'Successfully requested Bookings'
+                });
+
         }
     });
 });
@@ -619,8 +646,20 @@ app.put('/changeStatusRide', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and data
     const rideId = req.body.rideid
     const changeTo = req.body.changeTo
-    const query : string = "UPDATE `booking` SET `status` = ? WHERE `booking`.`booking_id` = ?"
+    let query : string = "UPDATE `booking` SET `status` = ? WHERE `booking`.`booking_id` = ?"
     const data : [number, number] = [changeTo, rideId]
+
+    if (changeTo===5){
+        const queryride:string='UPDATE `Ride` SET `open` = 0 WHERE `Ride`.`ride_id` = ?;'
+        database.query(queryride, rideId, (err: MysqlError, rows: any) => {
+            if (err) {
+                // Database operation has failed
+                res.status(500).send({
+                    message: 'Database request failed: ' + err
+                });
+            }
+        });
+    }
 
     database.query(query, data, (err: MysqlError, rows: any) => {
         if (err) {

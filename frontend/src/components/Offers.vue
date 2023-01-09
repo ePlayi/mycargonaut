@@ -52,7 +52,9 @@
         </v-col>
       </v-card-text>
       <v-card-actions>
-        <v-btn color="green" :disabled="dialog.ride.driverId === this.user.uId" @click="bookOrder(dialog.ride.rideId, dialog.ride.price, dialog.ride.driverId)">Jetzt für {{ dialog.ride.price }} Coins buchen</v-btn>
+        <v-btn color="green"
+               :disabled="dialog.ride.driverId === this.user.uId||booking_rideIds.includes(dialog.ride.rideId)"
+               @click="bookOrder(dialog.ride.rideId, dialog.ride.price, dialog.ride.driverId)">Jetzt für {{ dialog.ride.price }} Coins buchen</v-btn>
         <v-btn color="red" @click="dialog.open = false;">Schließen</v-btn>
       </v-card-actions>
     </v-card>
@@ -74,16 +76,18 @@ export default {
         user:{},
       },
       //IF LOCAL TESTED USE THIS URL FOR THE API CALLS
-      //url: 'http://localhost:3001/',
-      url: 'https://mycargonaut.onrender.com/',
+      url: 'http://localhost:3001/',
+      //url: 'https://mycargonaut.onrender.com/',
 
       rides: [],
       singleRide: [],
+      booking_rideIds:[],
     }
   },
   beforeMount() {
     this.getAllRides()
     this.getProfileInformation()
+    this.getBookedRides()
   },
   methods:{
     bookOrder(id, price, driverId){
@@ -131,6 +135,13 @@ export default {
       })
           .then((response) => {
             this.user=response.data.user
+          })
+    },
+    getBookedRides(){
+      this.axios.get(this.url+'bookedRides',{
+      })
+          .then((response) => {
+            this.booking_rideIds=response.data.booking_rideIds
           })
     },
     getAllRides(){

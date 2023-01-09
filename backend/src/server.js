@@ -334,6 +334,30 @@ app.get('/bookings/:id', function (req, res) {
         }
     });
 });
+//Get bookinIds where userId
+app.get('/bookedRides', function (req, res) {
+    // Create database query and id
+    var query = "SELECT `ride_id` FROM `booking` WHERE `customer_id` = ?";
+    database.query(query, req.session.user.uId, function (err, rows) {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        }
+        else {
+            var booking_rideIds = [];
+            for (var _i = 0, rows_1 = rows; _i < rows_1.length; _i++) {
+                var row = rows_1[_i];
+                booking_rideIds.push(row.ride_id);
+            }
+            res.status(200).send({
+                booking_rideIds: booking_rideIds,
+                message: 'Successfully requested Bookings'
+            });
+        }
+    });
+});
 // Get bookings for customer
 app.get('/profile/bookings', isLoggedIn(), function (req, res) {
     // Create database query and id
@@ -576,6 +600,17 @@ app.put('/changeStatusRide', isLoggedIn(), function (req, res) {
     var changeTo = req.body.changeTo;
     var query = "UPDATE `booking` SET `status` = ? WHERE `booking`.`booking_id` = ?";
     var data = [changeTo, rideId];
+    if (changeTo === 5) {
+        var queryride = 'UPDATE `Ride` SET `open` = 0 WHERE `Ride`.`ride_id` = ?;';
+        database.query(queryride, rideId, function (err, rows) {
+            if (err) {
+                // Database operation has failed
+                res.status(500).send({
+                    message: 'Database request failed: ' + err
+                });
+            }
+        });
+    }
     database.query(query, data, function (err, rows) {
         if (err) {
             // Database operation has failed
@@ -811,8 +846,8 @@ app.get('/profile/vehicles', isLoggedIn(), function (req, res) {
         }
         else {
             var vehicleList = [];
-            for (var _i = 0, rows_1 = rows; _i < rows_1.length; _i++) {
-                var row = rows_1[_i];
+            for (var _i = 0, rows_2 = rows; _i < rows_2.length; _i++) {
+                var row = rows_2[_i];
                 var vehicle = {
                     vehicleId: row.vehicle_id,
                     brand: row.brand,
@@ -844,8 +879,8 @@ app.get('/profile/ratings', isLoggedIn(), function (req, res) {
         }
         else {
             var ratingList = [];
-            for (var _i = 0, rows_2 = rows; _i < rows_2.length; _i++) {
-                var row = rows_2[_i];
+            for (var _i = 0, rows_3 = rows; _i < rows_3.length; _i++) {
+                var row = rows_3[_i];
                 var rating = {
                     customerId: row.customer_id,
                     customerImage: row.profile_picture,
@@ -878,8 +913,8 @@ app.get('/profile/ratings/:id', isLoggedIn(), function (req, res) {
         }
         else {
             var ratingList = [];
-            for (var _i = 0, rows_3 = rows; _i < rows_3.length; _i++) {
-                var row = rows_3[_i];
+            for (var _i = 0, rows_4 = rows; _i < rows_4.length; _i++) {
+                var row = rows_4[_i];
                 var rating = {
                     customerId: row.customer_id,
                     customerImage: row.profile_picture,
