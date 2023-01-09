@@ -35,6 +35,10 @@
           <h5>Beschreibung</h5>
           {{dialog.ride.description}}
         </v-card-text>
+        <v-card-text>
+          <h5>Fahrzeug</h5>
+          {{dialog.ride.vehicleImage}}
+        </v-card-text>
         <v-card-actions>
           <v-btn color="green" :disabled="dialog.ride.driverId === this.user.uId" @click="bookOrder(dialog.ride.rideId, dialog.ride.price, dialog.ride.driverId)">Jetzt für {{ dialog.ride.price }} Coins buchen</v-btn>
           <v-btn color="red" @click="dialog.open = false;">Schließen</v-btn>
