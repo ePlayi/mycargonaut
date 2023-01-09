@@ -83,7 +83,7 @@
           <v-btn
           class="my-8"
             color="red"
-            @click="changeStatusTo(this.activeRideId, 5)"
+            @click="changeStatusTo(this.activeRideId, 5, this.activeRides.bookingId)"
             >Fahrt abschließen</v-btn
           >
       </v-card>
@@ -239,7 +239,7 @@ export default {
 
       accepted:[],
       acceptedNames:[],
-      currentAccepted: null,
+      currentAccepted: 0,
 
       activeRides: {},
       activeRideId:0,
@@ -261,6 +261,9 @@ export default {
               return
             }
             this.activeRideId = this.activeRides.rideId
+            this.activeBookingId = this.activeRides.bookingId
+            console.log("activerideideeee: "+this.activeRideId)
+            console.log("bookingideeee: "+this.activeBookingId)
             this.activeRide=true
 
           })
@@ -284,19 +287,21 @@ export default {
             console.log(error);
           });
     },
-    changeStatusTo(id, changeTo){
+    changeStatusTo(id, changeTo, bookingId){
+        console.log('IDEEEE: '+bookingId)
       this.axios.request({
         method: 'PUT',
         url: this.url+'changeStatusRide',
         data: {
           id:id,
-          changeTo: changeTo
+          changeTo: changeTo,
+          bookingId: bookingId
         }
       })
           .then(()=>{
+            window.location.reload()
             //FUCKIT ICH RELOADE DIE PAGE HUSO
             //^lol
-            window.location.reload()
           })
           .catch(function (error) {
             console.log(error);
@@ -310,12 +315,12 @@ export default {
             this.accepted.forEach(accepted => {
               const newAccepted = {
                 acceptedName: accepted.customerName + " : " + accepted.start + "-" + accepted.destination,
-                rideId: accepted.rideId,
+                rideId: accepted.bookingId,
               }
               this.acceptedNames.push(newAccepted)
+              console.log(this.acceptedNames)
             })
-            console.log(this.accepted)
-            console.log(this.acceptedNames)
+
           })
     },
     getOwnPos(){

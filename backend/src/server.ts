@@ -736,12 +736,14 @@ app.put('/updatePos', isLoggedIn(), (req: Request, res: Response) => {
 // Update status of ride
 app.put('/changeStatusRide', isLoggedIn(), (req: Request, res: Response) => {
     // Create database query and data
-    const rideId = req.body.rideid
+    const rideId = req.body.id
     const changeTo = req.body.changeTo
-    let query : string = "UPDATE `booking` SET `status` = ? WHERE `booking`.`booking_id` = ?"
-    const data : [number, number] = [changeTo, rideId]
+    const bookingId = req.body.bookingId
+    console.log('Changeto: '+changeTo)
+    console.log('rideId: '+rideId)
 
     if (changeTo===5){
+
         const queryride:string='UPDATE `Ride` SET `open` = 0 WHERE `Ride`.`ride_id` = ?;'
         database.query(queryride, rideId, (err: MysqlError, rows: any) => {
             if (err) {
@@ -749,23 +751,45 @@ app.put('/changeStatusRide', isLoggedIn(), (req: Request, res: Response) => {
                 res.status(500).send({
                     message: 'Database request failed: ' + err
                 });
+            }else{
+                let query : string = "UPDATE `booking` SET `status` = ? WHERE `booking`.`booking_id` = ?"
+                const data : [number, number] = [changeTo, bookingId]
+
+                database.query(query, data, (err: MysqlError, rows: any) => {
+                    if (err) {
+                        // Database operation has failed
+                        res.status(500).send({
+                            message: 'Database request failed: ' + err
+                        });
+                    } else {
+                        res.status(200).send({
+                            message: 'Successfully changed ride status',
+                            changedTo: changeTo
+                        });
+                    }
+                });
+            }
+        });
+    }else{
+        let query : string = "UPDATE `booking` SET `status` = ? WHERE `booking`.`booking_id` = ?"
+        const data : [number, number] = [changeTo, rideId]
+
+        database.query(query, data, (err: MysqlError, rows: any) => {
+            if (err) {
+                // Database operation has failed
+                res.status(500).send({
+                    message: 'Database request failed: ' + err
+                });
+            } else {
+                res.status(200).send({
+                    message: 'Successfully changed ride status',
+                    changedTo: changeTo
+                });
             }
         });
     }
 
-    database.query(query, data, (err: MysqlError, rows: any) => {
-        if (err) {
-            // Database operation has failed
-            res.status(500).send({
-                message: 'Database request failed: ' + err
-            });
-        } else {
-            res.status(200).send({
-                message: 'Successfully changed ride status',
-                changedTo: changeTo
-            });
-        }
-    });
+
 });
 
 // Get active rides
