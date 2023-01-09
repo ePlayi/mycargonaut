@@ -361,7 +361,7 @@ app.get('/bookedRides', function (req, res) {
 // Get bookings for customer
 app.get('/profile/bookings', isLoggedIn(), function (req, res) {
     // Create database query and id
-    var query = "SELECT `booking`.*, `booking`.`ride_id`, `Ride`.* FROM `booking` LEFT JOIN `Ride` ON `booking`.`ride_id` = `Ride`.`ride_id` WHERE `booking`.`customer_id` = ?;";
+    var query = "SELECT `booking`.*, `booking`.`ride_id`, `Ride`.* FROM `booking` LEFT JOIN `Ride` ON `booking`.`ride_id` = `Ride`.`ride_id` WHERE `booking`.`status` = 4 AND `booking`.`customer_id` = ?;";
     database.query(query, req.session.user.uId, function (err, rows) {
         if (err) {
             // Database operation has failed

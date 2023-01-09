@@ -103,14 +103,9 @@
           Wähle eine Fahrt aus, die du tracken möchtest
         </v-card-title>
         <v-card-text>
-          <v-select
-            class="ma-8"
-            label="Fahrt auswählen"
-            :items="trackableBookings"
-            :v-model="selectedBooking"
-            :item-text="name"
-            :item-value="name"
-          ></v-select>
+          <select class="form-select" v-model="selectedBooking" @change="getPos()">
+            <option v-for="booking in bookings" :key="booking" :value="booking.rideId">{{booking.start}} - {{booking.destination}}</option>
+          </select>
         </v-card-text>
       </v-card>
 
@@ -223,6 +218,7 @@ export default {
       activeSelected:{},
       selectAccepted:null,
       activeRide: false,
+      selectedBooking:0,
 
       //entry zoomlevel
       zoom: 8,
@@ -247,6 +243,7 @@ export default {
   },
   computed:{
     trackableBookings: function (){
+      console.log("computed: "+this.bookings.filter(i => i.status === 4))
       return this.bookings.filter(i => i.status === 4)
     }
   },
@@ -331,7 +328,7 @@ export default {
       });
     },
     getPos(){
-      this.axios.get(this.url+'rides/'+this.activeSelected,{
+      this.axios.get(this.url+'rides/'+this.selectedBooking,{
       })
           .then((response) => {
 

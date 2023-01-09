@@ -128,7 +128,7 @@
         </div>
       </template>
       <template #footer>
-        <p></p>
+        <button class="btn btn-success" @click="sendRating()">Absenden</button>
       </template>
     </modal>
   </Teleport>
