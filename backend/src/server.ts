@@ -38,6 +38,7 @@ let server = app.listen(port, () => {
             console.log('Database connection failed: ', err);
         } else {
             console.log('Database is connected');
+            console.log('Server started.\nOpen Local under: http://localhost:3001')
         }
     });
 });
@@ -71,6 +72,92 @@ declare module 'express-session' {
  *****************************************************************************/
 const basedir: string = __dirname + '/../..';  // get rid of /backend/src
 app.use('/', express.static(basedir + '/frontend/build'));
+
+/*****************************************************************************
+ * Routes for chats                                                          *
+ *****************************************************************************/
+
+// Get own chats
+app.get('/chats', (req: Request, res: Response) => {
+    // Create database query and id
+    const query: string = "SELECT m.message_id AS chat_id, m.chat_session_id, u1.first_name AS sender_first_name, u1.last_name AS sender_last_name, u2.first_name AS receiver_first_name, u2.last_name AS receiver_last_name, u2.user_id AS partnerId FROM ( SELECT LEAST(sender_id, receiver_id) AS user_id1, GREATEST(sender_id, receiver_id) AS user_id2 FROM messages WHERE sender_id = ? OR receiver_id = ? ) c JOIN messages m ON m.sender_id = c.user_id1 AND m.receiver_id = c.user_id2 JOIN User u1 ON c.user_id1 = u1.user_id JOIN User u2 ON c.user_id2 = u2.user_id GROUP BY m.chat_session_id;"
+    const data : [number, number] = [req.session.user.uId, req.session.user.uId]
+    database.query(query, data, (err: MysqlError, rows: any[]) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+
+            const chats = rows.map(row => row = {
+                chatId: row.chat_session_id,
+                partnerId: row.partnerId,
+                chatPartner: row.receiver_first_name + ' ' + row.receiver_last_name,
+            });
+                res.status(200).send({
+                    chats,
+                    message: 'Successfully requested Ride'
+                });
+        }
+    });
+});
+
+// Get own chats
+app.post('/chat', (req: Request, res: Response) => {
+    // Create database query and id
+    let chatSessionId = req.body.sessionId.toString()
+    //if empty, generate new sessionID
+    if (chatSessionId===""){
+        chatSessionId = Math.random().toString().slice(2,11);
+    }
+    const message = req.body.message
+    const receiverId:number = +req.body.receiverId
+
+    const query: string = "INSERT INTO `messages` (`message_id`, `chat_session_id`, `sender_id`, `receiver_id`, `message`, `created_at`) VALUES (NULL, ?, ?, ?, ?, NOW())"
+    const data : [string, number, number, string, ] = [chatSessionId, req.session.user.uId, receiverId, message]
+    database.query(query, data, (err: MysqlError, rows: any[]) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            res.status(200).send({
+                message: 'Successfully send Message'
+            });
+        }
+    });
+});
+
+// Get single chat by id
+app.get('/chat/:id', (req: Request, res: Response) => {
+    // Create database query and id
+    const query: string = "SELECT m.message_id AS chat_id, m.chat_session_id, m.message, m.created_at, u1.user_id AS sender_id, u1.first_name AS sender_first_name, u1.last_name AS sender_last_name, u2.user_id AS receiver_id, u2.first_name AS receiver_first_name, u2.last_name AS receiver_last_name FROM messages m JOIN User u1 ON m.sender_id = u1.user_id JOIN User u2 ON m.receiver_id = u2.user_id WHERE m.chat_session_id = ? ORDER BY m.created_at ASC;"
+
+    database.query(query, req.params.id, (err: MysqlError, rows: any[]) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+
+            const messages = rows.map(row => row = {
+                chatId: row.chat_session_id,
+                youId: row.sender_id,
+                partnerId: row.receiver_id,
+                chatPartner: row.sender_first_name + ' ' + row.sender_last_name,
+                message: row.message,
+                date: row.created_at
+            });
+                res.status(200).send({
+                    messages,
+                    message: 'Successfully requested Ride'
+                });
+        }
+    });
+});
 
 /*****************************************************************************
  * Routes for rides                                                          *
@@ -677,6 +764,35 @@ app.get('/profile', isLoggedIn(), (req: Request, res: Response) => {
 
                 res.status(200).send({
                     user,
+                    message: 'Successfully requested user'
+                });
+            }else{
+
+                res.status(404).send({
+                    message: 'Cannot resolve User'
+                });
+            }
+        }
+    });
+});
+
+// Get only ID of logged in user
+app.get('/onlyUserId', isLoggedIn(), (req: Request, res: Response) => {
+    // Create database query
+    const query: string = "SELECT user_id FROM User WHERE user_id = ?"
+
+    database.query(query, req.session.user.uId, (err: MysqlError, rows: any[]) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            if (rows.length === 1){
+                const id = rows[0].user_id
+
+                res.status(200).send({
+                    id,
                     message: 'Successfully requested user'
                 });
             }else{
