@@ -29,8 +29,8 @@ export default {
   data(){
     return{
       //IF LOCAL TESTED USE THIS URL FOR THE API CALLS
-      //url: 'http://localhost:3001/',
-      url: 'https://mycargonaut.onrender.com/',
+      url: 'http://localhost:3001/',
+      //url: 'https://mycargonaut.onrender.com/',
 
       chatId: new URLSearchParams(window.location.search).get('id'),
       partnerid: new URLSearchParams(window.location.search).get('partnerid'),
