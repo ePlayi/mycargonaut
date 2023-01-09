@@ -43,7 +43,7 @@
             <button class="btn btn-dark" @click="settingsModal=false; acceptDeclineModal=true">Anfragen</button>
           </div>
           <div class="col mb-5">
-            <button class="btn btn-dark" @click="settingsModal=false; rateDriverModal=true">Anfragen</button>
+            <button class="btn btn-dark" @click="settingsModal=false; rateDriverModal=true">Bewerten</button>
           </div>
         </div>
 
