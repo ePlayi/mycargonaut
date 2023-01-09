@@ -1,6 +1,6 @@
 <template>
     <v-container id="main-container" align="center">
-        <v-card class="profile-container" rounded="4" color="whitesmoke">
+        <v-card class="profile-container mb-3" rounded="4" color="whitesmoke">
           <v-row justify="center" align="center">
               <v-col class="profile-pic-name" sm="8" cols="12" align="start" justify="start">
                       <v-avatar size="130px" class="ma-8">
@@ -22,7 +22,7 @@
               </v-col>
           </v-row>
         </v-card>
-
+          <button class="btn btn-success" v-if="otherProfile===true" @click="openMsgModal=true">Nachricht</button>
         <v-card class="more-card" rounded="4" style="margin-top: 30px">
           <v-tabs
             v-model="tab"
@@ -152,6 +152,29 @@
         </v-card>
     </v-container>
 
+  <!--MODAL TO SEND MESSAGE-->
+  <Teleport to="body">
+    <!-- use the modal component, pass in the prop -->
+    <modal :show="openMsgModal" @close="openMsgModal = false">
+      <template #header>
+        <p>Nachricht senden</p>
+        <button class="btn btn-secondary" style="text-align: right" @click="openMsgModal = false;">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </template>
+      <template #body>
+        <div class="form-group">
+          <label for="newMessage">Ihre Nachricht</label>
+          <input type="text" class="form-control" id="newMessage" placeholder="Nachricht..." v-model="newMessage">
+
+        </div>
+      </template>
+      <template #footer>
+        <button type="button" class="btn btn-primary" @click="sendMessage()">Senden</button>
+      </template>
+    </modal>
+  </Teleport>
+
     <!--MODAL TO EDIT CAR-->
   <Teleport to="body">
     <!-- use the modal component, pass in the prop -->
@@ -249,6 +272,8 @@ export default {
       tab: null,
       profileId: new URLSearchParams(window.location.search).get('id'),
       otherProfile:false,
+      openMsgModal:false,
+      newMessage:'',
 
 
       //everything to edit user profile
@@ -285,6 +310,29 @@ export default {
     }
   },
   methods:{
+    sendMessage(){
+      if(this.newMessage!==''){
+        this.axios.request({
+          method: 'POST',
+          url: this.url+'chat',
+          data: {
+            message: this.newMessage,
+            sessionId: '',
+            receiverId: this.user.uId
+
+          },
+        })
+            .then(response => {
+              console.log(response.data)
+            })
+            .catch(function (error) {
+              console.log(error);
+            });
+      }
+      else{
+        alert("Leere Nachricht blockiert")
+      }
+    },
     updateCurrency(){
       this.axios.request({
         method: 'PUT',

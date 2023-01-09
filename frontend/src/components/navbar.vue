@@ -1,9 +1,22 @@
 <template>
   <div class="navbar">
-    <router-link to="/" class="nav-item"><i class="fa-solid fa-house"></i></router-link>
-    <router-link to="/tracking" class="nav-item" style="position: relative"><i class="fa-solid fa-map-location-dot"></i></router-link>
-    <router-link to="/profile" class="nav-item"><i class="fa-solid fa-user"></i></router-link>
-    <a class="nav-item" @click="settingsModal=true"><i class="fa-solid fa-bars"></i></a>
+    <div class="row">
+      <div class="col-2">
+        <router-link to="/" class="nav-item"><i class="fa-solid fa-house"></i></router-link>
+      </div>
+      <div class="col-2">
+        <router-link to="/tracking" class="nav-item" style="position: relative"><i class="fa-solid fa-map-location-dot"></i></router-link>
+      </div>
+      <div class="col-2">
+        <router-link to="/profile" class="nav-item"><i class="fa-solid fa-user"></i></router-link>
+      </div>
+      <div class="col-2">
+        <router-link to="/chats" class="nav-item"><i class="fa-solid fa-comment"></i></router-link>
+      </div>
+      <div class="col-2">
+        <a class="nav-item" @click="settingsModal=true"><i class="fa-solid fa-bars"></i></a>
+      </div>
+    </div>
   </div>
 
 

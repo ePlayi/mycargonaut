@@ -1,61 +1,61 @@
 <template>
-    <v-container class="card-container">
-        <v-card class="my-10" rounded="5" v-for="ride in rides" :key="ride">
-          <v-row v-if="ride.open" no-gutters class="offer-card ma-8" justify="center" align="center" style=" word-break: break-word;">
-            <v-col class="offer-card-col" cols="12">
-              <h2>{{ride.start}} &#8594; {{ride.destination}}</h2>
-            </v-col>
-            <v-col class="offer-card-col" cols="12" md="4">
-              <router-link :to="{ name: 'profile', query: {id: ride.driverId }}">
-                <img
-                    :src="ride.driverImage"
+  <v-container class="card-container">
+    <v-card class="my-10" rounded="5" v-for="ride in rides" :key="ride">
+      <v-row v-if="ride.open" no-gutters class="offer-card ma-8" justify="center" align="center" style=" word-break: break-word;">
+        <v-col class="offer-card-col" cols="12">
+          <h2>{{ride.start}} &#8594; {{ride.destination}}</h2>
+        </v-col>
+        <v-col class="offer-card-col" cols="12" md="4">
+          <router-link :to="{ name: 'profile', query: {id: ride.driverId }}">
+            <img
+                :src="ride.driverImage"
                 style="width: 100px; height: 100px; border-radius: 50%;"
                 class="ma-4">
-              </router-link>
-              Fahrer: {{ride.driverName}}
-            </v-col>
-            <v-col class="offer-card-col" cols="12" md="3">
-              Abfahrt am {{ride.dateTime}}
-            </v-col>
-            <v-col class="offer-card-col" cols="12" md="2">
-              <h4>Preis: {{ride.price}} Coins</h4>
-            </v-col>
-            <v-col class="offer-card-col" cols="12" md="3">
-              <v-btn color="green" @click="getOffers(); dialog.open = true; dialog.ride = ride">Angebot ansehen</v-btn>
-            </v-col>
-          </v-row>
-        </v-card>
-    </v-container>
+          </router-link>
+          Fahrer: {{ride.driverName}}
+        </v-col>
+        <v-col class="offer-card-col" cols="12" md="3">
+          Abfahrt am {{ride.dateTime}}
+        </v-col>
+        <v-col class="offer-card-col" cols="12" md="2">
+          <h4>Preis: {{ride.price}} Coins</h4>
+        </v-col>
+        <v-col class="offer-card-col" cols="12" md="3">
+          <v-btn color="green" @click="getOffers(); dialog.open = true; dialog.ride = ride">Angebot ansehen</v-btn>
+        </v-col>
+      </v-row>
+    </v-card>
+  </v-container>
 
-    <v-dialog
+  <v-dialog
       v-model="dialog.open"
       width="500">
-      <v-card class="dialog-card">
-        <v-card-text>
-          <h5>Beschreibung</h5>
-          {{dialog.ride.description}}
-        </v-card-text>
-        <v-card-text>
-          <h5>Fahrzeug-Infos</h5>
-          <v-col class="offer-card-col" cols="12" md="2">
-            <h4>Preis: {{dialog.ride.price}}</h4>
-          </v-col>
-          <v-col class="offer-card-col" cols="12" md="2">
-            <h4>Sitzplätze: {{dialog.ride.vehicleSeats}}</h4>
-          </v-col>
-          <v-col class="offer-card-col" cols="12" md="2">
-            <h4>Volumen: {{dialog.ride.vehicleStorage}}</h4>
-          </v-col>
-          <v-col class="offer-card-col" cols="12" md="2">
-            <h4>Bild: {{dialog.ride.vehicleImage}}</h4>
-          </v-col>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn color="green" :disabled="dialog.ride.driverId === this.user.uId" @click="bookOrder(dialog.ride.rideId, dialog.ride.price, dialog.ride.driverId)">Jetzt für {{ dialog.ride.price }} Coins buchen</v-btn>
-          <v-btn color="red" @click="dialog.open = false;">Schließen</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <v-card class="dialog-card">
+      <v-card-text>
+        <h5>Beschreibung</h5>
+        {{dialog.ride.description}}
+      </v-card-text>
+      <v-card-text>
+        <h5>Fahrzeug-Infos</h5>
+        <v-col class="offer-card-col" cols="12" md="2">
+          <h4>Preis: {{dialog.ride.price}}</h4>
+        </v-col>
+        <v-col class="offer-card-col" cols="12" md="2">
+          <h4>Sitzplätze: {{dialog.ride.vehicleSeats}}</h4>
+        </v-col>
+        <v-col class="offer-card-col" cols="12" md="2">
+          <h4>Volumen: {{dialog.ride.vehicleStorage}}</h4>
+        </v-col>
+        <v-col class="offer-card-col" cols="12" md="2">
+          <h4>Bild: {{dialog.ride.vehicleImage}}</h4>
+        </v-col>
+      </v-card-text>
+      <v-card-actions>
+        <v-btn color="green" :disabled="dialog.ride.driverId === this.user.uId" @click="bookOrder(dialog.ride.rideId, dialog.ride.price, dialog.ride.driverId)">Jetzt für {{ dialog.ride.price }} Coins buchen</v-btn>
+        <v-btn color="red" @click="dialog.open = false;">Schließen</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 
@@ -94,13 +94,13 @@ export default {
           rideId:id
         },
       })
-        .then(() => {
-          this.updateCurrency(price, driverId)
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-      },
+          .then(() => {
+            this.updateCurrency(price, driverId)
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+    },
     updateCurrency(price, offerer) {
       this.axios.request({
         method: 'PUT',
