@@ -191,7 +191,7 @@ app.get('/rides/:id', function (req, res) {
 // Get all rides
 app.get('/rides', function (req, res) {
     // Create database query
-    var query = "SELECT `Ride`.*, `User`.* FROM `Ride` LEFT JOIN `User` ON `Ride`.`driver_id` = `User`.`user_id`;";
+    var query = "SELECT `Ride`.*, `User`.*, `Vehicle`.* FROM `Ride` LEFT JOIN `User` ON `Ride`.`driver_id` = `User`.`user_id` LEFT JOIN `Vehicle` ON `Vehicle`.`user_id` = `User`.`user_id`;";
     database.query(query, function (err, rows) {
         if (err) {
             // Database operation has failed
@@ -214,6 +214,9 @@ app.get('/rides', function (req, res) {
                 posLatitude: row.pos_lat,
                 driverImage: row.profile_picture,
                 driverName: row.first_name + ' ' + row.last_name,
+                vehicleSeats: row.seats,
+                vehicleStorage: row.storage,
+                vehicleImage: row.car_image
             }; });
             res.status(200).send({
                 rideList: rideList,

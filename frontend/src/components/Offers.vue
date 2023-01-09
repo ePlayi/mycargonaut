@@ -36,18 +36,19 @@
         {{dialog.ride.description}}
       </v-card-text>
       <v-card-text>
-        <h5>Fahrzeug-Infos</h5>
         <v-col class="offer-card-col" cols="12" md="2">
-          <h4>Preis: {{dialog.ride.price}}</h4>
+          <h4><b>Preis:</b> {{dialog.ride.price}}</h4>
+        </v-col>
+        <h3 class="text-center">Fahrzeug-Infos</h3>
+        <hr>
+        <v-col class="offer-card-col" cols="12" md="2">
+          <h4><b>Sitzplätze</b><br>{{dialog.ride.vehicleSeats}}</h4>
         </v-col>
         <v-col class="offer-card-col" cols="12" md="2">
-          <h4>Sitzplätze: {{dialog.ride.vehicleSeats}}</h4>
+          <h4><b>Volumen</b><br> {{dialog.ride.vehicleStorage}}</h4>
         </v-col>
         <v-col class="offer-card-col" cols="12" md="2">
-          <h4>Volumen: {{dialog.ride.vehicleStorage}}</h4>
-        </v-col>
-        <v-col class="offer-card-col" cols="12" md="2">
-          <h4>Bild: {{dialog.ride.vehicleImage}}</h4>
+          <img :src="dialog.ride.vehicleImage" class="car-image">
         </v-col>
       </v-card-text>
       <v-card-actions>
@@ -83,7 +84,6 @@ export default {
   beforeMount() {
     this.getAllRides()
     this.getProfileInformation()
-    this.getSingleRide()
   },
   methods:{
     bookOrder(id, price, driverId){
@@ -142,7 +142,7 @@ export default {
           })
     },
     getSingleRide(){
-      this.axios.get(this.url+'/rides',{
+      this.axios.get(this.url+'rides',{
       })
           .then((response) => {
             this.singleRide=response.data.ride
@@ -170,7 +170,10 @@ export default {
   margin-top: 5px;
   margin-bottom: 5px;
 }
-
+.car-image{
+  max-width: 50vw;
+  height: auto;
+}
 .dialog-card {
 }
 

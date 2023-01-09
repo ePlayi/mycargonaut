@@ -211,7 +211,7 @@ app.get('/rides/:id', (req: Request, res: Response) => {
 // Get all rides
 app.get('/rides', (req: Request, res: Response) => {
     // Create database query
-    const query: string = "SELECT `Ride`.*, `User`.* FROM `Ride` LEFT JOIN `User` ON `Ride`.`driver_id` = `User`.`user_id`;"
+    const query: string = "SELECT `Ride`.*, `User`.*, `Vehicle`.* FROM `Ride` LEFT JOIN `User` ON `Ride`.`driver_id` = `User`.`user_id` LEFT JOIN `Vehicle` ON `Vehicle`.`user_id` = `User`.`user_id`;"
 
 
     database.query(query, (err: MysqlError, rows: any[]) => {
@@ -235,6 +235,9 @@ app.get('/rides', (req: Request, res: Response) => {
                 posLatitude: row.pos_lat,
                 driverImage: row.profile_picture,
                 driverName: row.first_name+' '+row.last_name,
+                vehicleSeats: row.seats,
+                vehicleStorage: row.storage,
+                vehicleImage: row.car_image
             });
 
             res.status(200).send({
