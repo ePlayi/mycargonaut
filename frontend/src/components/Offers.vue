@@ -12,8 +12,11 @@
                 style="width: 100px; height: 100px; border-radius: 50%;"
                 class="ma-4">
               </router-link>
-              Fahrer: {{ride.driverName}}
             </v-col>
+              <section>
+              Fahrer: {{ride.driverName}}
+              </section>
+
             <v-col class="offer-card-col" cols="12" md="3">
               Abfahrt am {{ride.dateTime}}
             </v-col>
