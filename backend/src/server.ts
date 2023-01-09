@@ -528,7 +528,6 @@ app.get('/rateable', (req: Request, res: Response) => {
                 message: 'Database request failed: ' + err
             });
         } else {
-            if (rows.length === 1) {
                 const rateables = rows.map(row => row = {
                     bookingId : row.booking_id,
                     rideId: row.ride_id,
@@ -542,14 +541,10 @@ app.get('/rateable', (req: Request, res: Response) => {
                     rateables,
                     message: 'Successfully requested Vehicle'
                 });
-            } else {
-                res.status(404).send({
-                    message: 'Cannot resolve Vehicle'
-                });
-            }
         }
     });
 });
+
 
 // Update booking comment and rating
 app.put('/sendRating', isLoggedIn(), (req: Request, res: Response) => {

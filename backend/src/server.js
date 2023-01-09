@@ -487,25 +487,18 @@ app.get('/rateable', function (req, res) {
             });
         }
         else {
-            if (rows.length === 1) {
-                var rateables = rows.map(function (row) { return row = {
-                    bookingId: row.booking_id,
-                    rideId: row.ride_id,
-                    driverId: row.driver_id,
-                    start: row.start,
-                    destination: row.destionation,
-                    driverName: row.first_name + ' ' + row.last_name
-                }; });
-                res.status(200).send({
-                    rateables: rateables,
-                    message: 'Successfully requested Vehicle'
-                });
-            }
-            else {
-                res.status(404).send({
-                    message: 'Cannot resolve Vehicle'
-                });
-            }
+            var rateables = rows.map(function (row) { return row = {
+                bookingId: row.booking_id,
+                rideId: row.ride_id,
+                driverId: row.driver_id,
+                start: row.start,
+                destination: row.destionation,
+                driverName: row.first_name + ' ' + row.last_name
+            }; });
+            res.status(200).send({
+                rateables: rateables,
+                message: 'Successfully requested Vehicle'
+            });
         }
     });
 });
