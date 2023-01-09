@@ -7,10 +7,10 @@
             </v-card-title>
         </v-card>
 
-        <v-card rounded="4" v-if="cars.length===0" class="my-8 content-card">
+        <v-card rounded="4" v-if="cars.length!==0" class="my-8 content-card">
             <v-card-text align="center">
                 Du hast leider noch keine Autos registriert.
-                Unter <router-link to="/vehicles" style="text-decoration: none">Meine Fahrzeuge</router-link> kannst du dein erstes Auto anlegen.
+                Unter <router-link to="profile">Meine Fahrzeuge</router-link> kannst du dein erstes Auto anlegen.
             </v-card-text>
         </v-card>
 
@@ -109,8 +109,8 @@ export default {
     data() {
         return {
             //IF LOCAL TESTED USE THIS URL FOR THE API CALLS
-            //url: 'http://localhost:3001/',
-             url: 'https://mycargonaut.onrender.com/',
+            url: 'http://localhost:3001/',
+            //url: 'https://mycargonaut.onrender.com/',
             offer: {
                 driverId: 0,
                 vehicleId: 0,
