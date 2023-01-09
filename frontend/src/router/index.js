@@ -7,7 +7,7 @@ import offers from "@/components/Offers";
 import login from "@/components/Login";
 import register from "@/components/Register";
 import createOffer from "@/components/createOffer";
-import Vehicel from "@/components/Vehicel";
+
 import chats from "@/components/chats";
 import chat from "@/components/chat";
 
@@ -22,7 +22,6 @@ const routes =[
     {path: "/login", component: login},
     {path: "/register", component: register},
     {path: "/createOffer", component: createOffer},
-    {path: "/myVehicels", component: Vehicel},
     {path: "/chats", component: chats},
     {path: "/profile", name: "profile" , component: profile, props: true},
     {path: "/chat", name: "chat" , component: chat, props: true},

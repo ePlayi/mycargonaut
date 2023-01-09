@@ -9,20 +9,20 @@
 
         <v-card rounded="4" v-if="cars.length===0" class="my-8 content-card">
             <v-card-text align="center">
-                Du hast leider noch keine Autos registriert. 
+                Du hast leider noch keine Autos registriert.
                 Unter <router-link to="/vehicles" style="text-decoration: none">Meine Fahrzeuge</router-link> kannst du dein erstes Auto anlegen.
             </v-card-text>
         </v-card>
 
         <v-card rounded="4" class="my-8 content-card" v-if="cars.length>0">
             <v-card-text>
-                <v-form 
+                <v-form
                 ref="form"
                 v-model="valid"
-                lazy-validation 
+                lazy-validation
                 class="login-form">
                     <v-container>
-                        <v-select 
+                        <v-select
                         v-model="currentCar"
                         :items="carNames"
                         item-title="carname"
@@ -109,8 +109,8 @@ export default {
     data() {
         return {
             //IF LOCAL TESTED USE THIS URL FOR THE API CALLS
-            url: 'http://localhost:3001/',
-            // url: 'https://mycargonaut.onrender.com/',
+            //url: 'http://localhost:3001/',
+             url: 'https://mycargonaut.onrender.com/',
             offer: {
                 driverId: 0,
                 vehicleId: 0,
@@ -132,7 +132,7 @@ export default {
     methods: {
         async validate () {
         const { valid } = await this.$refs.form.validate()
-        if (valid) return true 
+        if (valid) return true
         else return false
       },
         getCars(){

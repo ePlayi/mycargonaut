@@ -77,7 +77,7 @@
           <div>
             <p></p>
           </div>
-          
+
           <b style="color: red">Lassen Sie diesen Screen aktiv, damit die Position getrackt werden kann</b>
         </v-card-text>
           <v-btn
@@ -113,7 +113,7 @@
           ></v-select>
         </v-card-text>
       </v-card>
-      
+
       <v-card rounded="4" class="my-8" v-if="accepted.length>0">
         <v-card-title>
           Wähle eine Fahrt aus, die du starten möchtest
@@ -164,7 +164,7 @@
       </v-card>
     </v-container>
   </div>
-  
+
 
 <!-- <div v-if="activeRide===false">
   <h3 class="text-center">Aktiv Trackbare Fahrten</h3>
@@ -217,8 +217,8 @@ export default {
   data() {
     return {
       //IF LOCAL TESTED USE THIS URL FOR THE API CALLS
-      url: 'http://localhost:3001/',
-      // url: 'https://mycargonaut.onrender.com/',
+      //url: 'http://localhost:3001/',
+       url: 'https://mycargonaut.onrender.com/',
 
       activeSelected:{},
       selectAccepted:null,

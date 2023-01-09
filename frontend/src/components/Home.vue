@@ -42,7 +42,7 @@
             <img class="card-img-top" src="../assets/images/undraw/car-image.svg" alt="Card image cap">
             <div class="card-body">
               <h5 class="card-title">Meine Fahrzeuge</h5>
-              <router-link to="/myVehicels" class="btn btn-primary">Ansehen</router-link>
+              <router-link to="/profile" class="btn btn-primary">Ansehen</router-link>
             </div>
           </div>
         </div>
