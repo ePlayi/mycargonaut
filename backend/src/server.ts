@@ -79,7 +79,9 @@ app.use('/', express.static(basedir + '/frontend/build'));
 // Get single ride
 app.get('/rides/:id', (req: Request, res: Response) => {
     // Create database query and id
-    const query: string = "SELECT * FROM Ride WHERE ride_id = ?"
+    // const query: string = "SELECT * FROM Ride WHERE ride_id = ?"
+   const query: string = " SELECT `Ride`.*, `Ride`.`ride_id`, `Vehicle`.* FROM `Ride` LEFT JOIN `Vehicle` ON `Ride`.`vehicle_id` = `Vehicle`.`vehicle_id` WHERE ride_id = ?"
+
 
     database.query(query, req.params.id, (err: MysqlError, rows: any[]) => {
         if (err) {
@@ -93,6 +95,9 @@ app.get('/rides/:id', (req: Request, res: Response) => {
                     rideId: rows[0].ride_id,
                     driverId: rows[0].driver_id,
                     vehicleId: rows[0].vehicle_id,
+                    vehicleImage: rows[0].car_image,
+                    vehicleSeats: rows[0].seats,
+                    vehicleStorage: rows[0].storage,
                     start: rows[0].start,
                     destination: rows[0].destination,
                     dateTime: rows[0].dateTime,
@@ -121,6 +126,7 @@ app.get('/rides', (req: Request, res: Response) => {
     // Create database query
     const query: string = "SELECT `Ride`.*, `User`.* FROM `Ride` LEFT JOIN `User` ON `Ride`.`driver_id` = `User`.`user_id`;"
 
+
     database.query(query, (err: MysqlError, rows: any[]) => {
         if (err) {
             // Database operation has failed
@@ -132,7 +138,6 @@ app.get('/rides', (req: Request, res: Response) => {
                 rideId: row.ride_id,
                 driverId: row.driver_id,
                 vehicleId: row.vehicle_id,
-                vehicleImage: row.car_image,
                 start: row.start,
                 destination: row.destination,
                 dateTime: row.dateTime,
@@ -142,7 +147,7 @@ app.get('/rides', (req: Request, res: Response) => {
                 posLongitude: row.pos_long,
                 posLatitude: row.pos_lat,
                 driverImage: row.profile_picture,
-                driverName: row.first_name+' '+row.last_name
+                driverName: row.first_name+' '+row.last_name,
             });
 
             res.status(200).send({

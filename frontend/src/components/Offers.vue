@@ -8,7 +8,7 @@
             <v-col class="offer-card-col" cols="12" md="4">
               <router-link :to="{ name: 'profile', query: {id: ride.driverId }}">
                 <img
-                :src="ride.driverImage"
+                    :src="ride.driverImage"
                 style="width: 100px; height: 100px; border-radius: 50%;"
                 class="ma-4">
               </router-link>
@@ -36,8 +36,19 @@
           {{dialog.ride.description}}
         </v-card-text>
         <v-card-text>
-          <h5>Fahrzeug</h5>
-          {{dialog.ride.vehicleImage}}
+          <h5>Fahrzeug-Infos</h5>
+          <v-col class="offer-card-col" cols="12" md="2">
+            <h4>Preis: {{dialog.ride.price}}</h4>
+          </v-col>
+          <v-col class="offer-card-col" cols="12" md="2">
+            <h4>Sitzplätze: {{dialog.ride.vehicleSeats}}</h4>
+          </v-col>
+          <v-col class="offer-card-col" cols="12" md="2">
+            <h4>Volumen: {{dialog.ride.vehicleStorage}}</h4>
+          </v-col>
+          <v-col class="offer-card-col" cols="12" md="2">
+            <h4>Bild: {{dialog.ride.vehicleImage}}</h4>
+          </v-col>
         </v-card-text>
         <v-card-actions>
           <v-btn color="green" :disabled="dialog.ride.driverId === this.user.uId" @click="bookOrder(dialog.ride.rideId, dialog.ride.price, dialog.ride.driverId)">Jetzt für {{ dialog.ride.price }} Coins buchen</v-btn>
@@ -66,11 +77,13 @@ export default {
       //url: 'https://mycargonaut.onrender.com/',
 
       rides: [],
+      singleRide: [],
     }
   },
   beforeMount() {
     this.getAllRides()
     this.getProfileInformation()
+    this.getSingleRide()
   },
   methods:{
     bookOrder(id, price, driverId){
@@ -126,6 +139,14 @@ export default {
           .then((response) => {
             this.rides=response.data.rideList
             console.log(this.rides)
+          })
+    },
+    getSingleRide(){
+      this.axios.get(this.url+'/rides',{
+      })
+          .then((response) => {
+            this.singleRide=response.data.ride
+            console.log(response.data)
           })
     },
   }

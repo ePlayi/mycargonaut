@@ -66,7 +66,8 @@ app.use('/', express.static(basedir + '/frontend/build'));
 // Get single ride
 app.get('/rides/:id', function (req, res) {
     // Create database query and id
-    var query = "SELECT * FROM Ride WHERE ride_id = ?";
+    // const query: string = "SELECT * FROM Ride WHERE ride_id = ?"
+    var query = " SELECT `Ride`.*, `Ride`.`ride_id`, `Vehicle`.* FROM `Ride` LEFT JOIN `Vehicle` ON `Ride`.`vehicle_id` = `Vehicle`.`vehicle_id` WHERE ride_id = ?";
     database.query(query, req.params.id, function (err, rows) {
         if (err) {
             // Database operation has failed
@@ -80,6 +81,9 @@ app.get('/rides/:id', function (req, res) {
                     rideId: rows[0].ride_id,
                     driverId: rows[0].driver_id,
                     vehicleId: rows[0].vehicle_id,
+                    vehicleImage: rows[0].car_image,
+                    vehicleSeats: rows[0].seats,
+                    vehicleStorage: rows[0].storage,
                     start: rows[0].start,
                     destination: rows[0].destination,
                     dateTime: rows[0].dateTime,
@@ -118,7 +122,6 @@ app.get('/rides', function (req, res) {
                 rideId: row.ride_id,
                 driverId: row.driver_id,
                 vehicleId: row.vehicle_id,
-                vehicleImage: row.car_image,
                 start: row.start,
                 destination: row.destination,
                 dateTime: row.dateTime,
@@ -128,7 +131,7 @@ app.get('/rides', function (req, res) {
                 posLongitude: row.pos_long,
                 posLatitude: row.pos_lat,
                 driverImage: row.profile_picture,
-                driverName: row.first_name + ' ' + row.last_name
+                driverName: row.first_name + ' ' + row.last_name,
             }; });
             res.status(200).send({
                 rideList: rideList,
