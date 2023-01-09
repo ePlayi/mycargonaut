@@ -76,8 +76,8 @@ export default {
         user:{},
       },
       //IF LOCAL TESTED USE THIS URL FOR THE API CALLS
-      url: 'http://localhost:3001/',
-      //url: 'https://mycargonaut.onrender.com/',
+      //url: 'http://localhost:3001/',
+      url: 'https://mycargonaut.onrender.com/',
 
       rides: [],
       singleRide: [],
