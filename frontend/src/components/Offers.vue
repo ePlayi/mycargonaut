@@ -1,4 +1,8 @@
 <template>
+
+    <h4 class="suche">Suche Fahrt:</h4>
+    <input class="suchen" id="suchenn">
+
     <v-container class="card-container">
         <v-card class="my-10" rounded="5" v-for="ride in rides" :key="ride">
           <v-row v-if="ride.open" no-gutters class="offer-card ma-8" justify="center" align="center" style=" word-break: break-word;">
@@ -16,7 +20,6 @@
               <section>
               Fahrer: {{ride.driverName}}
               </section>
-
             <v-col class="offer-card-col" cols="12" md="3">
               Abfahrt am {{ride.dateTime}}
             </v-col>
@@ -40,7 +43,11 @@
         </v-card-text>
         <v-card-text>
           <h5>Fahrzeug</h5>
-          {{dialog.ride.vehicleImage}}
+          <img
+              :src="dialog.ride.vehicleId.vehicleImage"
+              style="width: 100px; height: 100px; border-radius: 50%;"
+              class="ma-4">
+        <!--  {{dialog.ride.vehicleId.vehicleImage}}-->
         </v-card-text>
         <v-card-actions>
           <v-btn color="green" :disabled="dialog.ride.driverId === this.user.uId" @click="bookOrder(dialog.ride.rideId, dialog.ride.price, dialog.ride.driverId)">Jetzt für {{ dialog.ride.price }} Coins buchen</v-btn>
@@ -154,6 +161,14 @@ export default {
 }
 
 .dialog-card {
+}
+.suchen{
+  background-color: white;
+
+
+}
+.suche{
+  margin-top: 5%;
 }
 
 @media only screen and (max-width: 960px) {
