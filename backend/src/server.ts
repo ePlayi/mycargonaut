@@ -219,6 +219,7 @@ app.get('/rides', (req: Request, res: Response) => {
                 rideId: row.ride_id,
                 driverId: row.driver_id,
                 vehicleId: row.vehicle_id,
+                vehicleImage: row.car_image,
                 start: row.start,
                 destination: row.destination,
                 dateTime: row.dateTime,

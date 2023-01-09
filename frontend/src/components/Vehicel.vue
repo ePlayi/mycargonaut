@@ -45,62 +45,36 @@
                 </div>
               </div>
           </div>
-        <div class="col-md-3 col mb-3">
-          <div class="card" >
-            <div class="card-body">
 
-              <h5  class="card-title">Model: {{ cars.name }}</h5>
-              <div>
-                <img class="card-img-top" src="../assets/images/undraw/car-image.svg" alt="Card image cap">
-              </div>
-              <h6>Status:</h6>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3 col mb-3">
-          <div class="card" >
-            <div class="card-body">
-
-              <h4  class="card-title">Model: {{ cars.name }}</h4>
-              <div>
-                <img class="card-img-top" src="../assets/images/undraw/car-image.svg" alt="Card image cap">
-              </div>
-              <h6>Status:</h6>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3 col mb-3">
-          <div class="card" >
-            <div class="card-body">
-
-              <h5  class="card-title">Model: {{ cars.name }}</h5>
-              <div>
-                <img class="card-img-top" src="../assets/images/undraw/car-image.svg" alt="Card image cap">
-              </div>
-              <h6>Status:</h6>
-            </div>
-          </div>
-        </div>
     </div>
     </div>
   </section>
 -->
 
+    <h2 class="überschrift">Meine Fahrzeuge:</h2>
 
+<section>
   <div>
-    <button class="btn btn-success" @click="addCarModal=true">Hinzufügen</button>
-    <div v-for="car in cars" :key="car">
-      <div>
-        <p>Marke: {{car.brand}}</p>
-        <p>Model: {{car.model}}</p>
-        <p>Sitze: {{car.seats}}</p>
-        <p>Stauraum: {{car.storage}}</p>
+    <button class="btn btn-success" @click="addCarModal=true">Fahrzeug Hinzufügen</button>
+  </div>
+</section>
+
+<section>
+  <div>
+    <div v-for="car in cars" :key="car" class="card" id="carr">
+      <div class="card-body">
+        <p class="cardcontent">Marke: {{car.brand}}</p>
+        <p class="cardcontent">Model: {{car.model}}</p>
+        <p class="cardcontent">Sitze: {{car.seats}}</p>
+        <p class="cardcontent">Stauraum: {{car.storage}}</p>
         <img :src="car.carImage" width="200" height="100"><br>
         <button class="btn btn-warning" @click="openEditModal(car)">Bearbeiten</button>
       </div>
-
     </div>
   </div>
+
+</section>
+
 <!--MODAL TO EDIT CAR-->
   <Teleport to="body">
     <!-- use the modal component, pass in the prop -->
@@ -285,12 +259,13 @@ export default {
   .überschrift{
     font-weight: bold;
     margin-top: 5%;
+    margin-left: 2%;
   }
-  #Namee{
-    color: gray;
-
+  #carr{
+    max-width: 230px;
   }
-  #Statuss{
+  .cardcontent{
+    font-weight: normal;
     color: gray;
   }
 </style>
