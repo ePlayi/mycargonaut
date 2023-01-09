@@ -22,7 +22,6 @@
 
 
   <!--MODAL FOR SETTINGS-->
-
   <Teleport to="body">
     <!-- use the modal component, pass in the prop -->
     <modal :show="settingsModal" @close="settingsModal = false">
@@ -43,6 +42,9 @@
           <div class="col mb-5">
             <button class="btn btn-dark" @click="settingsModal=false; acceptDeclineModal=true">Anfragen</button>
           </div>
+          <div class="col mb-5">
+            <button class="btn btn-dark" @click="settingsModal=false; rateDriverModal=true">Anfragen</button>
+          </div>
         </div>
 
       </template>
@@ -52,6 +54,7 @@
       </template>
     </modal>
   </Teleport>
+
 <!--MODAL TO CHANGE PASSWORD-->
   <Teleport to="body">
     <!-- use the modal component, pass in the prop -->
@@ -101,6 +104,35 @@
     </modal>
   </Teleport>
 
+  <!--MODAL TO RATE DRIVER-->
+  <Teleport to="body">
+    <!-- use the modal component, pass in the prop -->
+    <modal :show="rateDriverModal" @close="rateDriverModal = false">
+      <template #header>
+        <p>Bewerten</p>
+        <button class="btn btn-secondary" style="text-align: right" @click="rateDriverModal = false;">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </template>
+      <template #body>
+        <select class="form-select" v-model="selectedBooking">
+          <option v-for="rate in rateables" :key="rate" :value="rate.bookingId">{{rate.driverName}} {{rateDriverId = rate.driverId}} : {{rate.start}}-{{rate.destination}}</option>
+        </select>
+        <div class="form-group">
+          <label for="ratingValinput">Rating</label>
+          <input type="number" class="form-control" id="ratingValinput" placeholder="Rating..."  v-model="ratingVal" min="1" max="5">
+        </div>
+        <div class="form-group">
+          <label for="ratingCommentInput">Kommentar</label>
+          <input type="text" class="form-control" id="ratingCommentInput" placeholder="Kommentar..."  v-model="ratingComment">
+        </div>
+      </template>
+      <template #footer>
+        <p></p>
+      </template>
+    </modal>
+  </Teleport>
+
 
 
 
@@ -118,11 +150,13 @@ export default {
   },
   beforeMount() {
     this.getRequests()
+    this.getRateable()
   },
   data() {
     return {
       settingsModal: false,
       changePassModal: false,
+      rateDriverModal: false,
 
       newPassword:"",
       newPasswordConfirm:"",
@@ -131,6 +165,12 @@ export default {
       acceptDeclineModal:false,
       price:0,
       offerer:0,
+
+      rateables:[],
+      selectedBooking:0,
+      rateDriverId:0,
+      ratingVal:0,
+      ratingComment:'',
 
 
 
@@ -141,6 +181,39 @@ export default {
     }
   },
   methods:{
+    sendRating(){
+      this.axios.request({
+        method: 'PUT',
+        url: this.url+'sendRating',
+        data: {
+          rating: this.ratingVal,
+          comment: this.ratingComment,
+          bookingId: this.selectedBooking,
+        }
+      })
+          .then(()=>{
+            this.getRateable()
+            this.updateDriverRating()
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+    },
+    updateDriverRating(){
+      this.axios.request({
+        method: 'PUT',
+        url: this.url+'updateUserRating',
+        data: {
+          driverId: this.rateDriverId,
+        }
+      })
+          .then((response)=>{
+            console.log(response.data)
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+    },
     changeStatusTo(status){
       this.axios.request({
         method: 'PUT',
@@ -185,6 +258,13 @@ export default {
       })
           .then((response) => {
             this.requests=response.data.requestList
+          })
+    },
+    getRateable(){
+      this.axios.get(this.url+'rateable',{
+      })
+          .then((response) => {
+            this.rateables=response.data.rateables
           })
     },
 

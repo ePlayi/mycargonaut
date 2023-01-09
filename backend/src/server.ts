@@ -513,6 +513,103 @@ app.delete('/bookings/:id', isLoggedIn(), (req: Request, res: Response) => {
 });
 
 /*****************************************************************************
+ * Routes for rating                                                         *
+ *****************************************************************************/
+
+// Get bookings where user can rate
+app.get('/rateable', (req: Request, res: Response) => {
+    // Create database query and id
+    const query: string = "SELECT `booking`.*, `booking`.`customer_id`, `booking`.`rating`, `booking`.`status`, `Ride`.*, User.* FROM `booking` LEFT JOIN `Ride` ON `booking`.`ride_id` = `Ride`.`ride_id` LEFT JOIN User ON Ride.driver_id = User.user_id WHERE `booking`.`customer_id` = ? AND `booking`.`rating`IS NULL AND `booking`.`status` = '5';"
+
+    database.query(query, req.session.user.uId, (err: MysqlError, rows: any[]) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            if (rows.length === 1) {
+                const rateables = rows.map(row => row = {
+                    bookingId : row.booking_id,
+                    rideId: row.ride_id,
+                    driverId: row.driver_id,
+                    start: row.start,
+                    destination: row.destionation,
+                    driverName: row.first_name + ' ' + row.last_name
+                });
+
+                res.status(200).send({
+                    rateables,
+                    message: 'Successfully requested Vehicle'
+                });
+            } else {
+                res.status(404).send({
+                    message: 'Cannot resolve Vehicle'
+                });
+            }
+        }
+    });
+});
+
+// Update booking comment and rating
+app.put('/sendRating', isLoggedIn(), (req: Request, res: Response) => {
+    // Create database query and data
+    const query: string = "UPDATE booking SET rating = ?, comment = ? WHERE booking_id = ?"
+    const { rating, comment, bookingId } = req.body
+    const data = [ rating, comment, bookingId ]
+
+    database.query(query, data, (err: MysqlError, rows: any) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            res.status(200).send({
+                message: 'Successfully updated Booking'
+            });
+        }
+    });
+});
+
+// Update user profile rating
+app.put('/updateUserRating', isLoggedIn(), (req: Request, res: Response) => {
+    // Create database query and data
+    //get avg where driver has a rating
+    const query: string = "SELECT AVG(booking.rating) AS avg, `booking`.*, `Ride`.`driver_id` FROM `booking` LEFT JOIN `Ride` ON `booking`.`ride_id` = `Ride`.`ride_id` WHERE Ride.driver_id = ?"
+    const driverId = req.body.driverId
+    database.query(query, driverId, (err: MysqlError, rows: any) => {
+        if (err) {
+            // Database operation has failed
+            res.status(500).send({
+                message: 'Database request failed: ' + err
+            });
+        } else {
+            //update user rating avg
+            const avg = rows[0].avg
+            const queryupdate : string = "UPDATE `User` SET `rating` = ? WHERE `User`.`user_id` = ?"
+            const data : [number, number] = [avg, driverId]
+            database.query(queryupdate, data, (err: MysqlError, rows: any) => {
+
+                if (err) {
+                    // Database operation has failed
+                    res.status(500).send({
+                        message: 'Database request failed: ' + err
+                    });
+                } else {
+                    res.status(200).send({
+                        message: 'Successfully update user rating'
+                    });
+                }
+            })
+        }
+    });
+});
+
+
+
+
+/*****************************************************************************
  * Routes for vehicles                                                       *
  *****************************************************************************/
 
