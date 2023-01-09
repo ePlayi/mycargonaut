@@ -38,9 +38,6 @@
       <v-card-text>
         <h5>Fahrzeug-Infos</h5>
         <v-col class="offer-card-col" cols="12" md="2">
-          <h4>Preis: {{dialog.ride.price}}</h4>
-        </v-col>
-        <v-col class="offer-card-col" cols="12" md="2">
           <h4>Sitzplätze: {{dialog.ride.vehicleSeats}}</h4>
         </v-col>
         <v-col class="offer-card-col" cols="12" md="2">
