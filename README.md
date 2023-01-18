@@ -1,4 +1,4 @@
-# MyCargonaut
+# MyCargonaut :)
 
 MyCargonaut ist ein Projekt, welches im Wintersemester 22/23 für das Modul "Konzepte Moderner Softwareentwicklung" aufgesetzt und entwickelt wurde. 
 
