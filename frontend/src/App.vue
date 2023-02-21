@@ -25,8 +25,8 @@
                         >
                         <v-text-field
                             v-model="loginname"
-                            label="E-Mail"
-                            type="email"
+                            label="Username"
+                            type="Username"
                             required
                         ></v-text-field>
                         </v-col>
