@@ -61,6 +61,11 @@
           <v-btn color="green" @click="dialog.open = true; dialog.ride = ride; getOffers()">Angebot ansehen</v-btn>
         </v-col>
       </v-row>
+      <v-row>
+        <v-col align-self="end">
+          <v-btn color="orange" @click="dialog.open = true; dialog.ride = ride; getOffers()">Angebot ansehen</v-btn>
+        </v-col>
+      </v-row>
     </v-card>
   </v-container>
 
@@ -230,7 +235,7 @@ export default {
 .offer-card{
   background-color: white;
   border-radius: 1rem;
-  max-height: 200px;
+  max-height: 400px;
 }
 
 .offer-card-col {
