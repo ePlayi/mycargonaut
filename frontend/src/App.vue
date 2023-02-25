@@ -114,6 +114,8 @@
                             <v-text-field
                                 v-model="register_profilepicture"
                                 label="Profilbild-URL"
+                                type="url"
+                                :rules="requiredRule"
                                 required
                             ></v-text-field>
                             </v-col>
@@ -124,6 +126,8 @@
                             <v-text-field
                                 v-model="register_loginname"
                                 label="Nutzername"
+                                type="text"
+                                :rules="requiredRule"
                                 required
                             ></v-text-field>
                             </v-col>
@@ -135,6 +139,8 @@
                             <v-text-field
                                 v-model="register_name"
                                 label="Vorname"
+                                type="text"
+                                :rules="requiredRule"
                                 required
                             ></v-text-field>
                             </v-col>
@@ -146,6 +152,8 @@
                             <v-text-field
                                 v-model="register_lastname"
                                 label="Nachname"
+                                type="text"
+                                :rules="requiredRule"
                                 required
                             ></v-text-field>
                             </v-col>
@@ -157,6 +165,8 @@
                             <v-text-field
                                 v-model="register_mail"
                                 label="E-Mail"
+                                type="email"
+                                :rules="requiredRule"
                                 required
                             ></v-text-field>
                             </v-col>
@@ -168,6 +178,8 @@
                             <v-text-field
                                 v-model="register_mobilenr"
                                 label="Handynummer"
+                                type="text"
+                                :rules="requiredRule"
                                 required
                             ></v-text-field>
                             </v-col>
@@ -179,6 +191,8 @@
                             <v-text-field
                                 v-model="register_password"
                                 label="Passwort"
+                                type="password"
+                                :rules="requiredRule"
                                 required
                             ></v-text-field>
                             </v-col>
@@ -190,6 +204,8 @@
                             <v-text-field
                                 v-model="register_confirmpassword"
                                 label="Passwort wiederholen"
+                                type="password"
+                                :rules="requiredRule"
                                 required
                             ></v-text-field>
                             </v-col>
@@ -204,7 +220,7 @@
                 elevation="0"
                 variant="outlined"
                 rounded="2"
-                @click="register(); register_component = false">
+                @click="register()">
                     Jetzt Registrieren
                 </v-btn>
             </v-card>
@@ -244,7 +260,9 @@ export default {
       register_mobilenr: "",
       //IF LOCAL TESTED USE THIS URL FOR THE API CALLS
       //url: 'http://localhost:3001/'
-      url: 'https://mycargonaut.onrender.com/'
+      url: 'https://mycargonaut.onrender.com/',
+
+      requiredRule: [v => !!v || 'This field is required'],
 
     }
   },
@@ -290,6 +308,7 @@ export default {
                   this.password=this.register_password
                   this.postLogin()
                   console.log("Worked")
+                  this.register_component = false
                 }
               })
               .catch(function (error) {

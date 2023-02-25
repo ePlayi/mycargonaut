@@ -7,10 +7,10 @@
             </v-card-title>
         </v-card>
 
-        <v-card rounded="4" v-if="cars.length!==0" class="my-8 content-card">
+        <v-card rounded="4" v-if="cars.length===0" class="my-8 content-card">
             <v-card-text align="center">
                 Du hast leider noch keine Autos registriert.
-                Unter <router-link to="profile">Meine Fahrzeuge</router-link> kannst du dein erstes Auto anlegen.
+                Bei deinem <router-link to="profile">Profil</router-link> kannst du dein erstes Auto anlegen.
             </v-card-text>
         </v-card>
 
@@ -80,13 +80,7 @@
                                 ></v-text-field>
                             </v-col>
                             <v-col cols="12" sm="6">
-                                <v-btn color="green" @click="createOffer()">Angebot machen</v-btn><v-btn
-                                    color="success"
-                                    class="mr-4"
-                                    @click="validate"
-                                    >
-                                    Validate
-                                    </v-btn>
+                                <v-btn color="green" @click="createOffer()">Angebot machen</v-btn>
                             </v-col>
                         </v-row>
                     </v-container>
