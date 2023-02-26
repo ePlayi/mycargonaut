@@ -25,8 +25,8 @@
                         >
                         <v-text-field
                             v-model="loginname"
-                            label="E-Mail"
-                            type="email"
+                            label="Username"
+                            type="Username"
                             required
                         ></v-text-field>
                         </v-col>
@@ -220,7 +220,7 @@
 </template>
 
 <script>
-import Navbar from "@/components/navbar";
+import Navbar from "@/components/Navbar";
 
 export default {
   name: 'App',
@@ -243,8 +243,8 @@ export default {
       register_mail: "",
       register_mobilenr: "",
       //IF LOCAL TESTED USE THIS URL FOR THE API CALLS
-      //url: 'http://localhost:3001/'
-      url: 'https://mycargonaut.onrender.com/'
+      url: 'http://localhost:3001/'
+      //url: 'https://mycargonaut.onrender.com/'
 
     }
   },

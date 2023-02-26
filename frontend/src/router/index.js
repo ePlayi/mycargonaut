@@ -8,8 +8,8 @@ import login from "@/components/Login";
 import register from "@/components/Register";
 import createOffer from "@/components/createOffer";
 
-import chats from "@/components/chats";
-import chat from "@/components/chat";
+import chats from "@/components/Chats";
+import chat from "@/components/Chat";
 
 
 
