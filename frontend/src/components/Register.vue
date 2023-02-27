@@ -23,6 +23,7 @@
                             <v-text-field
                                 v-model="registerForm.firstname.value"
                                 label="Vorname"
+                                type="text"
                                 required
                             ></v-text-field>
                             </v-col>
@@ -34,6 +35,7 @@
                             <v-text-field
                                 v-model="registerForm.lastname.value"
                                 label="Nachname"
+                                type="text"
                                 required
                             ></v-text-field>
                             </v-col>
@@ -45,6 +47,7 @@
                             <v-text-field
                                 v-model="registerForm.email.value"
                                 label="E-Mail"
+                                type="email"
                                 required
                             ></v-text-field>
                             </v-col>
@@ -56,6 +59,7 @@
                             <v-text-field
                                 v-model="registerForm.birthday.value"
                                 label="Geburtsdatum"
+                                type="text"
                                 required
                             ></v-text-field>
                             </v-col>
@@ -67,6 +71,7 @@
                             <v-text-field
                                 v-model="registerForm.password.value"
                                 label="Passwort"
+                                type="password"
                                 required
                             ></v-text-field>
                             </v-col>
@@ -78,6 +83,7 @@
                             <v-text-field
                                 v-model="passwordRepeat"
                                 label="Passwort wiederholen"
+                                type="password"
                                 required
                             ></v-text-field>
                             </v-col>

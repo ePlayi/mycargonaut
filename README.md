@@ -381,6 +381,7 @@ Rating
 1. Zunächst muss das Repo mit `git clone https://github.com/ePlayi/mycargonaut.git` oder `git clone git@github.com:ePlayi/mycargonaut.git` geklont werden
 2. Man muss in den `frontend` Ordner gehen und alle nötigen Dependencies mit `npm install` installieren
 3. Im gleichen Ordner muss `npm run build` aufgerufen werden, damit das Frontend gebaut wird und zur Verfügung steht
+    - Hier muss man sichergehen, dass in den nötigen Components localhost als url spezifiziert ist. In VSC kann man das einfach mit STRG (Command) + Shift + F überprüfen: Man kann in allen Dateien nach 'localhost' suchen, hier aber darauf achten nur in den .vue-Dateien die URL zu ändern
 4. Jetzt muss man in den Ordner `backend/src` gehen und mit `node server.js` den Server starten
     - Hier ist es ratsam nach einem Pull den Server neu zu compilen. Das macht man mit `tsc server.ts`, was eine neue `server.js` generiert
 5. Jetzt kann man das Projekt lokal unter `localhost:3001` aufrufen.
