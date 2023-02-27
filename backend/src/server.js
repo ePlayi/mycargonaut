@@ -44,17 +44,17 @@ app.use(express.json());
  *****************************************************************************/
 app.use(session({
     // save session even if not modified
-    resave: true,
+    //resave: true,
     // save session even if not used
-    saveUninitialized: true,
+    //saveUninitialized: true,
     // forces cookie set on every response needed to set expiration (maxAge)
-    rolling: true,
+    //rolling: true,
     // encrypt session-id in cookie using "secret" as modifier
     secret: "geheim",
     // name of the cookie set is set by the server
     name: "mySessionCookie",
     // set some cookie-attributes. Here expiration-date (offset in ms)
-    cookie: { maxAge: 1000 * 60 * 60 * 24, secure: true }
+    //cookie: { maxAge: 1000 * 60 * 60 * 24, secure: true}
 }));
 /*****************************************************************************
  * STATIC ROUTES                                                             *
@@ -819,7 +819,8 @@ app.get('/requestedRides', isLoggedIn(), function (req, res) {
                 start: row.start,
                 destination: row.destination,
                 price: row.price,
-                customerName: row.first_name + ' ' + row.last_name
+                customerName: row.first_name + ' ' + row.last_name,
+                customerImage: row.profile_picture
             }; });
             res.status(200).send({
                 requestList: requestList,

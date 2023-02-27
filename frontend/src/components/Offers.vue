@@ -57,10 +57,15 @@
         <v-col class="offer-card-col" cols="12" md="2">
           <h4>Preis: {{ride.price}} Coins</h4>
         </v-col>
-        <v-col class="offer-card-col" cols="12" md="3">
-          <v-btn color="green" @click="dialog.open = true; dialog.ride = ride; getOffers()">Angebot ansehen</v-btn>
-        </v-col>
-      </v-row>
+          <v-col align-self="end">
+            <v-btn color="green" @click="dialog.open = true; dialog.ride = ride; getOffers()">Angebot ansehen</v-btn>
+          </v-col>
+        </v-row>
+        <v-row v-if="ride.open" no-gutters style=" word-break: break-word">
+          <v-col align-self="end">
+            <v-btn color="orange" @click="dialog_requests.open = true; dialog_requests.ride = ride; getOffers()">Buchungsanfragen</v-btn>
+          </v-col>
+        </v-row>
     </v-card>
   </v-container>
 
@@ -97,6 +102,68 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+
+  <v-dialog
+      v-model="dialog_requests.open"
+      width="500">
+    <v-card class="dialog-card">
+      <v-card-text>
+        <h5>Buchungsanfrage:</h5>
+        <h2>{{dialog_requests.ride.start}} &#8594; {{dialog_requests.ride.destination}}</h2>
+        <p v-if="dialog_requests.ride.description">{{dialog_requests.ride.description}}</p>
+        <p v-else>Der Fahrer hat keine Beschreibung angegeben.</p>
+        <hr>
+        <v-card class="offer-card my-10" rounded="5" v-for="request in requests" :key="request" :value="request.bookingId" justify="center" align="center">
+          <v-row justify="center" align="center">
+            <v-col class="offer-card-col" cols="12" md="4">
+              <router-link :to="{ name: 'profile', query: {id: request.customerId }}">
+                <img
+                    :src="request.customerImage"
+                    style="width: 100px; height: 100px; border-radius: 50%;"
+                    class="ma-4">
+              </router-link>
+            </v-col>
+            <v-col class="offer-card-col" cols="12" md="4">
+              {{request.customerName}}
+            </v-col>
+          </v-row>
+            <v-row justify="center" align="center">
+            <v-col class="offer-card-col" cols="12" md="4">
+              <button class="btn btn-success" @click="changeStatusTo(2)">Annehmen</button>
+              <button class="btn btn-warning" @click="changeStatusTo(3)">Ablehnen</button>
+            </v-col>
+          </v-row>
+        </v-card>
+        <hr>
+      </v-card-text>
+      <v-card-actions>
+        <v-btn color="red" @click="dialog_requests.open = false;">Schließen</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!--MODAL TO SEND MESSAGE-->
+  <Teleport to="body">
+    <!-- use the modal component, pass in the prop -->
+    <modal :show="openMsgModal" @close="openMsgModal = false">
+      <template #header>
+        <p>Nachricht senden</p>
+        <button class="btn btn-secondary" style="text-align: right" @click="openMsgModal = false;">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </template>
+      <template #body>
+        <div class="form-group">
+          <label for="newMessage">Ihre Nachricht</label>
+          <input type="text" class="form-control" id="newMessage" placeholder="Nachricht..." v-model="newMessage">
+
+        </div>
+      </template>
+      <template #footer>
+        <button type="button" class="btn btn-primary" @click="sendMessage()">Senden</button>
+      </template>
+    </modal>
+  </Teleport>
 </template>
 
 
@@ -113,13 +180,19 @@ export default {
         ride: null,
         user:{},
       },
+      dialog_requests: {
+        open: false,
+        ride: null,
+        user:{},
+      },
       //IF LOCAL TESTED USE THIS URL FOR THE API CALLS
-      //url: 'http://localhost:3001/',
-      url: 'https://mycargonaut.onrender.com/',
+      url: 'http://localhost:3001/',
+      //url: 'https://mycargonaut.onrender.com/',
 
       rides: [],
       filteredRides: [],
       singleRide: [],
+      requests: [],
       search: {
         city: "",
         seats: "",
@@ -129,12 +202,16 @@ export default {
       booking_rideIds:[],
       sliderSeats: 50,
       possibleSeats: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10+'],
+      otherProfile:false,
+      openMsgModal:false,
+      newMessage:'',
     }
   },
   beforeMount() {
     this.getAllRides()
     this.getProfileInformation()
     this.getBookedRides()
+    this.getRequests()
   },
   methods:{
     filterRides() {
@@ -191,6 +268,7 @@ export default {
       })
           .then((response) => {
             this.user=response.data.user
+            this.otherProfile=true
             console.log(this.user)
           })
     },
@@ -199,6 +277,13 @@ export default {
       })
           .then((response) => {
             this.booking_rideIds=response.data.booking_rideIds
+          })
+    },
+    getRequests(){
+      this.axios.get(this.url+'requestedRides',{
+      })
+          .then((response) => {
+            this.requests=response.data.requestList
           })
     },
     getAllRides(){
@@ -218,6 +303,50 @@ export default {
             console.log(response.data)
           })
     },
+    changeStatusTo(status){
+      this.axios.request({
+        method: 'PUT',
+        url: this.url+'changeStatusRide',
+        data: {
+          rideid: this.activeSelected,
+          changeTo: status
+        }
+      })
+          .then((response)=>{
+            if (response.data.changedTo===3){
+              this.updateCurrency()
+            }else{
+              alert("Fahrt angenommen")
+              this.getRequests()
+            }
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+    },
+    sendMessage(){
+      if(this.newMessage!==''){
+        this.axios.request({
+          method: 'POST',
+          url: this.url+'chat',
+          data: {
+            message: this.newMessage,
+            sessionId: '',
+            receiverId: this.user.uId
+
+          },
+        })
+            .then(response => {
+              console.log(response.data)
+            })
+            .catch(function (error) {
+              console.log(error);
+            });
+      }
+      else{
+        alert("Leere Nachricht blockiert")
+      }
+    },
   }
 }
 </script>
@@ -230,7 +359,7 @@ export default {
 .offer-card{
   background-color: white;
   border-radius: 1rem;
-  max-height: 200px;
+  max-height: 400px;
 }
 
 .offer-card-col {
